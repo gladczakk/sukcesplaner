@@ -1,0 +1,135 @@
+/* SukcesPlaner design tokens — generated from tokens.json. Do not hand-edit values here; change tokens.json. */
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Figtree:wght@400..700&display=swap');
+
+:root {
+  color-scheme: light;
+  --bg: #F4F4EE;
+  --surface: #FBFBF7;
+  --river: #E2E3D7;
+  --line: #D5D7C8;
+  --ink: #23271F;
+  --ink-muted: #5E6355;
+  --jojoba: #7F8770;
+  --jojoba-strong: #6B7360;
+  --jojoba-hover: #5E6655;
+  --on-jojoba: #FFFFFF;
+  --jojoba-soft: #E6E9DE;
+  --jojoba-ink: #4E5544;
+  --kensington: #95B1AE;
+  --kensington-soft: #E1EBEA;
+  --kensington-ink: #3F5E5A;
+  --ochre: #BB7940;
+  --ochre-soft: #F3E4D3;
+  --ochre-ink: #7A4A1E;
+  --brick: #814C3E;
+  --on-brick: #FFFFFF;
+  --brick-soft: #F1E2DD;
+  --brick-ink: #814C3E;
+  --focus: var(--kensington-ink);
+  --project-sage: var(--jojoba);
+  --project-kensington: var(--kensington);
+  --project-ochre: var(--ochre);
+  --project-brick: var(--brick);
+  --project-teal: #4F6F6B;
+  --project-sand: #C9B48A;
+  --shadow-card: 0 1px 2px rgba(35,39,31,0.06), 0 1px 1px rgba(35,39,31,0.04);
+  --shadow-pop: 0 8px 24px rgba(35,39,31,0.12);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+  --font-serif: Newsreader, "Times New Roman", Times, serif;
+  --font-sans: Figtree, ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+
+/* Dark: follows the OS unless the user forced light */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #191C17;
+    --surface: #22261F;
+    --river: #2C3128;
+    --line: #3A4034;
+    --ink: #E2E3D7;
+    --ink-muted: #A6AB98;
+    --jojoba: #A3AB92;
+    --jojoba-strong: #A3AB92;
+    --jojoba-hover: #B6BDA6;
+    --on-jojoba: #191C17;
+    --jojoba-soft: #2A2F25;
+    --jojoba-ink: #C3CAB2;
+    --kensington: #95B1AE;
+    --kensington-soft: #22312F;
+    --kensington-ink: #B9D0CD;
+    --ochre: #D39A63;
+    --ochre-soft: #3A2A1B;
+    --ochre-ink: #E2B88E;
+    --brick: #C27C6A;
+    --on-brick: #191C17;
+    --brick-soft: #3B231D;
+    --brick-ink: #E0A595;
+    --focus: var(--kensington-ink);
+    --project-sage: var(--jojoba);
+    --project-kensington: var(--kensington);
+    --project-ochre: var(--ochre);
+    --project-brick: var(--brick);
+    --project-teal: #7FA19C;
+    --project-sand: #C9B48A;
+    --shadow-card: 0 1px 2px rgba(0,0,0,0.4);
+    --shadow-pop: 0 8px 24px rgba(0,0,0,0.5);
+  }
+}
+
+/* Dark: explicit user choice */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #191C17;
+  --surface: #22261F;
+  --river: #2C3128;
+  --line: #3A4034;
+  --ink: #E2E3D7;
+  --ink-muted: #A6AB98;
+  --jojoba: #A3AB92;
+  --jojoba-strong: #A3AB92;
+  --jojoba-hover: #B6BDA6;
+  --on-jojoba: #191C17;
+  --jojoba-soft: #2A2F25;
+  --jojoba-ink: #C3CAB2;
+  --kensington: #95B1AE;
+  --kensington-soft: #22312F;
+  --kensington-ink: #B9D0CD;
+  --ochre: #D39A63;
+  --ochre-soft: #3A2A1B;
+  --ochre-ink: #E2B88E;
+  --brick: #C27C6A;
+  --on-brick: #191C17;
+  --brick-soft: #3B231D;
+  --brick-ink: #E0A595;
+  --focus: var(--kensington-ink);
+  --project-sage: var(--jojoba);
+  --project-kensington: var(--kensington);
+  --project-ochre: var(--ochre);
+  --project-brick: var(--brick);
+  --project-teal: #7FA19C;
+  --project-sand: #C9B48A;
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-pop: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+/* Type styles */
+.type-display { font-family: var(--font-serif); font-size: 40px; line-height: 44px; font-weight: 500; letter-spacing: -0.01em; font-variation-settings: 'opsz' 48; }
+.type-title { font-family: var(--font-serif); font-size: 28px; line-height: 34px; font-weight: 500; font-variation-settings: 'opsz' 32; }
+.type-section { font-family: var(--font-serif); font-size: 20px; line-height: 26px; font-weight: 600; font-variation-settings: 'opsz' 20; }
+.type-quote { font-family: var(--font-serif); font-size: 17px; line-height: 24px; font-weight: 400; font-style: italic; font-variation-settings: 'opsz' 16; }
+.type-task { font-family: var(--font-sans); font-size: 16px; line-height: 22px; font-weight: 500; }
+.type-body { font-family: var(--font-sans); font-size: 15px; line-height: 22px; font-weight: 400; }
+.type-meta { font-family: var(--font-sans); font-size: 13px; line-height: 18px; font-weight: 400; }
+.type-button { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 600; }
+.type-eyebrow { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }

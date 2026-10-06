@@ -53,6 +53,16 @@ Full server-side rendering (`output: "server"` in astro.config.mjs). All pages a
 ## CI
 
 GitHub Actions workflow (`.github/workflows/ci.yml`) runs lint + build on every push and PR to master. Requires `SUPABASE_URL` and `SUPABASE_KEY` repository secrets for the build step.
+
+## UI and design system
+
+- **Spec**: `context/foundation/design-system/design-system.md` — read it before any UI work. References and screenshots are in the same folder. UI copy is Polish (`<html lang="pl">`).
+- **Token source**: `src/styles/global.css` — `:root` / `.dark` hold the values, `@theme inline` publishes them. Add a missing value to both blocks (and to `tokens/tokens.json` in the design-system folder); never put raw colours inside `@theme inline`.
+- **Components**: `src/components/ui/`. Check it before creating a component; add shadcn ones with `npx shadcn@latest add <name>`. No second `Button`, no second `shadcn init`.
+- **No literals in views**: no hex/rgb/oklch colours, Tailwind palette classes (`bg-green-700`) or arbitrary values (`p-[13px]`). Use token classes (`bg-card`, `text-muted-foreground`, `rounded-pill`, `type-display`).
+- **Dark mode** is the `.dark` class on `<html>` (set in `src/layouts/Layout.astro`). Change it at the token layer only, not in component classes.
+- **Visual changes** go through `/10x-ui` (one view plus global tokens per change).
+
 <!-- BEGIN @przeprogramowani/10x-cli -->
 
 ## Zestaw narzędzi AI 10xDevs — Moduł 2, Lekcja 3
