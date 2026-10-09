@@ -268,12 +268,12 @@ Brak istniejących danych ani migracji — to pierwsza migracja projektu. Wypchn
 
 #### Automated
 
-- [x] 3.1 Typy wygenerowane do `src/db/database.types.ts` i zawierają trzy tabele
-- [x] 3.2 Linting przechodzi: `npm run lint`
-- [x] 3.3 Sprawdzanie typów przechodzi: `npx astro check`
-- [x] 3.4 Build przechodzi: `npm run build`
-- [x] 3.5 Smoke auth przechodzi na uruchomionym serwerze: `npm run smoke`
+- [x] 3.1 Typy wygenerowane do `src/db/database.types.ts` i zawierają trzy tabele — ef1cfd6
+- [x] 3.2 Linting przechodzi: `npm run lint` — ef1cfd6
+- [x] 3.3 Sprawdzanie typów przechodzi: `npx astro check` — ef1cfd6
+- [x] 3.4 Build przechodzi: `npm run build` — ef1cfd6
+- [x] 3.5 Smoke auth przechodzi na uruchomionym serwerze: `npm run smoke` — ef1cfd6
 
 #### Manual
 
-- [x] 3.6 `src/types.ts` eksportuje `Project`, `Milestone`, `Task`, warianty Insert/Update, `LifeArea` i `TaskStatus` zgodne z potrzebami S-01..S-06
+- [x] 3.6 `src/types.ts` eksportuje `Project`, `Milestone`, `Task`, warianty Insert/Update, `LifeArea` i `TaskStatus` zgodne z potrzebami S-01..S-06 — ef1cfd6
