@@ -3,7 +3,7 @@ project: SukcesPlaner
 version: 1
 status: draft
 created: 2026-09-24
-updated: 2026-09-24
+updated: 2026-10-09
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -41,7 +41,7 @@ Osoby żonglujące kilkoma równoległymi, długoterminowymi projektami z różn
 
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 | --- | --- | --- | --- | --- | --- |
-| F-01 | core-domain-schema | (foundation) tabele projects/milestones/tasks + RLS istnieją w Supabase | — | FR-003, FR-005, Access Control | ready |
+| F-01 | core-domain-schema | (foundation) tabele projects/milestones/tasks + RLS istnieją w Supabase | — | FR-003, FR-005, Access Control | in-progress |
 | S-01 | project-crud | tworzyć/edytować/usuwać projekt (nazwa, termin, opis, obszar życia) | F-01, istniejący przepływ logowania (baseline: present) | FR-001, FR-002, FR-003 | proposed |
 | S-02 | milestone-crud | dodawać/edytować/usuwać milestony projektu z obowiązkową datą | S-01 | FR-004, FR-005 | proposed |
 | S-03 | task-crud | dodawać/edytować/usuwać zadania w ramach milestona | S-02 | FR-006, FR-007 | proposed |
@@ -74,7 +74,7 @@ Foundations poniżej zakładają, że to jest na miejscu i NIE odtwarzają tego 
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Schemat i reguły kaskadowego usuwania muszą być poprawne od razu — błąd tutaj propaguje się do każdego wycinka, który go konsumuje. Sekwencjonowany jako pierwszy, zanim jakikolwiek CRUD ruszy.
-- **Status:** ready
+- **Status:** in-progress
 
 ## Slices
 
