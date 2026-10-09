@@ -385,15 +385,15 @@ Brak migracji bazy. Wdrożenie wymaga wcześniej ręcznego `supabase db push` ob
 
 #### Automated
 
-- [x] 3.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [x] 3.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [x] 3.3 Build przechodzi: `npm run build`
-- [x] 3.4 Smoke przechodzi, w tym nowe kroki stron i redirect po zalogowaniu: `npm run smoke`
+- [x] 3.1 Lint zmienionych plików bez błędów (`endOfLine: auto`) — f3de357
+- [x] 3.2 Sprawdzanie typów przechodzi: `npx astro check` — f3de357
+- [x] 3.3 Build przechodzi: `npm run build` — f3de357
+- [x] 3.4 Smoke przechodzi, w tym nowe kroki stron i redirect po zalogowaniu: `npm run smoke` — f3de357
 
 #### Manual
 
-- [x] 3.5 Pełny przepływ w przeglądarce: logowanie, lista, dodanie, edycja, usunięcie
-- [x] 3.6 Walidacja pokazuje polskie błędy przy polach, a dialog pozostaje otwarty
-- [x] 3.7 Reguła terminu: polski komunikat przy polu terminu i liczniki z poprawną odmianą w dialogu usuwania
-- [x] 3.8 Wygląd i dostępność: jasny i ciemny motyw, 390 px i 1280 px, fokus na „Anuluj", Esc, zgodność z referencją
-- [x] 3.9 Niezalogowany użytkownik na `/projects` trafia na logowanie, a po zalogowaniu na `/projects`
+- [x] 3.5 Pełny przepływ w przeglądarce: logowanie, lista, dodanie, edycja, usunięcie — f3de357
+- [x] 3.6 Walidacja pokazuje polskie błędy przy polach, a dialog pozostaje otwarty — f3de357
+- [x] 3.7 Reguła terminu: polski komunikat przy polu terminu i liczniki z poprawną odmianą w dialogu usuwania — f3de357
+- [x] 3.8 Wygląd i dostępność: jasny i ciemny motyw, 390 px i 1280 px, fokus na „Anuluj", Esc, zgodność z referencją — f3de357
+- [x] 3.9 Niezalogowany użytkownik na `/projects` trafia na logowanie, a po zalogowaniu na `/projects` — f3de357

@@ -1,7 +1,7 @@
 ---
 change_id: project-crud
 title: Project crud
-status: implementing
+status: implemented
 created: 2026-10-09
 updated: 2026-10-09
 archived_at: null
