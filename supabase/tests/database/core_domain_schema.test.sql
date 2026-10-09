@@ -85,7 +85,9 @@ select lives_ok(
 select throws_ok(
   $$insert into public.milestones (user_id, project_id, name, due_date)
     values ('00000000-0000-0000-0000-0000000000a1', '10000000-0000-0000-0000-000000000001', 'po terminie', '2027-01-01')$$,
-  '23514', null, 'milestone po terminie projektu odrzucony');
+  '23514',
+  'Data milestona (2027-01-01) nie moze byc pozniejsza niz termin projektu (2026-12-31)',
+  'milestone po terminie projektu odrzucony (komunikat jest kontraktem z aplikacja)');
 
 select lives_ok(
   $$insert into public.milestones (id, user_id, project_id, name, due_date)
@@ -100,7 +102,9 @@ select throws_ok(
 select throws_ok(
   $$update public.projects set due_date = '2026-11-15'
     where id = '10000000-0000-0000-0000-000000000001'$$,
-  '23514', null, 'skrocenie terminu projektu ponizej milestona odrzucone');
+  '23514',
+  'Termin projektu (2026-11-15) nie moze byc wczesniejszy niz data istniejacego milestona',
+  'skrocenie terminu projektu ponizej milestona odrzucone (komunikat jest kontraktem z aplikacja)');
 
 select lives_ok(
   $$update public.projects set due_date = '2026-12-31'
