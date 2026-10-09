@@ -5,7 +5,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(58);
+select plan(61);
 
 -- Uzytkownicy testowi
 insert into auth.users (id, aud, role, email)
@@ -262,6 +262,11 @@ select throws_ok(
   '42501', null, 'anon nie usuwa z tasks');
 
 reset role;
+
+-- Uprawnienia tabelaryczne authenticated: bez TRUNCATE (omija RLS)
+select ok(not has_table_privilege('authenticated', 'public.projects', 'TRUNCATE'), 'authenticated nie ma TRUNCATE na projects');
+select ok(not has_table_privilege('authenticated', 'public.milestones', 'TRUNCATE'), 'authenticated nie ma TRUNCATE na milestones');
+select ok(not has_table_privilege('authenticated', 'public.tasks', 'TRUNCATE'), 'authenticated nie ma TRUNCATE na tasks');
 
 select * from finish();
 rollback;

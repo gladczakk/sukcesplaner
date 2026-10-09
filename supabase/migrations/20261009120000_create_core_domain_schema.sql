@@ -17,6 +17,8 @@ create table public.projects (
   constraint projects_id_user_id_key unique (id, user_id)
 );
 
+create index projects_user_id_due_idx on public.projects (user_id, due_date);
+
 create table public.milestones (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
@@ -34,6 +36,7 @@ create table public.milestones (
 );
 
 create index milestones_project_due_seq_idx on public.milestones (project_id, due_date, seq);
+create index milestones_user_id_idx on public.milestones (user_id);
 
 create table public.tasks (
   id uuid primary key default gen_random_uuid(),
@@ -50,6 +53,7 @@ create table public.tasks (
 );
 
 create index tasks_milestone_id_idx on public.tasks (milestone_id);
+create index tasks_user_id_idx on public.tasks (user_id);
 
 -- ---------------------------------------------------------------------------
 -- Trigger updated_at
@@ -91,9 +95,11 @@ as $$
 declare
   project_due_date date;
 begin
+  -- for share: rownolegla zmiana terminu projektu czeka na commit tego milestona (i odwrotnie)
   select p.due_date into project_due_date
   from public.projects p
-  where p.id = new.project_id;
+  where p.id = new.project_id
+  for share;
 
   -- Brak projektu zglosi klucz obcy.
   if project_due_date is not null and new.due_date > project_due_date then

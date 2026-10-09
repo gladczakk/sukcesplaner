@@ -10,7 +10,8 @@ alter table public.tasks enable row level security;
 -- Uprawnienia tabelaryczne (jawnie, bez polegania na domyslnych uprawnieniach Supabase)
 -- ---------------------------------------------------------------------------
 
-revoke all on public.projects, public.milestones, public.tasks from anon;
+-- Supabase domyslnie nadaje authenticated takze TRUNCATE/REFERENCES/TRIGGER (TRUNCATE omija RLS) - odbieramy wszystko i nadajemy tylko 4 operacje.
+revoke all on public.projects, public.milestones, public.tasks from anon, authenticated;
 
 grant select, insert, update, delete on public.projects, public.milestones, public.tasks to authenticated;
 
