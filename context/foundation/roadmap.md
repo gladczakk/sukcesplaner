@@ -42,7 +42,7 @@ Osoby żonglujące kilkoma równoległymi, długoterminowymi projektami z różn
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 | --- | --- | --- | --- | --- | --- |
 | F-01 | core-domain-schema | (foundation) tabele projects/milestones/tasks + RLS istnieją w Supabase | — | FR-003, FR-005, Access Control | in-progress |
-| S-01 | project-crud | tworzyć/edytować/usuwać projekt (nazwa, termin, opis, obszar życia) | F-01, istniejący przepływ logowania (baseline: present) | FR-001, FR-002, FR-003 | proposed |
+| S-01 | project-crud | tworzyć/edytować/usuwać projekt (nazwa, termin, opis, obszar życia) | F-01, istniejący przepływ logowania (baseline: present) | FR-001, FR-002, FR-003 | in-progress |
 | S-02 | milestone-crud | dodawać/edytować/usuwać milestony projektu z obowiązkową datą | S-01 | FR-004, FR-005 | proposed |
 | S-03 | task-crud | dodawać/edytować/usuwać zadania w ramach milestona | S-02 | FR-006, FR-007 | proposed |
 | S-04 | today-list-view | zobaczyć automatycznie wygenerowaną listę zadań na dziś ze wszystkich projektów | S-01, S-02, S-03 | US-01, FR-009, FR-010 | proposed |
@@ -88,7 +88,7 @@ Foundations poniżej zakładają, że to jest na miejscu i NIE odtwarzają tego 
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Musi powstać przed czymkolwiek innym — milestony i zadania wymagają istniejącego projektu; opóźnienie tutaj opóźnia cały łańcuch.
-- **Status:** proposed
+- **Status:** in-progress
 
 ### S-02: Zarządzanie milestonami
 
