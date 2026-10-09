@@ -242,25 +242,25 @@ Brak istniejących danych ani migracji — to pierwsza migracja projektu. Wypchn
 
 #### Automated
 
-- [x] 1.1 Lokalny Supabase startuje: `npx supabase start`
-- [x] 1.2 Migracja aplikuje się czysto od zera: `npx supabase db reset`
-- [x] 1.3 Testy schematu przechodzą: `npx supabase test db`
+- [x] 1.1 Lokalny Supabase startuje: `npx supabase start` — 8d63196
+- [x] 1.2 Migracja aplikuje się czysto od zera: `npx supabase db reset` — 8d63196
+- [x] 1.3 Testy schematu przechodzą: `npx supabase test db` — 8d63196
 
 #### Manual
 
-- [x] 1.4 W Supabase Studio widać tabele `projects`, `milestones`, `tasks` z oczekiwanymi kolumnami, kluczami obcymi (kaskady) i triggerami
+- [x] 1.4 W Supabase Studio widać tabele `projects`, `milestones`, `tasks` z oczekiwanymi kolumnami, kluczami obcymi (kaskady) i triggerami — 8d63196
 
 ### Phase 2: Row Level Security
 
 #### Automated
 
-- [ ] 2.1 Obie migracje aplikują się czysto od zera: `npx supabase db reset`
-- [ ] 2.2 Wszystkie testy (schemat + RLS) przechodzą: `npx supabase test db`
-- [ ] 2.3 Zapytanie REST z kluczem `anon` do `/rest/v1/projects` jest odrzucone (`permission denied`)
+- [x] 2.1 Obie migracje aplikują się czysto od zera: `npx supabase db reset`
+- [x] 2.2 Wszystkie testy (schemat + RLS) przechodzą: `npx supabase test db`
+- [x] 2.3 Zapytanie REST z kluczem `anon` do `/rest/v1/projects` jest odrzucone (`permission denied`)
 
 #### Manual
 
-- [ ] 2.4 W Studio każda z trzech tabel ma włączone RLS i cztery polityki (SELECT/INSERT/UPDATE/DELETE) dla roli `authenticated`
+- [x] 2.4 W Studio każda z trzech tabel ma włączone RLS i cztery polityki (SELECT/INSERT/UPDATE/DELETE) dla roli `authenticated`
 
 ### Phase 3: Typy i bramka jakości
 
