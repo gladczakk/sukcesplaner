@@ -9,6 +9,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 
@@ -24,6 +25,8 @@ interface ConfirmDialogProps {
   onConfirm: () => void;
   pending?: boolean;
   error?: string;
+  /** Element that opens the dialog; Radix returns focus to it when the dialog closes. */
+  trigger?: ReactNode;
 }
 
 /** Confirmation for destructive actions. Focus starts on "Anuluj" (Radix focuses the cancel button), Esc closes. */
@@ -36,16 +39,18 @@ export function ConfirmDialog({
   onConfirm,
   pending = false,
   error,
+  trigger,
 }: ConfirmDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
+      {trigger ? <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger> : null}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         {error ? (
-          <p className="type-meta text-destructive-ink flex items-center gap-1">
+          <p role="alert" className="type-meta text-destructive-ink flex items-center gap-1">
             <CircleAlert className="size-4 shrink-0" aria-hidden="true" />
             <span>
               <span className="font-semibold">Błąd:</span> {error}

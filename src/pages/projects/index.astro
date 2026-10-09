@@ -3,6 +3,7 @@ import AppLayout from "@/layouts/AppLayout.astro";
 import ProjectFormDialog from "@/components/projects/ProjectFormDialog";
 import { formatDate } from "@/lib/format";
 import { LIFE_AREA_LABELS } from "@/lib/life-areas";
+import { logError } from "@/lib/log";
 import { listProjects } from "@/lib/services/projects";
 import { createClient } from "@/lib/supabase";
 import type { Project } from "@/types";
@@ -18,7 +19,8 @@ if (!supabase) {
 } else {
   try {
     projects = await listProjects(supabase);
-  } catch {
+  } catch (error) {
+    logError("projects-list", error);
     unavailable = "Nie udało się wczytać projektów. Odśwież stronę za chwilę.";
   }
 }

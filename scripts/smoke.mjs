@@ -46,6 +46,7 @@ async function request(path, { method = "GET", form, json } = {}) {
 
 // Project API steps share the id of the project created in the "create succeeds" step.
 let projectId = "";
+let projectDeleted = false;
 const otherProjectId = "00000000-0000-4000-8000-000000000000";
 const validProject = { name: "Smoke project", description: "", life_area: "dom", due_date: "2099-12-31" };
 
@@ -59,7 +60,7 @@ const steps = [
   [
     "project API rejects anonymous user",
     () => request("/api/projects", { method: "POST", json: validProject }),
-    { status: 401 },
+    { status: 401, bodyEquals: { error: "Wymagane logowanie" } },
   ],
   [
     "signup creates account",
@@ -87,7 +88,7 @@ const steps = [
   [
     "project create rejects empty name",
     () => request("/api/projects", { method: "POST", json: { ...validProject, name: "" } }),
-    { status: 422, bodyField: "fieldErrors.name" },
+    { status: 422, bodyEquals: { "fieldErrors.name": "Podaj nazwę projektu" } },
   ],
   [
     "project create succeeds",
@@ -112,14 +113,22 @@ const steps = [
   [
     "project update succeeds",
     () => request(`/api/projects/${projectId}`, { method: "PUT", json: { ...validProject, name: "Smoke project 2" } }),
-    { status: 200, bodyField: "project.id" },
+    { status: 200, bodyEquals: { "project.name": "Smoke project 2" } },
   ],
   [
     "project update of unknown id returns 404",
     () => request(`/api/projects/${otherProjectId}`, { method: "PUT", json: validProject }),
     { status: 404 },
   ],
-  ["project delete succeeds", () => request(`/api/projects/${projectId}`, { method: "DELETE" }), { status: 204 }],
+  [
+    "project delete succeeds",
+    async () => {
+      const result = await request(`/api/projects/${projectId}`, { method: "DELETE" });
+      if (result.status === 204) projectDeleted = true;
+      return result;
+    },
+    { status: 204 },
+  ],
   [
     "deleted project page returns 404",
     () => request(`/projects/${projectId}`),
@@ -134,21 +143,65 @@ const steps = [
   ["dashboard redirects after signout", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
 ];
 
+function readPath(object, path) {
+  return path.split(".").reduce((value, key) => value?.[key], object);
+}
+
+// A location ending in "=" is a prefix (e.g. "?error="); every other location must match exactly.
+function locationMatches(expected, actual) {
+  return expected.endsWith("=") ? actual.startsWith(expected) : actual === expected;
+}
+
+function matches(expected, actual) {
+  return (
+    actual.status === expected.status &&
+    (expected.location === undefined || locationMatches(expected.location, actual.location)) &&
+    (expected.bodyField === undefined || readPath(actual.body, expected.bodyField) !== undefined) &&
+    (expected.bodyEquals === undefined ||
+      Object.entries(expected.bodyEquals).every(([path, value]) => readPath(actual.body, path) === value)) &&
+    (expected.bodyIncludes === undefined || actual.text.includes(expected.bodyIncludes))
+  );
+}
+
+function describeExpected(expected) {
+  const detail =
+    expected.location ??
+    expected.bodyField ??
+    (expected.bodyEquals ? JSON.stringify(expected.bodyEquals) : undefined) ??
+    expected.bodyIncludes ??
+    "";
+  return `${expected.status} ${detail}`;
+}
+
+// After a failed step the project created earlier would stay behind; remove it while the session still exists.
+async function cleanupProject() {
+  if (!projectId || projectDeleted) return;
+  try {
+    await request(`/api/projects/${projectId}`, { method: "DELETE" });
+    projectDeleted = true;
+    console.log("      cleaned up the smoke project");
+  } catch {
+    console.log("      could not clean up the smoke project");
+  }
+}
+
 let failed = 0;
 for (const [name, run, expected] of steps) {
-  const actual = await run();
-  const ok =
-    actual.status === expected.status &&
-    (expected.location === undefined || actual.location.startsWith(expected.location)) &&
-    (expected.bodyField === undefined ||
-      expected.bodyField.split(".").reduce((value, key) => value?.[key], actual.body) !== undefined) &&
-    (expected.bodyIncludes === undefined || actual.text.includes(expected.bodyIncludes));
+  let actual;
+  try {
+    actual = await run();
+  } catch (error) {
+    failed++;
+    console.log(`FAIL  ${name}  -> threw ${error instanceof Error ? error.message : String(error)}`);
+    await cleanupProject();
+    continue;
+  }
+  const ok = matches(expected, actual);
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}  -> ${actual.status} ${actual.location}`);
   if (!ok) {
     failed++;
-    console.log(
-      `      expected ${expected.status} ${expected.location ?? expected.bodyField ?? expected.bodyIncludes ?? ""}`,
-    );
+    console.log(`      expected ${describeExpected(expected)}`);
+    await cleanupProject();
   }
 }
 

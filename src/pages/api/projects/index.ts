@@ -24,8 +24,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       return json({ project: result.project }, 201);
     case "validation":
       return errorResponse(422, result.error, result.fieldErrors);
-    case "not_found":
-      return errorResponse(404, "Nie znaleziono projektu");
     case "unavailable":
       return errorResponse(500, result.error);
   }

@@ -1,19 +1,19 @@
 import { useCallback } from "react";
 import type { Project } from "@/types";
-import { PROJECT_FIELDS, type ProjectFieldErrors, type ProjectInput } from "@/lib/validation/project";
+import { PROJECT_FIELDS, projectIdSchema, type ProjectFieldErrors, type ProjectInput } from "@/lib/validation/project";
 
 const SIGNIN_PATH = "/auth/signin";
 const NETWORK_ERROR = "Nie udało się połączyć z serwerem. Sprawdź połączenie i spróbuj ponownie.";
 const GENERIC_ERROR = "Nie udało się wykonać operacji. Spróbuj ponownie za chwilę.";
 
-export type ProjectSaveResult =
+export type ProjectApiSaveResult =
   | { status: "ok"; project: Project }
   | { status: "fieldErrors"; error: string; fieldErrors: ProjectFieldErrors }
   | { status: "notFound" }
   | { status: "unauthorized" }
   | { status: "unavailable"; error: string };
 
-export type ProjectDeleteResult =
+export type ProjectApiDeleteResult =
   { status: "ok" } | { status: "notFound" } | { status: "unauthorized" } | { status: "unavailable"; error: string };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -46,7 +46,7 @@ function redirectToSignin(): void {
   window.location.assign(SIGNIN_PATH);
 }
 
-async function saveProject(url: string, method: "POST" | "PUT", input: ProjectInput): Promise<ProjectSaveResult> {
+async function saveProject(url: string, method: "POST" | "PUT", input: ProjectInput): Promise<ProjectApiSaveResult> {
   let response: Response;
   try {
     response = await fetch(url, {
@@ -68,7 +68,12 @@ async function saveProject(url: string, method: "POST" | "PUT", input: ProjectIn
   if (response.status === 422) {
     return { status: "fieldErrors", error: readError(body), fieldErrors: readFieldErrors(body) };
   }
-  if ((response.status === 200 || response.status === 201) && isRecord(body) && isRecord(body.project)) {
+  if (
+    (response.status === 200 || response.status === 201) &&
+    isRecord(body) &&
+    isRecord(body.project) &&
+    projectIdSchema.safeParse(body.project.id).success
+  ) {
     return { status: "ok", project: body.project as unknown as Project };
   }
   return { status: "unavailable", error: readError(body) };
@@ -83,7 +88,7 @@ export function useProjectApi() {
     [],
   );
 
-  const deleteProject = useCallback(async (id: string): Promise<ProjectDeleteResult> => {
+  const deleteProject = useCallback(async (id: string): Promise<ProjectApiDeleteResult> => {
     let response: Response;
     try {
       // No body and no Content-Type: Astro's Origin check protects DELETE.

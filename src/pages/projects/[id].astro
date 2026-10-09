@@ -4,6 +4,7 @@ import DeleteProjectDialog from "@/components/projects/DeleteProjectDialog";
 import ProjectFormDialog from "@/components/projects/ProjectFormDialog";
 import { formatDate } from "@/lib/format";
 import { LIFE_AREA_LABELS } from "@/lib/life-areas";
+import { logError } from "@/lib/log";
 import { getProject, getProjectCounts } from "@/lib/services/projects";
 import { createClient } from "@/lib/supabase";
 import { projectIdSchema } from "@/lib/validation/project";
@@ -23,7 +24,8 @@ if (!supabase) {
   try {
     project = await getProject(supabase, parsedId.data);
     if (project) counts = await getProjectCounts(supabase, project.id);
-  } catch {
+  } catch (error) {
+    logError("project-view", error);
     unavailable = "Nie udało się wczytać projektu. Odśwież stronę za chwilę.";
   }
 }
@@ -87,13 +89,19 @@ if (notFound) Astro.response.status = 404;
         <aside class="flex min-w-0 flex-col gap-4" aria-label="Szczegóły projektu">
           <div class="rounded-md border border-border bg-card p-4 shadow-card">
             <h2 class="type-section text-foreground">Szczegóły</h2>
-            <dl class="type-body mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
-              <dt class="text-muted-foreground">Obszar życia</dt>
-              <dd class="text-foreground">{LIFE_AREA_LABELS[project.life_area]}</dd>
-              <dt class="text-muted-foreground">Termin</dt>
-              <dd class="text-foreground tabular-nums">{formatDate(project.due_date)}</dd>
-              <dt class="text-muted-foreground">Utworzono</dt>
-              <dd class="text-foreground tabular-nums">{formatDate(project.created_at)}</dd>
+            <dl class="type-body mt-3 flex flex-col gap-2">
+              <div class="flex justify-between gap-4">
+                <dt class="text-muted-foreground">Obszar życia</dt>
+                <dd class="text-foreground">{LIFE_AREA_LABELS[project.life_area]}</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-muted-foreground">Termin</dt>
+                <dd class="text-foreground tabular-nums">{formatDate(project.due_date)}</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-muted-foreground">Utworzono</dt>
+                <dd class="text-foreground tabular-nums">{formatDate(project.created_at)}</dd>
+              </div>
             </dl>
           </div>
           <DeleteProjectDialog projectId={project.id} projectName={project.name} counts={counts} client:load />

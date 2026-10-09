@@ -9,17 +9,20 @@ interface FieldProps {
   error?: string;
   hint?: React.ReactNode;
   className?: string;
-  children: React.ReactElement<{ "aria-invalid"?: boolean; "aria-describedby"?: string }>;
+  /** Marks the control as required for assistive technology (`aria-required`). */
+  required?: boolean;
+  children: React.ReactElement<{ "aria-invalid"?: boolean; "aria-describedby"?: string; "aria-required"?: boolean }>;
 }
 
 /** Label + control + message with correct a11y wiring. The child control must use the same `id`. */
-function Field({ id, label, error, hint, className, children }: FieldProps) {
+function Field({ id, label, error, hint, className, required, children }: FieldProps) {
   const messageId = `${id}-message`;
   const hasMessage = Boolean(error) || Boolean(hint);
 
   const control = React.cloneElement(children, {
     "aria-invalid": error ? true : undefined,
     "aria-describedby": hasMessage ? messageId : undefined,
+    "aria-required": required ? true : undefined,
   });
 
   return (
@@ -29,7 +32,7 @@ function Field({ id, label, error, hint, className, children }: FieldProps) {
       </label>
       {control}
       {error ? (
-        <p id={messageId} className="type-meta text-destructive-ink flex items-center gap-1">
+        <p id={messageId} role="alert" className="type-meta text-destructive-ink flex items-center gap-1">
           <CircleAlert className="size-4 shrink-0" aria-hidden="true" />
           <span>
             <span className="font-semibold">Błąd:</span> {error}

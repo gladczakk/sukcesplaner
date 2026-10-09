@@ -34,6 +34,14 @@ interface FormValues {
   description: string;
 }
 
+const FIELD_ORDER = ["name", "due_date", "life_area", "description"] as const;
+const FIELD_IDS: Record<(typeof FIELD_ORDER)[number], string> = {
+  name: "name",
+  due_date: "due-date",
+  life_area: "life-area",
+  description: "description",
+};
+
 function initialValues(project?: EditableProject): FormValues {
   return {
     name: project?.name ?? "",
@@ -68,25 +76,38 @@ export default function ProjectFormDialog({ mode, project }: ProjectFormDialogPr
     setValues((current) => ({ ...current, [key]: value }));
   }
 
+  function focusFirstInvalid(errors: ProjectFieldErrors) {
+    const first = FIELD_ORDER.find((field) => errors[field]);
+    if (first) document.getElementById(`${idPrefix}-${FIELD_IDS[first]}`)?.focus();
+  }
+
   async function submit() {
+    if (pending) return;
     setGeneralError(undefined);
     const parsed = projectInputSchema.safeParse(values);
     if (!parsed.success) {
-      setFieldErrors(flattenProjectErrors(parsed.error));
+      const errors = flattenProjectErrors(parsed.error);
+      setFieldErrors(errors);
+      focusFirstInvalid(errors);
       return;
     }
     setFieldErrors({});
     setPending(true);
+    // After a successful save the browser navigates; keep the form locked meanwhile so a second click
+    // cannot create a duplicate project.
+    let navigating = false;
     try {
       const result =
         isEdit && project ? await updateProject(project.id, parsed.data) : await createProject(parsed.data);
       switch (result.status) {
         case "ok":
+          navigating = true;
           if (isEdit) window.location.reload();
           else window.location.assign(`/projects/${result.project.id}`);
           return;
         case "fieldErrors":
           setFieldErrors(result.fieldErrors);
+          focusFirstInvalid(result.fieldErrors);
           if (Object.keys(result.fieldErrors).length === 0) setGeneralError(result.error);
           break;
         case "notFound":
@@ -96,10 +117,11 @@ export default function ProjectFormDialog({ mode, project }: ProjectFormDialogPr
           setGeneralError(result.error);
           break;
         case "unauthorized":
+          navigating = true;
           return;
       }
     } finally {
-      setPending(false);
+      if (!navigating) setPending(false);
     }
   }
 
@@ -126,7 +148,7 @@ export default function ProjectFormDialog({ mode, project }: ProjectFormDialogPr
           <DialogDescription>Nazwa, termin i obszar życia są wymagane. Opis jest opcjonalny.</DialogDescription>
         </DialogHeader>
         <form noValidate onSubmit={handleSubmit} className="grid gap-4">
-          <Field id={`${idPrefix}-name`} label="Nazwa" error={fieldErrors.name}>
+          <Field id={`${idPrefix}-name`} label="Nazwa" error={fieldErrors.name} required>
             <Input
               id={`${idPrefix}-name`}
               name="name"
@@ -137,7 +159,7 @@ export default function ProjectFormDialog({ mode, project }: ProjectFormDialogPr
               }}
             />
           </Field>
-          <Field id={`${idPrefix}-due-date`} label="Termin" error={fieldErrors.due_date}>
+          <Field id={`${idPrefix}-due-date`} label="Termin" error={fieldErrors.due_date} required>
             <Input
               id={`${idPrefix}-due-date`}
               name="due_date"
@@ -148,7 +170,7 @@ export default function ProjectFormDialog({ mode, project }: ProjectFormDialogPr
               }}
             />
           </Field>
-          <Field id={`${idPrefix}-life-area`} label="Obszar życia" error={fieldErrors.life_area}>
+          <Field id={`${idPrefix}-life-area`} label="Obszar życia" error={fieldErrors.life_area} required>
             <Select
               id={`${idPrefix}-life-area`}
               name="life_area"

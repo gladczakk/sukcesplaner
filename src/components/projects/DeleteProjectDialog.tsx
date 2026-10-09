@@ -30,15 +30,20 @@ export default function DeleteProjectDialog({ projectId, projectName, counts }: 
   }
 
   async function confirm() {
+    if (pending) return;
     setError(undefined);
     setPending(true);
+    // After success (or a 404 that reloads the page) the browser navigates; keep the dialog locked meanwhile.
+    let navigating = false;
     try {
       const result = await deleteProject(projectId);
       switch (result.status) {
         case "ok":
+          navigating = true;
           window.location.assign("/projects");
           return;
         case "notFound":
+          navigating = true;
           setError("Nie znaleziono projektu. Odświeżam stronę.");
           window.setTimeout(() => {
             window.location.reload();
@@ -48,37 +53,32 @@ export default function DeleteProjectDialog({ projectId, projectName, counts }: 
           setError(result.error);
           break;
         case "unauthorized":
+          navigating = true;
           return;
       }
     } finally {
-      setPending(false);
+      if (!navigating) setPending(false);
     }
   }
 
   return (
-    <>
-      <Button
-        variant="ghost"
-        className="text-destructive-ink self-start"
-        onClick={() => {
-          handleOpenChange(true);
-        }}
-      >
-        <Trash2 aria-hidden="true" />
-        Usuń projekt…
-      </Button>
-      <ConfirmDialog
-        open={open}
-        onOpenChange={handleOpenChange}
-        title={`Usunąć projekt ${projectName}?`}
-        description={description}
-        confirmLabel="Usuń projekt"
-        onConfirm={() => {
-          void confirm();
-        }}
-        pending={pending}
-        error={error}
-      />
-    </>
+    <ConfirmDialog
+      open={open}
+      onOpenChange={handleOpenChange}
+      title={`Usunąć projekt ${projectName}?`}
+      description={description}
+      confirmLabel="Usuń projekt"
+      onConfirm={() => {
+        void confirm();
+      }}
+      pending={pending}
+      error={error}
+      trigger={
+        <Button variant="ghost" className="text-destructive-ink self-start">
+          <Trash2 aria-hidden="true" />
+          Usuń projekt…
+        </Button>
+      }
+    />
   );
 }
