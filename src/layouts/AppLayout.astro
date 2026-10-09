@@ -1,0 +1,37 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { Button } from "@/components/ui/button";
+
+interface Props {
+  title?: string;
+}
+
+const { title } = Astro.props;
+const { user } = Astro.locals;
+---
+
+<Layout title={title}>
+  <header class="border-b border-border bg-card">
+    <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3 md:px-6">
+      <nav class="flex items-center gap-6" aria-label="Główna nawigacja">
+        <a href="/projects" class="font-serif text-xl font-semibold text-foreground">
+          SukcesPlaner
+        </a>
+        <a href="/projects" class="type-button text-foreground hover:underline">
+          Projekty
+        </a>
+      </nav>
+      <div class="flex min-w-0 items-center gap-3">
+        {user && <span class="type-meta truncate text-muted-foreground">{user.email}</span>}
+        <form method="POST" action="/api/auth/signout">
+          <Button type="submit" variant="ghost" size="sm">
+            Wyloguj
+          </Button>
+        </form>
+      </div>
+    </div>
+  </header>
+  <main class="mx-auto w-full max-w-5xl px-4 py-6 md:px-6 md:py-8">
+    <slot />
+  </main>
+</Layout>

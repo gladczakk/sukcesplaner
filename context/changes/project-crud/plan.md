@@ -356,30 +356,30 @@ Brak migracji bazy. Wdrożenie wymaga wcześniej ręcznego `supabase db push` ob
 
 #### Automated
 
-- [x] 1.1 Zależność zod zadeklarowana bezpośrednio: `grep '"zod"' package.json`
-- [x] 1.2 Testy pgTAP przechodzą (w tym asercje komunikatu triggera): `npx supabase test db`
-- [x] 1.3 Lint zmienionych plików bez błędów (Windows: `endOfLine: auto`)
-- [x] 1.4 Sprawdzanie typów przechodzi: `npx astro check`
-- [x] 1.5 Build przechodzi: `npm run build`
-- [x] 1.6 Smoke przechodzi, w tym nowe kroki API projektów
+- [x] 1.1 Zależność zod zadeklarowana bezpośrednio: `grep '"zod"' package.json` — f6f9252
+- [x] 1.2 Testy pgTAP przechodzą (w tym asercje komunikatu triggera): `npx supabase test db` — f6f9252
+- [x] 1.3 Lint zmienionych plików bez błędów (Windows: `endOfLine: auto`) — f6f9252
+- [x] 1.4 Sprawdzanie typów przechodzi: `npx astro check` — f6f9252
+- [x] 1.5 Build przechodzi: `npm run build` — f6f9252
+- [x] 1.6 Smoke przechodzi, w tym nowe kroki API projektów — f6f9252
 
 #### Manual
 
-- [x] 1.7 Komunikaty błędów z API (422, 404, 401) są po polsku, wskazują pole i nie ujawniają treści błędów Postgresa
+- [x] 1.7 Komunikaty błędów z API (422, 404, 401) są po polsku, wskazują pole i nie ujawniają treści błędów Postgresa — f6f9252
 
 ### Phase 2: Fundament UI — Button, komponenty, nagłówek aplikacji
 
 #### Automated
 
-- [ ] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [ ] 2.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [ ] 2.3 Build przechodzi: `npm run build`
-- [ ] 2.4 Smoke (regresja auth po zmianie Buttona) przechodzi: `npm run smoke`
+- [x] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
+- [x] 2.2 Sprawdzanie typów przechodzi: `npx astro check`
+- [x] 2.3 Build przechodzi: `npm run build`
+- [x] 2.4 Smoke (regresja auth po zmianie Buttona) przechodzi: `npm run smoke`
 
 #### Manual
 
-- [ ] 2.5 Strony `/auth/signin` i `/auth/signup` nadal renderują się i działają po przebudowie Buttona
-- [ ] 2.6 Komponenty `button`, `dialog`, `alert-dialog`, `input`, `textarea`, `select`, `field`, `confirm-dialog` używają wyłącznie tokenów
+- [x] 2.5 Strony `/auth/signin` i `/auth/signup` nadal renderują się i działają po przebudowie Buttona
+- [x] 2.6 Komponenty `button`, `dialog`, `alert-dialog`, `input`, `textarea`, `select`, `field`, `confirm-dialog` używają wyłącznie tokenów
 
 ### Phase 3: Strony i wyspy — lista, widok projektu, dialogi
 

@@ -34,10 +34,14 @@ async function request(path, { method = "GET", form, json } = {}) {
   });
   storeCookies(response);
   let body = null;
-  if ((response.headers.get("content-type") ?? "").includes("application/json")) {
+  let text = "";
+  const contentType = response.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) {
     body = await response.json();
+  } else if (contentType.includes("text/html")) {
+    text = await response.text();
   }
-  return { status: response.status, location: response.headers.get("location") ?? "", body };
+  return { status: response.status, location: response.headers.get("location") ?? "", body, text };
 }
 
 // Project API steps share the id of the project created in the "create succeeds" step.
@@ -47,6 +51,9 @@ const validProject = { name: "Smoke project", description: "", life_area: "dom",
 
 const steps = [
   ["home renders", () => request("/"), { status: 200 }],
+  // Astro swallows SSR errors of React islands (page stays 200, island missing), so assert the island's form is there.
+  ["signin page renders", () => request("/auth/signin"), { status: 200, bodyIncludes: 'action="/api/auth/signin"' }],
+  ["signup page renders", () => request("/auth/signup"), { status: 200, bodyIncludes: 'action="/api/auth/signup"' }],
   ["dashboard redirects anonymous user", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
   [
     "project API rejects anonymous user",
@@ -110,11 +117,14 @@ for (const [name, run, expected] of steps) {
     actual.status === expected.status &&
     (expected.location === undefined || actual.location.startsWith(expected.location)) &&
     (expected.bodyField === undefined ||
-      expected.bodyField.split(".").reduce((value, key) => value?.[key], actual.body) !== undefined);
+      expected.bodyField.split(".").reduce((value, key) => value?.[key], actual.body) !== undefined) &&
+    (expected.bodyIncludes === undefined || actual.text.includes(expected.bodyIncludes));
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}  -> ${actual.status} ${actual.location}`);
   if (!ok) {
     failed++;
-    console.log(`      expected ${expected.status} ${expected.location ?? expected.bodyField ?? ""}`);
+    console.log(
+      `      expected ${expected.status} ${expected.location ?? expected.bodyField ?? expected.bodyIncludes ?? ""}`,
+    );
   }
 }
 
