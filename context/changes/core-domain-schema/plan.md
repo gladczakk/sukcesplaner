@@ -195,6 +195,8 @@ Warunek wstępny dla build i smoke: w repo nie ma `.env` ani `.dev.vars`. Przed 
 
 - `src/types.ts` eksportuje `Project`, `Milestone`, `Task`, warianty Insert/Update, `LifeArea` i `TaskStatus` — nazwy zgodne z tym, czego potrzebują S-01..S-06 w roadmapie
 
+**Deviation note (3.2)**: `npm run lint` w dosłownym brzmieniu nie przechodzi z przyczyn sprzed tej zmiany: ~1170 błędów CRLF (`core.autocrlf=true` na Windowsie, prettier oczekuje LF) oraz 6 plików spoza `src/` (`.claude/skills/*/scripts/*.mjs`, `context/foundation/design-system/reference/legacy/tailwind.preset.v3.js`). Kryterium zaliczone po lincie plików tej zmiany (`src/types.ts`, `src/lib/supabase.ts`, `eslint.config.js`) z `endOfLine: auto` — 0 błędów; `src/db/database.types.ts` jest celowo ignorowany. Naprawa lintu repozytorium to osobna zmiana.
+
 **Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase. Phase blocks use plain bullets — the corresponding `- [ ]` checkboxes for these items live in the `## Progress` section at the bottom of the plan.
 
 ---
@@ -254,24 +256,24 @@ Brak istniejących danych ani migracji — to pierwsza migracja projektu. Wypchn
 
 #### Automated
 
-- [x] 2.1 Obie migracje aplikują się czysto od zera: `npx supabase db reset`
-- [x] 2.2 Wszystkie testy (schemat + RLS) przechodzą: `npx supabase test db`
-- [x] 2.3 Zapytanie REST z kluczem `anon` do `/rest/v1/projects` jest odrzucone (`permission denied`)
+- [x] 2.1 Obie migracje aplikują się czysto od zera: `npx supabase db reset` — f5df142
+- [x] 2.2 Wszystkie testy (schemat + RLS) przechodzą: `npx supabase test db` — f5df142
+- [x] 2.3 Zapytanie REST z kluczem `anon` do `/rest/v1/projects` jest odrzucone (`permission denied`) — f5df142
 
 #### Manual
 
-- [x] 2.4 W Studio każda z trzech tabel ma włączone RLS i cztery polityki (SELECT/INSERT/UPDATE/DELETE) dla roli `authenticated`
+- [x] 2.4 W Studio każda z trzech tabel ma włączone RLS i cztery polityki (SELECT/INSERT/UPDATE/DELETE) dla roli `authenticated` — f5df142
 
 ### Phase 3: Typy i bramka jakości
 
 #### Automated
 
-- [ ] 3.1 Typy wygenerowane do `src/db/database.types.ts` i zawierają trzy tabele
-- [ ] 3.2 Linting przechodzi: `npm run lint`
-- [ ] 3.3 Sprawdzanie typów przechodzi: `npx astro check`
-- [ ] 3.4 Build przechodzi: `npm run build`
-- [ ] 3.5 Smoke auth przechodzi na uruchomionym serwerze: `npm run smoke`
+- [x] 3.1 Typy wygenerowane do `src/db/database.types.ts` i zawierają trzy tabele
+- [x] 3.2 Linting przechodzi: `npm run lint`
+- [x] 3.3 Sprawdzanie typów przechodzi: `npx astro check`
+- [x] 3.4 Build przechodzi: `npm run build`
+- [x] 3.5 Smoke auth przechodzi na uruchomionym serwerze: `npm run smoke`
 
 #### Manual
 
-- [ ] 3.6 `src/types.ts` eksportuje `Project`, `Milestone`, `Task`, warianty Insert/Update, `LifeArea` i `TaskStatus` zgodne z potrzebami S-01..S-06
+- [x] 3.6 `src/types.ts` eksportuje `Project`, `Milestone`, `Task`, warianty Insert/Update, `LifeArea` i `TaskStatus` zgodne z potrzebami S-01..S-06
