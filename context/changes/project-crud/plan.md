@@ -371,29 +371,29 @@ Brak migracji bazy. Wdrożenie wymaga wcześniej ręcznego `supabase db push` ob
 
 #### Automated
 
-- [x] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [x] 2.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [x] 2.3 Build przechodzi: `npm run build`
-- [x] 2.4 Smoke (regresja auth po zmianie Buttona) przechodzi: `npm run smoke`
+- [x] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`) — b5ec829
+- [x] 2.2 Sprawdzanie typów przechodzi: `npx astro check` — b5ec829
+- [x] 2.3 Build przechodzi: `npm run build` — b5ec829
+- [x] 2.4 Smoke (regresja auth po zmianie Buttona) przechodzi: `npm run smoke` — b5ec829
 
 #### Manual
 
-- [x] 2.5 Strony `/auth/signin` i `/auth/signup` nadal renderują się i działają po przebudowie Buttona
-- [x] 2.6 Komponenty `button`, `dialog`, `alert-dialog`, `input`, `textarea`, `select`, `field`, `confirm-dialog` używają wyłącznie tokenów
+- [x] 2.5 Strony `/auth/signin` i `/auth/signup` nadal renderują się i działają po przebudowie Buttona — b5ec829
+- [x] 2.6 Komponenty `button`, `dialog`, `alert-dialog`, `input`, `textarea`, `select`, `field`, `confirm-dialog` używają wyłącznie tokenów — b5ec829
 
 ### Phase 3: Strony i wyspy — lista, widok projektu, dialogi
 
 #### Automated
 
-- [ ] 3.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [ ] 3.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [ ] 3.3 Build przechodzi: `npm run build`
-- [ ] 3.4 Smoke przechodzi, w tym nowe kroki stron i redirect po zalogowaniu: `npm run smoke`
+- [x] 3.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
+- [x] 3.2 Sprawdzanie typów przechodzi: `npx astro check`
+- [x] 3.3 Build przechodzi: `npm run build`
+- [x] 3.4 Smoke przechodzi, w tym nowe kroki stron i redirect po zalogowaniu: `npm run smoke`
 
 #### Manual
 
-- [ ] 3.5 Pełny przepływ w przeglądarce: logowanie, lista, dodanie, edycja, usunięcie
-- [ ] 3.6 Walidacja pokazuje polskie błędy przy polach, a dialog pozostaje otwarty
-- [ ] 3.7 Reguła terminu: polski komunikat przy polu terminu i liczniki z poprawną odmianą w dialogu usuwania
-- [ ] 3.8 Wygląd i dostępność: jasny i ciemny motyw, 390 px i 1280 px, fokus na „Anuluj", Esc, zgodność z referencją
-- [ ] 3.9 Niezalogowany użytkownik na `/projects` trafia na logowanie, a po zalogowaniu na `/projects`
+- [x] 3.5 Pełny przepływ w przeglądarce: logowanie, lista, dodanie, edycja, usunięcie
+- [x] 3.6 Walidacja pokazuje polskie błędy przy polach, a dialog pozostaje otwarty
+- [x] 3.7 Reguła terminu: polski komunikat przy polu terminu i liczniki z poprawną odmianą w dialogu usuwania
+- [x] 3.8 Wygląd i dostępność: jasny i ciemny motyw, 390 px i 1280 px, fokus na „Anuluj", Esc, zgodność z referencją
+- [x] 3.9 Niezalogowany użytkownik na `/projects` trafia na logowanie, a po zalogowaniu na `/projects`

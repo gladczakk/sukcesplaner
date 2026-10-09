@@ -55,6 +55,7 @@ const steps = [
   ["signin page renders", () => request("/auth/signin"), { status: 200, bodyIncludes: 'action="/api/auth/signin"' }],
   ["signup page renders", () => request("/auth/signup"), { status: 200, bodyIncludes: 'action="/api/auth/signup"' }],
   ["dashboard redirects anonymous user", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
+  ["projects page redirects anonymous user", () => request("/projects"), { status: 302, location: "/auth/signin" }],
   [
     "project API rejects anonymous user",
     () => request("/api/projects", { method: "POST", json: validProject }),
@@ -73,9 +74,16 @@ const steps = [
   [
     "signin accepts correct password",
     () => request("/api/auth/signin", { method: "POST", form: { email, password } }),
-    { status: 302, location: "/" },
+    { status: 302, location: "/projects" },
   ],
   ["dashboard renders for signed-in user", () => request("/dashboard"), { status: 200 }],
+  // Island SSR errors leave the page at 200, so assert the empty state and the island's trigger button.
+  [
+    "projects page renders empty state",
+    () => request("/projects"),
+    { status: 200, bodyIncludes: "Nie masz jeszcze projektów." },
+  ],
+  ["projects page renders add button", () => request("/projects"), { status: 200, bodyIncludes: "Dodaj projekt" }],
   [
     "project create rejects empty name",
     () => request("/api/projects", { method: "POST", json: { ...validProject, name: "" } }),
@@ -90,6 +98,17 @@ const steps = [
     },
     { status: 201, bodyField: "project.id" },
   ],
+  ["project page renders", () => request(`/projects/${projectId}`), { status: 200, bodyIncludes: "Smoke project" }],
+  [
+    "project page renders edit island",
+    () => request(`/projects/${projectId}`),
+    { status: 200, bodyIncludes: "Edytuj" },
+  ],
+  [
+    "project page renders delete island",
+    () => request(`/projects/${projectId}`),
+    { status: 200, bodyIncludes: "Usuń projekt…" },
+  ],
   [
     "project update succeeds",
     () => request(`/api/projects/${projectId}`, { method: "PUT", json: { ...validProject, name: "Smoke project 2" } }),
@@ -101,6 +120,11 @@ const steps = [
     { status: 404 },
   ],
   ["project delete succeeds", () => request(`/api/projects/${projectId}`, { method: "DELETE" }), { status: 204 }],
+  [
+    "deleted project page returns 404",
+    () => request(`/projects/${projectId}`),
+    { status: 404, bodyIncludes: "Nie znaleziono projektu" },
+  ],
   [
     "project repeated delete returns 404",
     () => request(`/api/projects/${projectId}`, { method: "DELETE" }),

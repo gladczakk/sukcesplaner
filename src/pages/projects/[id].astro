@@ -1,0 +1,111 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro";
+import DeleteProjectDialog from "@/components/projects/DeleteProjectDialog";
+import ProjectFormDialog from "@/components/projects/ProjectFormDialog";
+import { formatDate } from "@/lib/format";
+import { LIFE_AREA_LABELS } from "@/lib/life-areas";
+import { getProject, getProjectCounts } from "@/lib/services/projects";
+import { createClient } from "@/lib/supabase";
+import { projectIdSchema } from "@/lib/validation/project";
+import type { Project } from "@/types";
+
+export const prerender = false;
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const parsedId = projectIdSchema.safeParse(Astro.params.id);
+
+let project: Project | null = null;
+let counts = { milestones: 0, tasks: 0 };
+let unavailable: string | null = null;
+if (!supabase) {
+  unavailable = "Aplikacja nie jest teraz dostępna. Spróbuj ponownie za chwilę.";
+} else if (parsedId.success) {
+  try {
+    project = await getProject(supabase, parsedId.data);
+    if (project) counts = await getProjectCounts(supabase, project.id);
+  } catch {
+    unavailable = "Nie udało się wczytać projektu. Odśwież stronę za chwilę.";
+  }
+}
+
+const notFound = !unavailable && !project;
+if (notFound) Astro.response.status = 404;
+---
+
+<AppLayout title={project ? project.name : notFound ? "Nie znaleziono projektu" : "Projekt"}>
+  {unavailable ? (
+    <div class="flex flex-col items-start gap-4">
+      <p role="alert" class="type-quote text-destructive-ink">
+        {unavailable}
+      </p>
+      <a href="/projects" class="type-button text-foreground underline">
+        Projekty
+      </a>
+    </div>
+  ) : project ? (
+    <>
+      <a
+        href="/projects"
+        class="type-button -ml-1 inline-flex h-8 items-center rounded-pill px-1 text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      >
+        Projekty
+      </a>
+      <div class="mt-2 grid gap-8 lg:grid-cols-3">
+        <div class="min-w-0 lg:col-span-2">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div class="min-w-0">
+              <p class="type-eyebrow text-muted-foreground">Projekt · {LIFE_AREA_LABELS[project.life_area]}</p>
+              <h1 class="type-display mt-1 break-words text-foreground">{project.name}</h1>
+            </div>
+            <ProjectFormDialog
+              mode="edit"
+              project={{
+                id: project.id,
+                name: project.name,
+                description: project.description,
+                life_area: project.life_area,
+                due_date: project.due_date,
+              }}
+              client:load
+            />
+          </div>
+          {project.description && (
+            <p class="type-quote mt-1 break-words whitespace-pre-line text-muted-foreground">{project.description}</p>
+          )}
+          <p class="type-body mt-3 text-muted-foreground tabular-nums">
+            Termin projektu: <span class="font-medium text-foreground">{formatDate(project.due_date)}</span>
+          </p>
+          <section class="mt-8" aria-labelledby="milestones-heading">
+            <h2 id="milestones-heading" class="type-section text-foreground">
+              Milestony
+            </h2>
+            <p class="type-quote mt-2 rounded-md border border-dashed border-border p-4 text-muted-foreground">
+              Milestony pojawią się tutaj wkrótce.
+            </p>
+          </section>
+        </div>
+        <aside class="flex min-w-0 flex-col gap-4" aria-label="Szczegóły projektu">
+          <div class="rounded-md border border-border bg-card p-4 shadow-card">
+            <h2 class="type-section text-foreground">Szczegóły</h2>
+            <dl class="type-body mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
+              <dt class="text-muted-foreground">Obszar życia</dt>
+              <dd class="text-foreground">{LIFE_AREA_LABELS[project.life_area]}</dd>
+              <dt class="text-muted-foreground">Termin</dt>
+              <dd class="text-foreground tabular-nums">{formatDate(project.due_date)}</dd>
+              <dt class="text-muted-foreground">Utworzono</dt>
+              <dd class="text-foreground tabular-nums">{formatDate(project.created_at)}</dd>
+            </dl>
+          </div>
+          <DeleteProjectDialog projectId={project.id} projectName={project.name} counts={counts} client:load />
+        </aside>
+      </div>
+    </>
+  ) : (
+    <div class="flex flex-col items-start gap-4">
+      <h1 class="type-display text-foreground">Nie znaleziono projektu</h1>
+      <a href="/projects" class="type-button text-foreground underline">
+        Wróć do projektów
+      </a>
+    </div>
+  )}
+</AppLayout>

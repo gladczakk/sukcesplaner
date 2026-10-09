@@ -1,0 +1,62 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro";
+import ProjectFormDialog from "@/components/projects/ProjectFormDialog";
+import { formatDate } from "@/lib/format";
+import { LIFE_AREA_LABELS } from "@/lib/life-areas";
+import { listProjects } from "@/lib/services/projects";
+import { createClient } from "@/lib/supabase";
+import type { Project } from "@/types";
+
+export const prerender = false;
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+let projects: Project[] = [];
+let unavailable: string | null = null;
+if (!supabase) {
+  unavailable = "Aplikacja nie jest teraz dostępna. Spróbuj ponownie za chwilę.";
+} else {
+  try {
+    projects = await listProjects(supabase);
+  } catch {
+    unavailable = "Nie udało się wczytać projektów. Odśwież stronę za chwilę.";
+  }
+}
+---
+
+<AppLayout title="Projekty">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div class="min-w-0">
+      <p class="type-eyebrow text-muted-foreground">Projekty</p>
+      <h1 class="type-display text-foreground">Projekty</h1>
+    </div>
+    {!unavailable && <ProjectFormDialog mode="create" client:load />}
+  </div>
+
+  {unavailable ? (
+    <p role="alert" class="type-quote mt-8 text-destructive-ink">
+      {unavailable}
+    </p>
+  ) : projects.length === 0 ? (
+    <div class="mt-8 flex flex-col items-start gap-4 rounded-md border border-border bg-card p-6 shadow-card">
+      <p class="type-quote text-muted-foreground">Nie masz jeszcze projektów.</p>
+      <ProjectFormDialog mode="create" client:load />
+    </div>
+  ) : (
+    <ul class="mt-8 divide-y divide-border rounded-md border border-border bg-card shadow-card">
+      {projects.map((project) => (
+        <li>
+          <a
+            href={`/projects/${project.id}`}
+            class="flex flex-col gap-1 rounded-md px-4 py-3 outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
+          >
+            <span class="min-w-0 font-serif text-xl font-medium break-words text-foreground">{project.name}</span>
+            <span class="type-meta shrink-0 text-muted-foreground tabular-nums">
+              {LIFE_AREA_LABELS[project.life_area]} · Termin: {formatDate(project.due_date)}
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )}
+</AppLayout>
