@@ -1,10 +1,10 @@
 ---
 change_id: core-domain-schema
 title: Domenowy schemat danych (projects / milestones / tasks) z RLS
-status: impl_reviewed
+status: archived
 created: 2026-10-09
-updated: 2026-10-09
-archived_at: null
+updated: 2026-10-14
+archived_at: 2026-10-14T11:35:11Z
 ---
 
 ## Notes
