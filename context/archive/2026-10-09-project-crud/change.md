@@ -1,10 +1,10 @@
 ---
 change_id: project-crud
 title: Project crud
-status: impl_reviewed
+status: archived
 created: 2026-10-09
-updated: 2026-10-09
-archived_at: null
+updated: 2026-10-14
+archived_at: 2026-10-14T11:35:20Z
 ---
 
 ## Notes

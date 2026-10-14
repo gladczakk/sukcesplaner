@@ -42,7 +42,7 @@ Osoby żonglujące kilkoma równoległymi, długoterminowymi projektami z różn
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 | --- | --- | --- | --- | --- | --- |
 | F-01 | core-domain-schema | (foundation) tabele projects/milestones/tasks + RLS istnieją w Supabase | — | FR-003, FR-005, Access Control | done |
-| S-01 | project-crud | tworzyć/edytować/usuwać projekt (nazwa, termin, opis, obszar życia) | F-01, istniejący przepływ logowania (baseline: present) | FR-001, FR-002, FR-003 | in-progress |
+| S-01 | project-crud | tworzyć/edytować/usuwać projekt (nazwa, termin, opis, obszar życia) | F-01, istniejący przepływ logowania (baseline: present) | FR-001, FR-002, FR-003 | done |
 | S-02 | milestone-crud | dodawać/edytować/usuwać milestony projektu z obowiązkową datą | S-01 | FR-004, FR-005 | proposed |
 | S-03 | task-crud | dodawać/edytować/usuwać zadania w ramach milestona | S-02 | FR-006, FR-007 | proposed |
 | S-04 | today-list-view | zobaczyć automatycznie wygenerowaną listę zadań na dziś ze wszystkich projektów | S-01, S-02, S-03 | US-01, FR-009, FR-010 | proposed |
@@ -88,7 +88,7 @@ Foundations poniżej zakładają, że to jest na miejscu i NIE odtwarzają tego 
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Musi powstać przed czymkolwiek innym — milestony i zadania wymagają istniejącego projektu; opóźnienie tutaj opóźnia cały łańcuch.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-02: Zarządzanie milestonami
 
@@ -184,6 +184,8 @@ Brak — wszystkie pierwotne pytania PRD zostały rozstrzygnięte przed wygenero
 (Puste — to pierwszy kamień milowy tego projektu.)
 
 ## Done
+
+- **S-01: user może utworzyć, edytować i usunąć projekt (nazwa, termin, opcjonalny opis, obszar życia); usunięcie projektu z milestonami/zadaniami wymaga potwierdzenia i kasuje je kaskadowo.** — Archived 2026-10-14 → `context/archive/2026-10-09-project-crud/`. Lesson: —.
 
 - **F-01: (foundation) tabele `projects`, `milestones`, `tasks` istnieją w Supabase Postgres z politykami RLS (jedno konto = jeden prywatny zestaw danych), kaskadowym usuwaniem (projekt → milestony → zadania; milestone → zadania) i ograniczeniem, że data milestona nie może wykraczać poza termin projektu.** — Archived 2026-10-14 → `context/archive/2026-10-09-core-domain-schema/`. Lesson: —.
 
