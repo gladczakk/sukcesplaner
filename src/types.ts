@@ -15,6 +15,7 @@ export type ProjectUpdate = Omit<TablesUpdate<"projects">, "life_area"> & { life
 export type Milestone = Tables<"milestones">;
 export type MilestoneInsert = TablesInsert<"milestones">;
 export type MilestoneUpdate = TablesUpdate<"milestones">;
+export type MilestoneListItem = Milestone & { task_count: number };
 
 // Tasks
 export type Task = Omit<Tables<"tasks">, "status"> & { status: TaskStatus };

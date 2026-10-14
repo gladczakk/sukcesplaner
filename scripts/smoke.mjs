@@ -49,6 +49,11 @@ let projectId = "";
 let projectDeleted = false;
 const otherProjectId = "00000000-0000-4000-8000-000000000000";
 const validProject = { name: "Smoke project", description: "", life_area: "dom", due_date: "2099-12-31" };
+// Milestone API steps share ids and the first completed_at across steps.
+let milestoneA = "";
+let milestoneB = "";
+let completedAt = "";
+const milestoneDateError = "Data milestona nie może być późniejsza niż termin projektu";
 
 const steps = [
   ["home renders", () => request("/"), { status: 200 }],
@@ -98,6 +103,130 @@ const steps = [
       return result;
     },
     { status: 201, bodyField: "project.id" },
+  ],
+  [
+    "milestone create rejects empty name",
+    () =>
+      request(`/api/projects/${projectId}/milestones`, { method: "POST", json: { name: "", due_date: "2099-12-31" } }),
+    { status: 422, bodyField: "fieldErrors.name" },
+  ],
+  [
+    "milestone create rejects date after project due date",
+    () =>
+      request(`/api/projects/${projectId}/milestones`, {
+        method: "POST",
+        json: { name: "Alfa smoke", due_date: "2100-01-01" },
+      }),
+    { status: 422, bodyEquals: { "fieldErrors.due_date": milestoneDateError } },
+  ],
+  [
+    "milestone create succeeds",
+    async () => {
+      const result = await request(`/api/projects/${projectId}/milestones`, {
+        method: "POST",
+        json: { name: "Alfa smoke", due_date: "2099-12-31" },
+      });
+      milestoneA = result.body?.milestone?.id ?? "";
+      return result;
+    },
+    { status: 201, bodyField: "milestone.id" },
+  ],
+  [
+    "milestone create on the same day succeeds",
+    async () => {
+      const result = await request(`/api/projects/${projectId}/milestones`, {
+        method: "POST",
+        json: { name: "Beta smoke", due_date: "2099-12-31" },
+      });
+      milestoneB = result.body?.milestone?.id ?? "";
+      return result;
+    },
+    { status: 201, bodyField: "milestone.id" },
+  ],
+  // (page step P1 of phase 3 goes here)
+  [
+    "milestone rename succeeds",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}`, {
+        method: "PUT",
+        json: { name: "Gamma smoke", due_date: "2099-12-31" },
+      }),
+    { status: 200, bodyEquals: { "milestone.name": "Gamma smoke" } },
+  ],
+  [
+    "milestone update rejects date after project due date",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}`, {
+        method: "PUT",
+        json: { name: "Gamma smoke", due_date: "2100-01-01" },
+      }),
+    { status: 422, bodyEquals: { "fieldErrors.due_date": milestoneDateError } },
+  ],
+  [
+    "milestone close succeeds",
+    async () => {
+      const result = await request(`/api/projects/${projectId}/milestones/${milestoneA}`, {
+        method: "PATCH",
+        json: { completed: true },
+      });
+      completedAt = result.body?.milestone?.completed_at ?? "";
+      return result;
+    },
+    { status: 200, bodyField: "milestone.completed_at" },
+  ],
+  [
+    "milestone repeated close keeps completed_at",
+    async () => {
+      const result = await request(`/api/projects/${projectId}/milestones/${milestoneA}`, {
+        method: "PATCH",
+        json: { completed: true },
+      });
+      const sameCompletedAt = completedAt !== "" && result.body?.milestone?.completed_at === completedAt;
+      return { ...result, body: { ...result.body, sameCompletedAt } };
+    },
+    { status: 200, bodyEquals: { sameCompletedAt: true } },
+  ],
+  // (page step P2 of phase 3 goes here)
+  [
+    "milestone reopen succeeds",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}`, { method: "PATCH", json: { completed: false } }),
+    { status: 200, bodyEquals: { "milestone.completed_at": null } },
+  ],
+  [
+    "milestone repeated reopen succeeds",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}`, { method: "PATCH", json: { completed: false } }),
+    { status: 200, bodyEquals: { "milestone.completed_at": null } },
+  ],
+  // (page step P3 of phase 3 goes here)
+  [
+    "milestone create in unknown project returns 404",
+    () =>
+      request(`/api/projects/${otherProjectId}/milestones`, {
+        method: "POST",
+        json: { name: "Delta smoke", due_date: "2099-12-31" },
+      }),
+    { status: 404 },
+  ],
+  [
+    "milestone update of unknown id returns 404",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${otherProjectId}`, {
+        method: "PUT",
+        json: { name: "Delta smoke", due_date: "2099-12-31" },
+      }),
+    { status: 404 },
+  ],
+  [
+    "milestone delete succeeds",
+    () => request(`/api/projects/${projectId}/milestones/${milestoneB}`, { method: "DELETE" }),
+    { status: 204 },
+  ],
+  [
+    "milestone repeated delete returns 404",
+    () => request(`/api/projects/${projectId}/milestones/${milestoneB}`, { method: "DELETE" }),
+    { status: 404 },
   ],
   ["project page renders", () => request(`/projects/${projectId}`), { status: 200, bodyIncludes: "Smoke project" }],
   [

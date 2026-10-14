@@ -1,6 +1,7 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/db/database.types";
 import { logError } from "@/lib/log";
+import { GENERIC_ERROR, SESSION_ERROR, readFailure } from "@/lib/services/postgrest";
 import { LIFE_AREAS, type LifeArea, type Project } from "@/types";
 import type { ProjectFieldErrors, ProjectInput } from "@/lib/validation/project";
 
@@ -15,8 +16,6 @@ export type ProjectMutationResult = ProjectCreateResult | { status: "not_found" 
 
 export type ProjectDeleteResult = { status: "ok" } | { status: "not_found" } | { status: "unavailable"; error: string };
 
-const GENERIC_ERROR = "Nie udało się wykonać operacji. Spróbuj ponownie za chwilę.";
-const SESSION_ERROR = "Sesja wygasła. Zaloguj się ponownie.";
 const DUE_DATE_ERROR = "Termin projektu nie może być wcześniejszy niż data istniejącego milestona";
 
 function isLifeArea(value: string): value is LifeArea {
@@ -29,10 +28,6 @@ function toProject(row: Database["public"]["Tables"]["projects"]["Row"]): Projec
     throw new Error(`Unexpected life_area value: ${row.life_area}`);
   }
   return { ...row, life_area: row.life_area };
-}
-
-function readFailure(error: PostgrestError): Error {
-  return new Error(`${error.code}: ${error.message}`);
 }
 
 function translateError(error: PostgrestError): Exclude<ProjectCreateResult, { status: "ok" }> {

@@ -303,26 +303,26 @@ Jedna nowa migracja (`20261014120000_milestone_close_rule.sql`). Wdrożenie wyma
 
 #### Automated
 
-- [x] 1.1 Wszystkie trzy migracje aplikują się czysto od zera: `npx supabase db reset`
-- [x] 1.2 Testy pgTAP przechodzą, w tym nowy plik: `npx supabase test db`
+- [x] 1.1 Wszystkie trzy migracje aplikują się czysto od zera: `npx supabase db reset` — 0960870
+- [x] 1.2 Testy pgTAP przechodzą, w tym nowy plik: `npx supabase test db` — 0960870
 
 #### Manual
 
-- [x] 1.3 W bazie widać trigger `milestones_check_closable`, a próba zamknięcia milestona z niezrobionym zadaniem daje komunikat po polsku
+- [x] 1.3 W bazie widać trigger `milestones_check_closable`, a próba zamknięcia milestona z niezrobionym zadaniem daje komunikat po polsku — 0960870
 
 ### Phase 2: Backend — walidacja, serwis, trasy, smoke
 
 #### Automated
 
-- [ ] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [ ] 2.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [ ] 2.3 Build przechodzi: `npm run build`
-- [ ] 2.4 Smoke przechodzi, w tym nowe kroki API milestonów
+- [x] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
+- [x] 2.2 Sprawdzanie typów przechodzi: `npx astro check`
+- [x] 2.3 Build przechodzi: `npm run build`
+- [x] 2.4 Smoke przechodzi, w tym nowe kroki API milestonów
 
 #### Manual
 
-- [ ] 2.5 Odpowiedzi API milestonów (422, 404) są po polsku, wskazują pole i nie ujawniają treści błędów Postgresa
-- [ ] 2.6 `PATCH {completed:true}` na milestonie z niezrobionym zadaniem (psql) zwraca 422 z komunikatem o liczbie zadań
+- [x] 2.5 Odpowiedzi API milestonów (422, 404) są po polsku, wskazują pole i nie ujawniają treści błędów Postgresa
+- [x] 2.6 `PATCH {completed:true}` na milestonie z niezrobionym zadaniem (psql) zwraca 422 z komunikatem o liczbie zadań
 
 ### Phase 3: UI — dialogi, lista w widoku projektu, smoke stron
 

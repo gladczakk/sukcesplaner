@@ -1,22 +1,17 @@
 import { z } from "zod";
 import { LIFE_AREAS } from "@/types";
+import { NUL, dateField, nameField } from "@/lib/validation/fields";
 
 export const PROJECT_FIELDS = ["name", "description", "life_area", "due_date"] as const;
 export type ProjectField = (typeof PROJECT_FIELDS)[number];
 export type ProjectFieldErrors = Partial<Record<ProjectField, string>>;
 
-// Postgres rejects the NUL character in text and dates before year 1 (e.g. 0000-01-01); catch both here so
-// they become field errors (422) instead of a generic server error.
-const NUL = "\u0000";
-const MIN_DUE_DATE = "1000-01-01";
-
 export const projectInputSchema = z.object({
-  name: z
-    .string({ error: "Podaj nazwę projektu" })
-    .trim()
-    .min(1, "Podaj nazwę projektu")
-    .max(200, "Nazwa projektu może mieć maksymalnie 200 znaków")
-    .refine((value) => !value.includes(NUL), "Nazwa zawiera niedozwolony znak"),
+  name: nameField({
+    required: "Podaj nazwę projektu",
+    max: "Nazwa projektu może mieć maksymalnie 200 znaków",
+    nul: "Nazwa zawiera niedozwolony znak",
+  }),
   description: z
     .string({ error: "Opis musi być tekstem" })
     .trim()
@@ -25,9 +20,10 @@ export const projectInputSchema = z.object({
     .nullish()
     .transform((value) => (typeof value === "string" && value.length > 0 ? value : null)),
   life_area: z.enum(LIFE_AREAS, { error: "Wybierz obszar życia" }),
-  due_date: z.iso
-    .date({ error: "Podaj poprawny termin w formacie RRRR-MM-DD" })
-    .refine((value) => value >= MIN_DUE_DATE, "Termin nie może być wcześniejszy niż rok 1000"),
+  due_date: dateField({
+    invalid: "Podaj poprawny termin w formacie RRRR-MM-DD",
+    tooEarly: "Termin nie może być wcześniejszy niż rok 1000",
+  }),
 });
 
 export type ProjectInput = z.output<typeof projectInputSchema>;
