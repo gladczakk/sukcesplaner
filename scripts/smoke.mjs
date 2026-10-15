@@ -53,6 +53,9 @@ const validProject = { name: "Smoke project", description: "", life_area: "dom",
 let milestoneA = "";
 let milestoneB = "";
 let completedAt = "";
+let taskId = "";
+const closedMilestoneTaskError =
+  "Nie można dodać niezrobionego zadania do zamkniętego milestona. Otwórz milestone ponownie.";
 const milestoneDateError = "Data milestona nie może być późniejsza niż termin projektu";
 
 const steps = [
@@ -217,6 +220,120 @@ const steps = [
     () => request(`/projects/${projectId}`),
     // The renamed milestone's own action sits between its name and Beta's name only when it is open again.
     { status: 200, bodyOrder: ["Gamma smoke", "Zamknij milestone Gamma smoke", "Beta smoke"] },
+  ],
+  [
+    "task create rejects empty title",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "", due_date: null },
+      }),
+    { status: 422, bodyField: "fieldErrors.title" },
+  ],
+  [
+    "task create rejects date after milestone date",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Zadanie smoke", due_date: "2100-01-01" },
+      }),
+    { status: 422, bodyField: "fieldErrors.due_date" },
+  ],
+  [
+    "task create succeeds",
+    async () => {
+      const result = await request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Zadanie smoke", due_date: "2099-12-30" },
+      });
+      taskId = result.body?.task?.id ?? "";
+      return result;
+    },
+    { status: 201, bodyField: "task.id" },
+  ],
+  // (page step T4 of phase 3 goes here)
+  [
+    "milestone close rejected while it has an open task",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}`, { method: "PATCH", json: { completed: true } }),
+    { status: 422, bodyEquals: { error: "Nie można zamknąć milestona: ma niezrobione zadania (1)" } },
+  ],
+  [
+    "task status done succeeds",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${taskId}`, {
+        method: "PATCH",
+        json: { status: "done" },
+      }),
+    { status: 200, bodyEquals: { "task.status": "done" } },
+  ],
+  [
+    "milestone close succeeds once its tasks are done",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}`, { method: "PATCH", json: { completed: true } }),
+    { status: 200, bodyField: "milestone.completed_at" },
+  ],
+  // (page step T8 of phase 3 goes here)
+  [
+    "task create in closed milestone is rejected",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Zadanie smoke 3", due_date: null },
+      }),
+    { status: 422, bodyEquals: { error: closedMilestoneTaskError } },
+  ],
+  [
+    "task reverted to todo in closed milestone is rejected",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${taskId}`, {
+        method: "PATCH",
+        json: { status: "todo" },
+      }),
+    { status: 422, bodyEquals: { error: closedMilestoneTaskError } },
+  ],
+  [
+    "milestone date before a task due date is rejected",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}`, {
+        method: "PUT",
+        json: { name: "Gamma smoke", due_date: "2099-12-29" },
+      }),
+    { status: 422, bodyField: "fieldErrors.due_date" },
+  ],
+  [
+    "done task in closed milestone can be edited",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${taskId}`, {
+        method: "PUT",
+        json: { title: "Zadanie smoke 2", due_date: null },
+      }),
+    { status: 200, bodyEquals: { "task.title": "Zadanie smoke 2" } },
+  ],
+  [
+    "milestone reopen after task steps succeeds",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}`, { method: "PATCH", json: { completed: false } }),
+    { status: 200, bodyEquals: { "milestone.completed_at": null } },
+  ],
+  [
+    "task status of unknown id returns 404",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${otherProjectId}`, {
+        method: "PATCH",
+        json: { status: "done" },
+      }),
+    { status: 404 },
+  ],
+  [
+    "task delete succeeds",
+    () => request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${taskId}`, { method: "DELETE" }),
+    { status: 204 },
+  ],
+  [
+    "task repeated delete returns 404",
+    () => request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${taskId}`, { method: "DELETE" }),
+    { status: 404 },
   ],
   [
     "milestone create in unknown project returns 404",

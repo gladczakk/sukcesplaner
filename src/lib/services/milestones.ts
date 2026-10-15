@@ -2,7 +2,8 @@ import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/db/database.types";
 import { logError } from "@/lib/log";
 import { GENERIC_ERROR, SESSION_ERROR, readFailure } from "@/lib/services/postgrest";
-import type { Milestone, MilestoneListItem } from "@/types";
+import { plural } from "@/lib/format";
+import type { Milestone, MilestoneListItem, TaskStatus } from "@/types";
 import type { MilestoneFieldErrors, MilestoneInput } from "@/lib/validation/milestone";
 
 type Client = SupabaseClient<Database>;
@@ -38,6 +39,14 @@ function translateError(error: PostgrestError): MilestoneFailure {
     if (error.message.includes("milestones_name_length")) {
       return { status: "validation", error: NAME_ERROR, fieldErrors: { name: NAME_ERROR } };
     }
+    if (error.message.includes("Nie mozna przesunac daty milestona")) {
+      const count = parseOpenTaskCount(error.message);
+      const message =
+        count === null
+          ? "Nie można ustawić tej daty: zadania mają późniejszy termin"
+          : `Nie można ustawić tej daty: późniejszy termin ma ${count} ${plural(Number(count), ["zadanie", "zadania", "zadań"])}`;
+      return { status: "validation", error: message, fieldErrors: { due_date: message } };
+    }
     if (error.message.includes("Milestone nie moze zostac zamkniety")) {
       const count = parseOpenTaskCount(error.message);
       const message =
@@ -60,12 +69,17 @@ function translateError(error: PostgrestError): MilestoneFailure {
 export async function listMilestones(supabase: Client, projectId: string): Promise<MilestoneListItem[]> {
   const { data, error } = await supabase
     .from("milestones")
-    .select("*, tasks(count)")
+    .select("*, tasks(*)")
     .eq("project_id", projectId)
     .order("due_date", { ascending: true })
-    .order("seq", { ascending: true });
+    .order("seq", { ascending: true })
+    .order("due_date", { referencedTable: "tasks", ascending: true, nullsFirst: false })
+    .order("created_at", { referencedTable: "tasks", ascending: true });
   if (error) throw readFailure(error);
-  return data.map(({ tasks, ...milestone }) => ({ ...milestone, task_count: tasks.at(0)?.count ?? 0 }));
+  return data.map((milestone) => {
+    const tasks = milestone.tasks.map((task) => ({ ...task, status: task.status as TaskStatus }));
+    return { ...milestone, tasks, task_count: tasks.length };
+  });
 }
 
 export async function createMilestone(

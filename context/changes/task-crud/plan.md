@@ -300,26 +300,26 @@ Jedna nowa migracja (`20261015120000_task_rules.sql`). Wdrożenie wymaga ręczne
 
 #### Automated
 
-- [x] 1.1 Wszystkie migracje aplikują się czysto od zera: `npx supabase db reset`
-- [x] 1.2 Testy pgTAP przechodzą, w tym nowy plik: `npx supabase test db`
+- [x] 1.1 Wszystkie migracje aplikują się czysto od zera: `npx supabase db reset` — 0363700
+- [x] 1.2 Testy pgTAP przechodzą, w tym nowy plik: `npx supabase test db` — 0363700
 
 #### Manual
 
-- [x] 1.3 W psql widać triggery `tasks_check_rules` i `milestones_check_task_dates`, a próby naruszenia reguł dają komunikaty po polsku bez diakrytyków
+- [x] 1.3 W psql widać triggery `tasks_check_rules` i `milestones_check_task_dates`, a próby naruszenia reguł dają komunikaty po polsku bez diakrytyków — 0363700
 
 ### Phase 2: Backend — walidacja, serwis, trasy, smoke
 
 #### Automated
 
-- [ ] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [ ] 2.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [ ] 2.3 Build przechodzi: `npm run build`
-- [ ] 2.4 Smoke przechodzi, w tym nowe kroki API zadań: `npm run smoke`
+- [x] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
+- [x] 2.2 Sprawdzanie typów przechodzi: `npx astro check`
+- [x] 2.3 Build przechodzi: `npm run build`
+- [x] 2.4 Smoke przechodzi, w tym nowe kroki API zadań: `npm run smoke`
 
 #### Manual
 
-- [ ] 2.5 Odpowiedzi API zadań (422, 404) są po polsku, wskazują pole i nie ujawniają treści błędów Postgresa
-- [ ] 2.6 Zamknięcie milestona przez API z niezrobionym zadaniem zwraca 422 z liczbą, a po ustawieniu statusu `done` zamknięcie przechodzi
+- [x] 2.5 Odpowiedzi API zadań (422, 404) są po polsku, wskazują pole i nie ujawniają treści błędów Postgresa
+- [x] 2.6 Zamknięcie milestona przez API z niezrobionym zadaniem zwraca 422 z liczbą, a po ustawieniu statusu `done` zamknięcie przechodzi
 
 ### Phase 3: UI — hook, dialogi, lista zadań w widoku projektu, smoke stron
 
