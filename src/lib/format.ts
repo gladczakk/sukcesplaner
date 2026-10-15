@@ -10,6 +10,18 @@ export function formatDate(iso: string): string {
   return dateFormatter.format(new Date(iso));
 }
 
+const timestampFormatter = new Intl.DateTimeFormat("pl-PL", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "Europe/Warsaw",
+});
+
+/** Formats an ISO timestamp (e.g. `created_at`, `completed_at`) as a day in Warsaw time, e.g. "20 cze 2027". */
+export function formatTimestamp(iso: string): string {
+  return timestampFormatter.format(new Date(iso));
+}
+
 /**
  * Polish plural form: `forms` = [one, few, many].
  * 1 -> one; n%10 in 2..4 and n%100 not in 12..14 -> few; everything else (0, 5..21, 12..14) -> many.

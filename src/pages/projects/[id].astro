@@ -1,14 +1,18 @@
 ---
 import AppLayout from "@/layouts/AppLayout.astro";
 import DeleteProjectDialog from "@/components/projects/DeleteProjectDialog";
+import MilestoneFormDialog from "@/components/projects/MilestoneFormDialog";
+import MilestoneRowActions from "@/components/projects/MilestoneRowActions";
 import ProjectFormDialog from "@/components/projects/ProjectFormDialog";
-import { formatDate } from "@/lib/format";
+import { Check } from "lucide-react";
+import { formatDate, formatTimestamp, plural } from "@/lib/format";
 import { LIFE_AREA_LABELS } from "@/lib/life-areas";
 import { logError } from "@/lib/log";
+import { listMilestones } from "@/lib/services/milestones";
 import { getProject, getProjectCounts } from "@/lib/services/projects";
 import { createClient } from "@/lib/supabase";
 import { projectIdSchema } from "@/lib/validation/project";
-import type { Project } from "@/types";
+import type { MilestoneListItem, Project } from "@/types";
 
 export const prerender = false;
 
@@ -18,6 +22,8 @@ const parsedId = projectIdSchema.safeParse(Astro.params.id);
 let project: Project | null = null;
 let counts = { milestones: 0, tasks: 0 };
 let unavailable: string | null = null;
+let milestones: MilestoneListItem[] = [];
+let milestonesError: string | null = null;
 if (!supabase) {
   unavailable = "Aplikacja nie jest teraz dostępna. Spróbuj ponownie za chwilę.";
 } else if (parsedId.success) {
@@ -27,6 +33,14 @@ if (!supabase) {
   } catch (error) {
     logError("project-view", error);
     unavailable = "Nie udało się wczytać projektu. Odśwież stronę za chwilę.";
+  }
+  if (project) {
+    try {
+      milestones = await listMilestones(supabase, project.id);
+    } catch (error) {
+      logError("project-milestones", error);
+      milestonesError = "Nie udało się wczytać milestonów. Odśwież stronę za chwilę.";
+    }
   }
 }
 
@@ -78,12 +92,71 @@ if (notFound) Astro.response.status = 404;
             Termin projektu: <span class="font-medium text-foreground">{formatDate(project.due_date)}</span>
           </p>
           <section class="mt-8" aria-labelledby="milestones-heading">
-            <h2 id="milestones-heading" class="type-section text-foreground">
-              Milestony
-            </h2>
-            <p class="type-quote mt-2 rounded-md border border-dashed border-border p-4 text-muted-foreground">
-              Milestony pojawią się tutaj wkrótce.
-            </p>
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <h2 id="milestones-heading" class="type-section text-foreground">
+                Milestony
+              </h2>
+              <MilestoneFormDialog mode="create" projectId={project.id} projectDueDate={project.due_date} client:load />
+            </div>
+            {milestonesError ? (
+              <p role="alert" class="type-quote mt-3 text-destructive-ink">
+                {milestonesError}
+              </p>
+            ) : milestones.length === 0 ? (
+              <p class="type-quote mt-3 rounded-md border border-dashed border-border p-4 text-muted-foreground">
+                Ten projekt nie ma jeszcze milestonów.
+              </p>
+            ) : (
+              <ol class="mt-3 flex flex-col gap-3">
+                {milestones.map((milestone) => (
+                  <li class="flex flex-col gap-3 rounded-md border border-border bg-card p-4 shadow-card sm:flex-row sm:items-start sm:justify-between">
+                    <div class="flex min-w-0 items-start gap-3">
+                      <span
+                        aria-hidden="true"
+                        class:list={[
+                          "mt-2 size-3 shrink-0 rotate-45 border border-primary",
+                          milestone.completed_at ? "bg-primary" : "bg-card",
+                        ]}
+                      />
+                      <div class="min-w-0">
+                        <p
+                          class:list={[
+                            "type-section break-words",
+                            milestone.completed_at ? "text-muted-foreground" : "text-foreground",
+                          ]}
+                        >
+                          {milestone.name}
+                        </p>
+                        <p class="type-meta mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground tabular-nums">
+                          <span>{formatDate(milestone.due_date)}</span>
+                          <span>
+                            {milestone.task_count} {plural(milestone.task_count, ["zadanie", "zadania", "zadań"])}
+                          </span>
+                          {milestone.completed_at && (
+                            <span class="inline-flex items-center gap-1 rounded-pill bg-success-soft px-2 text-success-ink">
+                              <Check className="size-3 shrink-0" aria-hidden="true" />
+                              zamknięty {formatTimestamp(milestone.completed_at)}
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <MilestoneRowActions
+                      projectId={project.id}
+                      projectDueDate={project.due_date}
+                      milestone={{
+                        id: milestone.id,
+                        name: milestone.name,
+                        due_date: milestone.due_date,
+                        completed_at: milestone.completed_at,
+                      }}
+                      taskCount={milestone.task_count}
+                      client:load
+                    />
+                  </li>
+                ))}
+              </ol>
+            )}
           </section>
         </div>
         <aside class="flex min-w-0 flex-col gap-4" aria-label="Szczegóły projektu">
@@ -100,7 +173,7 @@ if (notFound) Astro.response.status = 404;
               </div>
               <div class="flex justify-between gap-4">
                 <dt class="text-muted-foreground">Utworzono</dt>
-                <dd class="text-foreground tabular-nums">{formatDate(project.created_at)}</dd>
+                <dd class="text-foreground tabular-nums">{formatTimestamp(project.created_at)}</dd>
               </div>
             </dl>
           </div>

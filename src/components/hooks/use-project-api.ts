@@ -1,10 +1,7 @@
 import { useCallback } from "react";
 import type { Project } from "@/types";
 import { PROJECT_FIELDS, projectIdSchema, type ProjectFieldErrors, type ProjectInput } from "@/lib/validation/project";
-
-const SIGNIN_PATH = "/auth/signin";
-const NETWORK_ERROR = "Nie udało się połączyć z serwerem. Sprawdź połączenie i spróbuj ponownie.";
-const GENERIC_ERROR = "Nie udało się wykonać operacji. Spróbuj ponownie za chwilę.";
+import { NETWORK_ERROR, isRecord, readError, readFieldErrors, readJson, redirectToSignin } from "@/lib/api-client";
 
 export type ProjectApiSaveResult =
   | { status: "ok"; project: Project }
@@ -15,36 +12,6 @@ export type ProjectApiSaveResult =
 
 export type ProjectApiDeleteResult =
   { status: "ok" } | { status: "notFound" } | { status: "unauthorized" } | { status: "unavailable"; error: string };
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-async function readJson(response: Response): Promise<unknown> {
-  try {
-    return (await response.json()) as unknown;
-  } catch {
-    return null;
-  }
-}
-
-function readError(body: unknown): string {
-  return isRecord(body) && typeof body.error === "string" ? body.error : GENERIC_ERROR;
-}
-
-function readFieldErrors(body: unknown): ProjectFieldErrors {
-  const result: ProjectFieldErrors = {};
-  if (!isRecord(body) || !isRecord(body.fieldErrors)) return result;
-  for (const field of PROJECT_FIELDS) {
-    const message = body.fieldErrors[field];
-    if (typeof message === "string") result[field] = message;
-  }
-  return result;
-}
-
-function redirectToSignin(): void {
-  window.location.assign(SIGNIN_PATH);
-}
 
 async function saveProject(url: string, method: "POST" | "PUT", input: ProjectInput): Promise<ProjectApiSaveResult> {
   let response: Response;
@@ -66,7 +33,7 @@ async function saveProject(url: string, method: "POST" | "PUT", input: ProjectIn
 
   const body = await readJson(response);
   if (response.status === 422) {
-    return { status: "fieldErrors", error: readError(body), fieldErrors: readFieldErrors(body) };
+    return { status: "fieldErrors", error: readError(body), fieldErrors: readFieldErrors(body, PROJECT_FIELDS) };
   }
   if (
     (response.status === 200 || response.status === 201) &&

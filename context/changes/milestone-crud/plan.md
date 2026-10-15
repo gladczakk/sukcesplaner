@@ -314,29 +314,29 @@ Jedna nowa migracja (`20261014120000_milestone_close_rule.sql`). Wdrożenie wyma
 
 #### Automated
 
-- [x] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [x] 2.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [x] 2.3 Build przechodzi: `npm run build`
-- [x] 2.4 Smoke przechodzi, w tym nowe kroki API milestonów
+- [x] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`) — 636fb53
+- [x] 2.2 Sprawdzanie typów przechodzi: `npx astro check` — 636fb53
+- [x] 2.3 Build przechodzi: `npm run build` — 636fb53
+- [x] 2.4 Smoke przechodzi, w tym nowe kroki API milestonów — 636fb53
 
 #### Manual
 
-- [x] 2.5 Odpowiedzi API milestonów (422, 404) są po polsku, wskazują pole i nie ujawniają treści błędów Postgresa
-- [x] 2.6 `PATCH {completed:true}` na milestonie z niezrobionym zadaniem (psql) zwraca 422 z komunikatem o liczbie zadań
+- [x] 2.5 Odpowiedzi API milestonów (422, 404) są po polsku, wskazują pole i nie ujawniają treści błędów Postgresa — 636fb53
+- [x] 2.6 `PATCH {completed:true}` na milestonie z niezrobionym zadaniem (psql) zwraca 422 z komunikatem o liczbie zadań — 636fb53
 
 ### Phase 3: UI — dialogi, lista w widoku projektu, smoke stron
 
 #### Automated
 
-- [ ] 3.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [ ] 3.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [ ] 3.3 Build przechodzi: `npm run build`
-- [ ] 3.4 Smoke przechodzi, w tym nowe kroki strony milestonów i kolejność remisu: `npm run smoke`
+- [x] 3.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
+- [x] 3.2 Sprawdzanie typów przechodzi: `npx astro check`
+- [x] 3.3 Build przechodzi: `npm run build`
+- [x] 3.4 Smoke przechodzi, w tym nowe kroki strony milestonów i kolejność remisu: `npm run smoke`
 
 #### Manual
 
-- [ ] 3.5 Pełny przepływ w przeglądarce: dodanie, edycja, zamknięcie, otwarcie ponowne, usunięcie milestona
-- [ ] 3.6 Data graniczna, błąd daty przy polu i kolejność milestonów z tą samą datą
-- [ ] 3.7 Blokada zamknięcia i liczniki usuwania z odmianą (zadania wstawione przez psql)
-- [ ] 3.8 Regresja po wydzieleniu klienta: tworzenie, edycja i usuwanie projektu nadal działają
-- [ ] 3.9 Wygląd i dostępność: motywy, 390 px i 1280 px, powrót fokusu po zamknięciu dialogów, klawiatura
+- [x] 3.5 Pełny przepływ w przeglądarce: dodanie, edycja, zamknięcie, otwarcie ponowne, usunięcie milestona
+- [x] 3.6 Data graniczna, błąd daty przy polu i kolejność milestonów z tą samą datą
+- [x] 3.7 Blokada zamknięcia i liczniki usuwania z odmianą (zadania wstawione przez psql)
+- [x] 3.8 Regresja po wydzieleniu klienta: tworzenie, edycja i usuwanie projektu nadal działają
+- [x] 3.9 Wygląd i dostępność: motywy, 390 px i 1280 px, powrót fokusu po zamknięciu dialogów, klawiatura

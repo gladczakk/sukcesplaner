@@ -143,7 +143,16 @@ const steps = [
     },
     { status: 201, bodyField: "milestone.id" },
   ],
-  // (page step P1 of phase 3 goes here)
+  // Island SSR errors leave the page at 200, so assert text rendered by the milestone islands and the row order.
+  [
+    "project page renders milestone list",
+    () => request(`/projects/${projectId}`),
+    {
+      status: 200,
+      bodyIncludes: ["Dodaj milestone", "Zamknij milestone"],
+      bodyOrder: ["Alfa smoke", "Beta smoke"],
+    },
+  ],
   [
     "milestone rename succeeds",
     () =>
@@ -186,7 +195,11 @@ const steps = [
     },
     { status: 200, bodyEquals: { sameCompletedAt: true } },
   ],
-  // (page step P2 of phase 3 goes here)
+  [
+    "project page renders closed milestone",
+    () => request(`/projects/${projectId}`),
+    { status: 200, bodyIncludes: ["Otwórz ponownie", "zamknięty"] },
+  ],
   [
     "milestone reopen succeeds",
     () =>
@@ -199,7 +212,11 @@ const steps = [
       request(`/api/projects/${projectId}/milestones/${milestoneA}`, { method: "PATCH", json: { completed: false } }),
     { status: 200, bodyEquals: { "milestone.completed_at": null } },
   ],
-  // (page step P3 of phase 3 goes here)
+  [
+    "project page renders reopened milestone",
+    () => request(`/projects/${projectId}`),
+    { status: 200, bodyIncludes: "Zamknij milestone" },
+  ],
   [
     "milestone create in unknown project returns 404",
     () =>
@@ -288,8 +305,21 @@ function matches(expected, actual) {
     (expected.bodyField === undefined || readPath(actual.body, expected.bodyField) !== undefined) &&
     (expected.bodyEquals === undefined ||
       Object.entries(expected.bodyEquals).every(([path, value]) => readPath(actual.body, path) === value)) &&
-    (expected.bodyIncludes === undefined || actual.text.includes(expected.bodyIncludes))
+    (expected.bodyIncludes === undefined ||
+      [expected.bodyIncludes].flat().every((part) => actual.text.includes(part))) &&
+    (expected.bodyOrder === undefined || includesInOrder(actual.text, expected.bodyOrder))
   );
+}
+
+// Every fragment must occur in the text, each after the previous one.
+function includesInOrder(text, parts) {
+  let from = 0;
+  for (const part of parts) {
+    const index = text.indexOf(part, from);
+    if (index === -1) return false;
+    from = index + part.length;
+  }
+  return true;
 }
 
 function describeExpected(expected) {
@@ -297,7 +327,8 @@ function describeExpected(expected) {
     expected.location ??
     expected.bodyField ??
     (expected.bodyEquals ? JSON.stringify(expected.bodyEquals) : undefined) ??
-    expected.bodyIncludes ??
+    (expected.bodyIncludes ? [expected.bodyIncludes].flat().join(" + ") : undefined) ??
+    (expected.bodyOrder ? expected.bodyOrder.join(" < ") : undefined) ??
     "";
   return `${expected.status} ${detail}`;
 }
