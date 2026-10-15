@@ -325,15 +325,15 @@ Jedna nowa migracja (`20261015120000_task_rules.sql`). Wdrożenie wymaga ręczne
 
 #### Automated
 
-- [x] 3.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [x] 3.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [x] 3.3 Build przechodzi: `npm run build`
-- [x] 3.4 Smoke przechodzi, w tym nowe kroki stron zadań: `npm run smoke`
+- [x] 3.1 Lint zmienionych plików bez błędów (`endOfLine: auto`) — 38aa6ae
+- [x] 3.2 Sprawdzanie typów przechodzi: `npx astro check` — 38aa6ae
+- [x] 3.3 Build przechodzi: `npm run build` — 38aa6ae
+- [x] 3.4 Smoke przechodzi, w tym nowe kroki stron zadań: `npm run smoke` — 38aa6ae
 
 #### Manual
 
-- [x] 3.5 Pełny przepływ w przeglądarce: dodanie, zmiana statusu, edycja, usunięcie zadania oraz zamknięcie milestona po ustawieniu zadań na „Zrobione"
-- [x] 3.6 Terminy: `max` i błąd przy polu, komunikat przy przesunięciu daty milestona, kolejność zadań
-- [x] 3.7 Zamknięty milestone: wyłączone „Dodaj zadanie", komunikat po cofnięciu statusu, edycja i usunięcie działają
-- [x] 3.8 Regresja milestonów po zmianie `listMilestones`: dodawanie, edycja, zamykanie, usuwanie i liczniki w dialogu
-- [x] 3.9 Wygląd i dostępność: motywy, 390 px i 1280 px, powrót fokusu po zamknięciu dialogów, klawiatura, nazwy przycisków
+- [x] 3.5 Pełny przepływ w przeglądarce: dodanie, zmiana statusu, edycja, usunięcie zadania oraz zamknięcie milestona po ustawieniu zadań na „Zrobione" — 38aa6ae
+- [x] 3.6 Terminy: `max` i błąd przy polu, komunikat przy przesunięciu daty milestona, kolejność zadań — 38aa6ae
+- [x] 3.7 Zamknięty milestone: wyłączone „Dodaj zadanie", komunikat po cofnięciu statusu, edycja i usunięcie działają — 38aa6ae
+- [x] 3.8 Regresja milestonów po zmianie `listMilestones`: dodawanie, edycja, zamykanie, usuwanie i liczniki w dialogu — 38aa6ae
+- [x] 3.9 Wygląd i dostępność: motywy, 390 px i 1280 px, powrót fokusu po zamknięciu dialogów, klawiatura, nazwy przycisków — 38aa6ae

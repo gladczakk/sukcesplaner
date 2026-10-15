@@ -1,7 +1,7 @@
 ---
 change_id: task-crud
 title: Zarządzanie zadaniami (CRUD)
-status: implementing
+status: implemented
 created: 2026-10-15
 updated: 2026-10-15
 archived_at: null
