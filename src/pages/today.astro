@@ -1,15 +1,18 @@
 ---
 import CloseMilestoneButton from "@/components/today/CloseMilestoneButton";
+import DueChip from "@/components/today/DueChip.astro";
 import AppLayout from "@/layouts/AppLayout.astro";
 import { formatDate, plural } from "@/lib/format";
 import { logError } from "@/lib/log";
 import { getToday } from "@/lib/services/today";
 import { createClient } from "@/lib/supabase";
 import { dueChip, formatTodayHeading, todayInWarsaw } from "@/lib/today";
-import type { DueTone } from "@/lib/today";
 import type { TodayView } from "@/types";
 
 export const prerender = false;
+
+// The list depends on the current day, so it must not come back from a cache (e.g. bfcache) after midnight.
+Astro.response.headers.set("Cache-Control", "no-store");
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const today = todayInWarsaw();
@@ -28,8 +31,11 @@ if (!supabase) {
 }
 
 const rows = view.tasks.map((task) => ({ task, chip: dueChip(task.due_date, today) }));
+const milestoneRows = view.milestones.map((milestone) => ({ milestone, chip: dueChip(milestone.due_date, today) }));
 const itemCount = view.tasks.length + view.milestones.length;
-const overdueCount = rows.filter((row) => row.chip.tone === "overdue").length;
+const overdueCount =
+  rows.filter((row) => row.chip.tone === "overdue").length +
+  milestoneRows.filter((row) => row.chip.tone === "overdue").length;
 const milestoneCount = view.milestones.length;
 const summary = [
   `${itemCount} ${plural(itemCount, ["pozycja", "pozycje", "pozycji"])}`,
@@ -38,15 +44,6 @@ const summary = [
 ]
   .filter((part) => part !== null)
   .join(" · ");
-
-const chipClasses: Record<DueTone, string> = {
-  overdue: "bg-destructive-soft text-destructive-ink",
-  today: "bg-warning-soft text-warning-ink",
-  tomorrow: "bg-info-soft text-info-ink",
-  soon: "bg-muted text-muted-foreground",
-  date: "bg-muted text-muted-foreground",
-  none: "bg-muted text-muted-foreground",
-};
 ---
 
 <AppLayout title="Dziś" current="today">
@@ -87,82 +84,23 @@ const chipClasses: Record<DueTone, string> = {
                   {task.status === "partial" && " · częściowo"}
                 </p>
               </div>
-              <span
-                class:list={[
-                  "type-meta inline-flex shrink-0 items-center gap-1 self-start rounded-pill px-2 tabular-nums",
-                  chipClasses[chip.tone],
-                ]}
-              >
-                {chip.tone === "overdue" && (
-                  <svg
-                    class="size-3 shrink-0"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
-                    <path d="M12 9v4" />
-                    <path d="M12 17h.01" />
-                  </svg>
-                )}
-                {chip.tone === "today" && (
-                  <svg
-                    class="size-3 shrink-0"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                  >
-                    <circle cx="12" cy="12" r="4" />
-                    <path d="M12 2v2" />
-                    <path d="M12 20v2" />
-                    <path d="m4.93 4.93 1.41 1.41" />
-                    <path d="m17.66 17.66 1.41 1.41" />
-                    <path d="M2 12h2" />
-                    <path d="M20 12h2" />
-                    <path d="m6.34 17.66-1.41 1.41" />
-                    <path d="m19.07 4.93-1.41 1.41" />
-                  </svg>
-                )}
-                {chip.tone === "tomorrow" && (
-                  <svg
-                    class="size-3 shrink-0"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M5 12h14" />
-                    <path d="m12 5 7 7-7 7" />
-                  </svg>
-                )}
-                {chip.label}
-              </span>
+              <DueChip chip={chip} />
             </li>
           ))}
-          {view.milestones.map((milestone) => (
+          {milestoneRows.map(({ milestone, chip }) => (
             <li class="flex flex-col gap-2 bg-accent px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
               <div class="min-w-0">
                 <p class="font-serif text-xl font-medium break-words text-foreground">{milestone.name}</p>
-                <p class="type-meta break-words text-muted-foreground">
+                <p class="type-meta flex flex-wrap items-center gap-x-2 gap-y-1 break-words text-muted-foreground">
                   <a
                     href={`/projects/${milestone.project.id}`}
                     class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
                     {milestone.project.name}
                   </a>
-                  {" · "}
+                  <span aria-hidden="true">·</span>
                   <span class="tabular-nums">{formatDate(milestone.due_date)}</span>
+                  {chip.tone !== "date" && chip.tone !== "none" && <DueChip chip={chip} />}
                 </p>
                 <p class="type-meta text-muted-foreground">Wszystkie zadania zrobione — milestone do zamknięcia</p>
               </div>
@@ -175,6 +113,7 @@ const chipClasses: Record<DueTone, string> = {
                 />
                 <a
                   href={`/projects/${milestone.project.id}`}
+                  aria-label={`Otwórz projekt ${milestone.project.name}`}
                   class="type-button inline-flex h-8 items-center rounded-pill px-1 text-foreground underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   Otwórz projekt
@@ -185,7 +124,7 @@ const chipClasses: Record<DueTone, string> = {
         </ul>
       )}
       {view.deferredCount > 0 && (
-        <p class="type-meta mt-4 text-muted-foreground tabular-nums">Przeniesione na jutro: {view.deferredCount}</p>
+        <p class="type-meta mt-4 text-muted-foreground tabular-nums">Przeniesione na później: {view.deferredCount}</p>
       )}
     </>
   )}

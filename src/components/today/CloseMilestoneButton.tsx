@@ -51,6 +51,7 @@ export default function CloseMilestoneButton({ projectId, milestoneId, milestone
         size="sm"
         className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
         aria-disabled={pending}
+        aria-busy={pending}
         aria-label={`Zamknij milestone ${milestoneName}`}
         onClick={() => {
           void close();

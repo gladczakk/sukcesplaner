@@ -16,11 +16,14 @@
 -- - Zadanie przeniesione na pozniej jest nadal niedokonczone, wiec milestone z samymi przeniesionymi
 --   zadaniami NIE jest "do zamkniecia".
 -- - Sortowanie wg FR-010 doslownie, bez dziedziczenia terminu milestona: wiersze 'task' po terminie
---   zadania rosnaco (NULL na koncu), potem data milestona, kolejnosc utworzenia i id; po zadaniach
+--   zadania rosnaco (NULL na koncu), potem data milestona, seq milestona (rozstrzyga remis tej samej
+--   daty milestona w roznych projektach, przed created_at), kolejnosc utworzenia i id; po zadaniach
 --   wiersze 'milestone' (data milestona, seq); na koncu wiersze 'deferred'.
 -- - Data "dzis" jest parametrem (aplikacja liczy ja raz na zapytanie w Europe/Warsaw), a nie
 --   current_date (UTC): lista i oznaczenia terminow nie rozjada sie o polnocy, a testy sa
 --   deterministyczne.
+-- Funkcja jest strict: wywolanie z p_today = NULL zwraca 0 wierszy (inaczej deferred_until > NULL
+-- dawaloby NULL i odlozone zadania trafialyby do wierszy task).
 -- Funkcja dziala jako invoker: widocznosc danych ogranicza RLS (user_id = auth.uid()), wiec zwraca
 -- wylacznie rekordy wywolujacego. Wykonanie tylko dla authenticated (anon dostaje 42501).
 -- Wycofanie: nowa migracja z drop function public.today_list(date).
@@ -42,6 +45,7 @@ returns table (
 )
 language sql
 stable
+strict
 security invoker
 set search_path = ''
 as $$

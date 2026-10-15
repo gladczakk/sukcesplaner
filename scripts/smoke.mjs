@@ -99,7 +99,7 @@ const steps = [
   [
     "today page renders empty state",
     () => request("/today"),
-    { status: 200, bodyIncludes: ["Dziś", "Na dziś nic do zrobienia."] },
+    { status: 200, bodyIncludes: "Na dziś nic do zrobienia.", bodyExcludes: "pozycj" },
   ],
   [
     "project create rejects empty name",
@@ -273,7 +273,12 @@ const steps = [
   [
     "today page lists the open task of the nearest milestone",
     () => request("/today"),
-    { status: 200, bodyIncludes: ["Zadanie smoke", "Gamma smoke"], bodyExcludes: ["Beta smoke"] },
+    {
+      status: 200,
+      bodyIncludes: ["Zadanie smoke", "Gamma smoke", "1 pozycja"],
+      bodyOrder: ["Smoke project", "Gamma smoke"],
+      bodyExcludes: ["Beta smoke", "milestone do zamknięcia"],
+    },
   ],
   [
     "milestone close rejected while it has an open task",
@@ -295,7 +300,12 @@ const steps = [
     () => request("/today"),
     {
       status: 200,
-      bodyIncludes: ["Gamma smoke", "Wszystkie zadania zrobione", "Zamknij milestone Gamma smoke"],
+      bodyIncludes: [
+        "Gamma smoke",
+        "1 pozycja · 1 milestone do zamknięcia",
+        "Wszystkie zadania zrobione",
+        "Zamknij milestone Gamma smoke",
+      ],
       bodyExcludes: ["Zadanie smoke"],
     },
   ],
@@ -310,7 +320,12 @@ const steps = [
     () => request("/today"),
     {
       status: 200,
-      bodyIncludes: ["Beta smoke", "Wszystkie zadania zrobione", "Zamknij milestone Beta smoke"],
+      bodyIncludes: [
+        "Beta smoke",
+        "1 pozycja · 1 milestone do zamknięcia",
+        "Wszystkie zadania zrobione",
+        "Zamknij milestone Beta smoke",
+      ],
       bodyExcludes: ["Gamma smoke"],
     },
   ],

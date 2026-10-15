@@ -8,7 +8,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(19);
+select plan(24);
 
 -- Uzytkownicy: a1 (wlasciciel danych), b1 (dane do testu RLS), c1 (bez danych)
 insert into auth.users (id, aud, role, email)
@@ -39,7 +39,10 @@ values
   ('10000000-0000-0000-0000-000000000013', '00000000-0000-0000-0000-0000000000a1', 'P13 bez zadan', 'praca', '2026-12-31'),
   ('10000000-0000-0000-0000-000000000014', '00000000-0000-0000-0000-0000000000a1', 'P14 przeniesione', 'dom', '2026-12-31'),
   ('10000000-0000-0000-0000-000000000015', '00000000-0000-0000-0000-0000000000a1', 'P15 wszystko przeniesione', 'dom', '2026-12-31'),
-  ('10000000-0000-0000-0000-000000000016', '00000000-0000-0000-0000-0000000000b1', 'P16 uzytkownik B', 'sport', '2026-12-31');
+  ('10000000-0000-0000-0000-000000000016', '00000000-0000-0000-0000-0000000000b1', 'P16 uzytkownik B', 'sport', '2026-12-31'),
+  ('10000000-0000-0000-0000-000000000017', '00000000-0000-0000-0000-0000000000a1', 'P17 remis seq', 'dom', '2026-12-31'),
+  ('10000000-0000-0000-0000-000000000018', '00000000-0000-0000-0000-0000000000a1', 'P18 remis seq', 'dom', '2026-12-31'),
+  ('10000000-0000-0000-0000-000000000019', '00000000-0000-0000-0000-0000000000a1', 'P19 done i odlozone', 'praca', '2026-12-31');
 
 -- Milestony (kolejnosc wstawiania wyznacza seq, wiec m04 < m06 oraz m07 < m08)
 insert into public.milestones (id, user_id, project_id, name, due_date, completed_at)
@@ -61,7 +64,10 @@ values
   ('20000000-0000-0000-0000-000000000015', '00000000-0000-0000-0000-0000000000a1', '10000000-0000-0000-0000-000000000013', 'm15 bez zadan', '2026-11-01', null),
   ('20000000-0000-0000-0000-000000000016', '00000000-0000-0000-0000-0000000000a1', '10000000-0000-0000-0000-000000000014', 'm16 przeniesione', '2026-11-01', null),
   ('20000000-0000-0000-0000-000000000017', '00000000-0000-0000-0000-0000000000a1', '10000000-0000-0000-0000-000000000015', 'm17 wszystko przeniesione', '2026-11-01', null),
-  ('20000000-0000-0000-0000-000000000018', '00000000-0000-0000-0000-0000000000b1', '10000000-0000-0000-0000-000000000016', 'm18 uzytkownik B', '2026-11-01', null);
+  ('20000000-0000-0000-0000-000000000018', '00000000-0000-0000-0000-0000000000b1', '10000000-0000-0000-0000-000000000016', 'm18 uzytkownik B', '2026-11-01', null),
+  ('20000000-0000-0000-0000-000000000019', '00000000-0000-0000-0000-0000000000a1', '10000000-0000-0000-0000-000000000017', 'm19 remis seq', '2026-10-26', null),
+  ('20000000-0000-0000-0000-000000000020', '00000000-0000-0000-0000-0000000000a1', '10000000-0000-0000-0000-000000000018', 'm20 remis seq', '2026-10-26', null),
+  ('20000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-0000000000a1', '10000000-0000-0000-0000-000000000019', 'm21 done i odlozone', '2026-11-01', null);
 
 -- Zadania (termin zadania <= data milestona; zamkniete milestony maja tylko zadania done)
 insert into public.tasks (id, user_id, milestone_id, title, due_date, status, deferred_until, created_at)
@@ -100,7 +106,12 @@ values
   ('30000000-0000-0000-0000-000000000023', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000017', 'all-1', null, 'todo', '2026-10-16', '2026-10-01 09:00:00+00'),
   ('30000000-0000-0000-0000-000000000024', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000017', 'all-2', null, 'partial', '2026-10-20', '2026-10-01 10:00:00+00'),
   -- P16: zadanie uzytkownika B
-  ('30000000-0000-0000-0000-000000000025', '00000000-0000-0000-0000-0000000000b1', '20000000-0000-0000-0000-000000000018', 'b-zadanie', null, 'todo', null, default);
+  ('30000000-0000-0000-0000-000000000025', '00000000-0000-0000-0000-0000000000b1', '20000000-0000-0000-0000-000000000018', 'b-zadanie', null, 'todo', null, default),
+  -- P17, P18: ten sam termin zadania i ta sama data milestona; seq milestona (m19 < m20) rozstrzyga przed created_at
+  ('30000000-0000-0000-0000-000000000026', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000019', 'p17-task', '2026-10-24', 'todo', null, '2026-10-01 12:00:00+00'),
+  ('30000000-0000-0000-0000-000000000027', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000020', 'p18-task', '2026-10-24', 'todo', null, '2026-10-01 09:00:00+00'),
+  -- P19: jedyne zadanie jest done (z deferred_until po p_today) - nie jest ani task, ani deferred
+  ('30000000-0000-0000-0000-000000000028', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000021', 'p19-done-odlozone', null, 'done', '2026-10-20', default);
 
 -- Struktura i uprawnienia
 select has_function('public', 'today_list', array['date'], 'funkcja today_list(date) istnieje');
@@ -250,6 +261,64 @@ select results_eq(
     ('deferred', 'all-1'),
     ('deferred', 'all-2')$$,
   'P15: wszystkie zadania przeniesione - wiersze deferred, brak wiersza milestone');
+
+-- P17, P18: remis terminu zadania i daty milestona w roznych projektach - rozstrzyga seq milestona
+select results_eq(
+  $$select kind, task_title from public.today_list('2026-10-15')
+    where project_id in (
+      '10000000-0000-0000-0000-000000000017',
+      '10000000-0000-0000-0000-000000000018')$$,
+  $$values
+    ('task', 'p17-task'),
+    ('task', 'p18-task')$$,
+  'P17-P18: remis terminu i daty milestona rozstrzyga seq milestona przed created_at');
+
+-- P19: zadanie done z deferred_until po p_today nie jest ani task, ani deferred; milestone do zamkniecia
+select results_eq(
+  $$select kind, milestone_name, task_title from public.today_list('2026-10-15')
+    where project_id = '10000000-0000-0000-0000-000000000019'$$,
+  $$values ('milestone', 'm21 done i odlozone', null::text)$$,
+  'P19: zadanie done z deferred_until nie daje wiersza task ani deferred');
+
+-- Pelny wiersz milestone: projekt, obszar zycia, data milestona i NULL w kolumnach zadania
+select results_eq(
+  $$select kind, project_name, life_area, milestone_name, milestone_due_date, task_id, task_title,
+           task_due_date, task_status, task_deferred_until
+    from public.today_list('2026-10-15')
+    where project_id = '10000000-0000-0000-0000-000000000013'$$,
+  $$values (
+    'milestone', 'P13 bez zadan', 'praca', 'm15 bez zadan', '2026-11-01'::date, null::uuid, null::text,
+    null::date, null::text, null::date)$$,
+  'P13: wiersz milestone ma projekt, obszar, date milestona i NULL w kolumnach zadania');
+
+-- Kolejnosc calego wyniku: task, potem milestone, na koncu deferred (w jednym wyniku wielu projektow)
+select results_eq(
+  $$select kind, coalesce(task_title, milestone_name) from public.today_list('2026-10-15')
+    where project_id in (
+      '10000000-0000-0000-0000-000000000002',
+      '10000000-0000-0000-0000-000000000003',
+      '10000000-0000-0000-0000-000000000004',
+      '10000000-0000-0000-0000-000000000005',
+      '10000000-0000-0000-0000-000000000006',
+      '10000000-0000-0000-0000-000000000014')$$,
+  $$values
+    ('task', 'p3-b'),
+    ('task', 'p3-a'),
+    ('task', 'p3-a2'),
+    ('task', 'p2-a'),
+    ('task', 'p2-b'),
+    ('task', 'dz-wczoraj'),
+    ('task', 'dz-dzis'),
+    ('milestone', 'm05'),
+    ('milestone', 'm04'),
+    ('milestone', 'm06'),
+    ('deferred', 'dz-jutro')$$,
+  'kolejnosc wyniku: task, potem milestone, na koncu deferred');
+
+-- strict: p_today = NULL daje 0 wierszy (a nie odlozone zadania jako zwykle)
+select is_empty(
+  $$select 1 from public.today_list(null)$$,
+  'today_list(NULL) zwraca 0 wierszy');
 
 -- RLS: dane b1 niewidoczne dla a1
 select is_empty(

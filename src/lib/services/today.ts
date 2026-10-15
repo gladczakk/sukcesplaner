@@ -1,11 +1,16 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/db/database.types";
+import { logError } from "@/lib/log";
 import { readFailure } from "@/lib/services/postgrest";
 import type { TaskStatus, TodayMilestone, TodayTask, TodayView } from "@/types";
 
 type Client = SupabaseClient<Database>;
 
-/** Reads the open tasks of the nearest milestones, the milestones ready to close and the deferred count; SQL order is kept. */
+/**
+ * Reads the open tasks of the nearest milestones, the milestones ready to close and the deferred count; SQL order is kept.
+ * The generated RPC types mark every column non-null, but the task columns are NULL on 'milestone' rows;
+ * rows are therefore read by `kind` and the task columns only on 'task' rows.
+ */
 export async function getToday(supabase: Client, today: string): Promise<TodayView> {
   const { data, error } = await supabase.rpc("today_list", { p_today: today });
   if (error) throw readFailure(error);
@@ -32,6 +37,8 @@ export async function getToday(supabase: Client, today: string): Promise<TodayVi
       view.milestones.push(milestone);
     } else if (row.kind === "deferred") {
       view.deferredCount += 1;
+    } else {
+      logError("today-list", new Error(`Unknown today_list kind: ${row.kind}`));
     }
   }
   return view;
