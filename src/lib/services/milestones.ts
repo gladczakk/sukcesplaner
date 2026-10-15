@@ -114,15 +114,23 @@ export async function setMilestoneCompleted(
   if (!current.data) return { status: "not_found" };
   if ((current.data.completed_at !== null) === completed) return { status: "ok", milestone: current.data };
 
-  const { data, error } = await supabase
+  // Conditional on the state we just read, so a concurrent request cannot overwrite `completed_at`.
+  const update = supabase
     .from("milestones")
     .update({ completed_at: completed ? new Date().toISOString() : null })
     .eq("id", id)
-    .eq("project_id", projectId)
-    .select();
+    .eq("project_id", projectId);
+  const { data, error } = await (
+    completed ? update.is("completed_at", null) : update.not("completed_at", "is", null)
+  ).select();
   if (error) return translateError(error);
   const row = data.at(0);
-  return row ? { status: "ok", milestone: row } : { status: "not_found" };
+  if (row) return { status: "ok", milestone: row };
+
+  // No row matched: someone changed the state between our read and write, so report the current state.
+  const latest = await supabase.from("milestones").select().eq("id", id).eq("project_id", projectId).maybeSingle();
+  if (latest.error) return translateError(latest.error);
+  return latest.data ? { status: "ok", milestone: latest.data } : { status: "not_found" };
 }
 
 export async function deleteMilestone(supabase: Client, projectId: string, id: string): Promise<MilestoneDeleteResult> {

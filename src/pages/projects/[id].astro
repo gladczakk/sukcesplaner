@@ -4,7 +4,6 @@ import DeleteProjectDialog from "@/components/projects/DeleteProjectDialog";
 import MilestoneFormDialog from "@/components/projects/MilestoneFormDialog";
 import MilestoneRowActions from "@/components/projects/MilestoneRowActions";
 import ProjectFormDialog from "@/components/projects/ProjectFormDialog";
-import { Check } from "lucide-react";
 import { formatDate, formatTimestamp, plural } from "@/lib/format";
 import { LIFE_AREA_LABELS } from "@/lib/life-areas";
 import { logError } from "@/lib/log";
@@ -134,7 +133,18 @@ if (notFound) Astro.response.status = 404;
                           </span>
                           {milestone.completed_at && (
                             <span class="inline-flex items-center gap-1 rounded-pill bg-success-soft px-2 text-success-ink">
-                              <Check className="size-3 shrink-0" aria-hidden="true" />
+                              <svg
+                                class="size-3 shrink-0"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                              >
+                                <path d="M20 6 9 17l-5-5" />
+                              </svg>
                               zamknięty {formatTimestamp(milestone.completed_at)}
                             </span>
                           )}

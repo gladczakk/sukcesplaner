@@ -3,6 +3,11 @@
 -- Baza pilnuje niezmiennika niezaleznie od tego, kto zapisuje (aplikacja, inna funkcja, psql).
 -- Nie sprawdzamy ponownego otwarcia (completed_at -> NULL), zmiany innych kolumn zamknietego
 -- milestona ani ponownego zapisu completed_at juz zamknietego (to odpowiedzialnosc serwisu).
+-- Znane ograniczenie: regula dziala tylko przy zamykaniu (count bez blokad). Dodanie zadania
+-- niezrobionego do zamknietego milestona, cofniecie zadania na todo albo rownolegly zapis w trakcie
+-- zamykania nie sa tu blokowane. Slice z zadaniami (S-03) musi dodac trigger na tasks (insert,
+-- update of status/milestone_id) z blokada wiersza milestona (FOR SHARE tu, FOR UPDATE w tym triggerze).
+-- Tekst komunikatu jest kontraktem z src/lib/services/milestones.ts (parseOpenTaskCount).
 
 create function public.check_milestone_closable()
 returns trigger

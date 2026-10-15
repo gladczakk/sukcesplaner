@@ -1,17 +1,9 @@
 import { useState, type SubmitEvent } from "react";
-import { CircleAlert, Plus } from "lucide-react";
+import { CircleAlert } from "lucide-react";
 
 import { useMilestoneApi } from "@/components/hooks/use-milestone-api";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { formatDate } from "@/lib/format";
@@ -137,22 +129,20 @@ export default function MilestoneFormDialog({ mode, projectId, projectDueDate, m
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {isEdit ? (
-          <Button variant="ghost" size="sm">
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label={milestone ? `Edytuj milestone ${milestone.name}` : "Edytuj milestone"}
+          >
             Edytuj
           </Button>
         ) : (
-          <Button>
-            <Plus aria-hidden="true" />
-            Dodaj milestone
-          </Button>
+          <Button>Dodaj milestone</Button>
         )}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>{isEdit ? "Edytuj milestone" : "Dodaj milestone"}</DialogTitle>
-          <DialogDescription>
-            Nazwa i data są wymagane. Data nie może być późniejsza niż termin projektu ({formatDate(projectDueDate)}).
-          </DialogDescription>
         </DialogHeader>
         <form noValidate onSubmit={handleSubmit} className="grid gap-4">
           <Field id={`${idPrefix}-name`} label="Nazwa" error={fieldErrors.name} required>

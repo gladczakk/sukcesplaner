@@ -215,7 +215,8 @@ const steps = [
   [
     "project page renders reopened milestone",
     () => request(`/projects/${projectId}`),
-    { status: 200, bodyIncludes: "Zamknij milestone" },
+    // The renamed milestone's own action sits between its name and Beta's name only when it is open again.
+    { status: 200, bodyOrder: ["Gamma smoke", "Zamknij milestone Gamma smoke", "Beta smoke"] },
   ],
   [
     "milestone create in unknown project returns 404",

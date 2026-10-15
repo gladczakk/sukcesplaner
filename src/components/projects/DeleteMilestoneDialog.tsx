@@ -79,7 +79,12 @@ export default function DeleteMilestoneDialog({
       pending={pending}
       error={error}
       trigger={
-        <Button variant="ghost" size="sm" className="text-destructive-ink">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-destructive-ink"
+          aria-label={`Usuń milestone ${milestoneName}`}
+        >
           Usuń
         </Button>
       }
