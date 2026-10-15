@@ -301,12 +301,12 @@ Jedna nowa migracja (`20261016120000_today_list.sql`, tylko funkcja, brak zmian 
 
 #### Automated
 
-- [x] 3.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [x] 3.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [x] 3.3 Build przechodzi: `npm run build`
-- [x] 3.4 Smoke przechodzi, w tym asercje na treść wyspy: `npm run smoke`
+- [x] 3.1 Lint zmienionych plików bez błędów (`endOfLine: auto`) — a1ded9e
+- [x] 3.2 Sprawdzanie typów przechodzi: `npx astro check` — a1ded9e
+- [x] 3.3 Build przechodzi: `npm run build` — a1ded9e
+- [x] 3.4 Smoke przechodzi, w tym asercje na treść wyspy: `npm run smoke` — a1ded9e
 
 #### Manual
 
-- [x] 3.5 „Zamknij milestone" z listy zamyka milestone i lista przechodzi do następnego; błąd (niedokończone zadanie dodane psql) jest po polsku
-- [x] 3.6 Fokus zostaje na przycisku, nazwa z nazwą milestona, wygląd w obu motywach i na 390 px oraz 1280 px
+- [x] 3.5 „Zamknij milestone" z listy zamyka milestone i lista przechodzi do następnego; błąd (niedokończone zadanie dodane psql) jest po polsku — a1ded9e
+- [x] 3.6 Fokus zostaje na przycisku, nazwa z nazwą milestona, wygląd w obu motywach i na 390 px oraz 1280 px — a1ded9e
