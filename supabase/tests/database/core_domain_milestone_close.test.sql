@@ -31,6 +31,11 @@ values
   ('20000000-0000-0000-0000-000000000008', '00000000-0000-0000-0000-0000000000a1', '10000000-0000-0000-0000-000000000001', 'm8', '2026-11-01', null);
 
 -- Zadania (m5 i m6 dostaja otwarte zadanie dodane po zamknieciu)
+-- m5/m6 symuluja stan sprzed reguly zadan (tasks_check_rules zabrania niezrobionego zadania
+-- w zamknietym milestonie), wiec na czas setupu wylaczamy trigger. Test dziala jako postgres
+-- (wlasciciel tabeli), a transakcja jest wycofywana.
+alter table public.tasks disable trigger tasks_check_rules;
+
 insert into public.tasks (id, user_id, milestone_id, title, status)
 values
   ('30000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000001', 't1', 'todo'),
@@ -40,6 +45,8 @@ values
   ('30000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000005', 't5', 'todo'),
   ('30000000-0000-0000-0000-000000000006', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000006', 't6', 'todo'),
   ('30000000-0000-0000-0000-000000000007', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000007', 't7', 'todo');
+
+alter table public.tasks enable trigger tasks_check_rules;
 
 -- Struktura
 select has_trigger('public', 'milestones', 'milestones_check_closable', 'trigger milestones_check_closable istnieje');
