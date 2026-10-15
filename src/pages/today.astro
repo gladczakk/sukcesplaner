@@ -1,0 +1,183 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro";
+import { formatDate, plural } from "@/lib/format";
+import { logError } from "@/lib/log";
+import { getToday } from "@/lib/services/today";
+import { createClient } from "@/lib/supabase";
+import { dueChip, formatTodayHeading, todayInWarsaw } from "@/lib/today";
+import type { DueTone } from "@/lib/today";
+import type { TodayView } from "@/types";
+
+export const prerender = false;
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const today = todayInWarsaw();
+
+let view: TodayView = { tasks: [], milestones: [], deferredCount: 0 };
+let unavailable: string | null = null;
+if (!supabase) {
+  unavailable = "Aplikacja nie jest teraz dostępna. Spróbuj ponownie za chwilę.";
+} else {
+  try {
+    view = await getToday(supabase, today);
+  } catch (error) {
+    logError("today-list", error);
+    unavailable = "Nie udało się wczytać listy na dziś. Odśwież stronę za chwilę.";
+  }
+}
+
+const rows = view.tasks.map((task) => ({ task, chip: dueChip(task.due_date, today) }));
+const itemCount = view.tasks.length + view.milestones.length;
+const overdueCount = rows.filter((row) => row.chip.tone === "overdue").length;
+const milestoneCount = view.milestones.length;
+const summary = [
+  `${itemCount} ${plural(itemCount, ["pozycja", "pozycje", "pozycji"])}`,
+  overdueCount > 0 ? `${overdueCount} po terminie` : null,
+  milestoneCount > 0 ? `${milestoneCount} milestone do zamknięcia` : null,
+]
+  .filter((part) => part !== null)
+  .join(" · ");
+
+const chipClasses: Record<DueTone, string> = {
+  overdue: "bg-destructive-soft text-destructive-ink",
+  today: "bg-warning-soft text-warning-ink",
+  tomorrow: "bg-info-soft text-info-ink",
+  soon: "bg-muted text-muted-foreground",
+  date: "bg-muted text-muted-foreground",
+  none: "bg-muted text-muted-foreground",
+};
+---
+
+<AppLayout title="Dziś" current="today">
+  <div class="min-w-0">
+    <p class="type-eyebrow text-muted-foreground">Dziś</p>
+    <h1 class="type-display text-foreground">{formatTodayHeading(today)}</h1>
+    {!unavailable && itemCount > 0 && <p class="type-meta mt-1 text-muted-foreground tabular-nums">{summary}</p>}
+  </div>
+
+  {unavailable ? (
+    <p role="alert" class="type-quote mt-8 text-destructive-ink">
+      {unavailable}
+    </p>
+  ) : (
+    <>
+      {itemCount === 0 ? (
+        <div class="mt-8 flex flex-col items-start gap-4 rounded-md border border-border bg-card p-6 shadow-card">
+          <p class="type-quote text-muted-foreground">Na dziś nic do zrobienia.</p>
+          <a href="/projects" class="type-button text-foreground underline">
+            Projekty
+          </a>
+        </div>
+      ) : (
+        <ul class="mt-8 divide-y divide-border rounded-md border border-border bg-card shadow-card">
+          {rows.map(({ task, chip }) => (
+            <li class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+              <div class="min-w-0">
+                <p class="type-task break-words text-foreground">{task.title}</p>
+                <p class="type-meta break-words text-muted-foreground">
+                  <a
+                    href={`/projects/${task.project.id}`}
+                    class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    {task.project.name}
+                  </a>
+                  {" · "}
+                  {task.milestone.name}
+                  {task.status === "partial" && " · częściowo"}
+                </p>
+              </div>
+              <span
+                class:list={[
+                  "type-meta inline-flex shrink-0 items-center gap-1 self-start rounded-pill px-2 tabular-nums",
+                  chipClasses[chip.tone],
+                ]}
+              >
+                {chip.tone === "overdue" && (
+                  <svg
+                    class="size-3 shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+                    <path d="M12 9v4" />
+                    <path d="M12 17h.01" />
+                  </svg>
+                )}
+                {chip.tone === "today" && (
+                  <svg
+                    class="size-3 shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M12 2v2" />
+                    <path d="M12 20v2" />
+                    <path d="m4.93 4.93 1.41 1.41" />
+                    <path d="m17.66 17.66 1.41 1.41" />
+                    <path d="M2 12h2" />
+                    <path d="M20 12h2" />
+                    <path d="m6.34 17.66-1.41 1.41" />
+                    <path d="m19.07 4.93-1.41 1.41" />
+                  </svg>
+                )}
+                {chip.tone === "tomorrow" && (
+                  <svg
+                    class="size-3 shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                )}
+                {chip.label}
+              </span>
+            </li>
+          ))}
+          {view.milestones.map((milestone) => (
+            <li class="flex flex-col gap-2 bg-accent px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+              <div class="min-w-0">
+                <p class="font-serif text-xl font-medium break-words text-foreground">{milestone.name}</p>
+                <p class="type-meta break-words text-muted-foreground">
+                  <a
+                    href={`/projects/${milestone.project.id}`}
+                    class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    {milestone.project.name}
+                  </a>
+                  {" · "}
+                  <span class="tabular-nums">{formatDate(milestone.due_date)}</span>
+                </p>
+                <p class="type-meta text-muted-foreground">Wszystkie zadania zrobione — milestone do zamknięcia</p>
+              </div>
+              <a
+                href={`/projects/${milestone.project.id}`}
+                class="type-button shrink-0 self-start rounded-pill px-1 text-foreground underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                Otwórz projekt
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+      {view.deferredCount > 0 && (
+        <p class="type-meta mt-4 text-muted-foreground tabular-nums">Przeniesione na jutro: {view.deferredCount}</p>
+      )}
+    </>
+  )}
+</AppLayout>

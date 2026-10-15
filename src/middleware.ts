@@ -1,7 +1,7 @@
 import { defineMiddleware } from "astro:middleware";
 import { createClient } from "@/lib/supabase";
 
-const PROTECTED_ROUTES = ["/dashboard", "/projects"];
+const PROTECTED_ROUTES = ["/dashboard", "/projects", "/today"];
 const PROTECTED_API_ROUTES = ["/api/projects"];
 
 function matchesRoute(pathname: string, route: string) {

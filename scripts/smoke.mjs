@@ -67,6 +67,7 @@ const steps = [
   ["signup page renders", () => request("/auth/signup"), { status: 200, bodyIncludes: 'action="/api/auth/signup"' }],
   ["dashboard redirects anonymous user", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
   ["projects page redirects anonymous user", () => request("/projects"), { status: 302, location: "/auth/signin" }],
+  ["today page redirects anonymous user", () => request("/today"), { status: 302, location: "/auth/signin" }],
   [
     "project API rejects anonymous user",
     () => request("/api/projects", { method: "POST", json: validProject }),
@@ -85,7 +86,7 @@ const steps = [
   [
     "signin accepts correct password",
     () => request("/api/auth/signin", { method: "POST", form: { email, password } }),
-    { status: 302, location: "/projects" },
+    { status: 302, location: "/today" },
   ],
   ["dashboard renders for signed-in user", () => request("/dashboard"), { status: 200 }],
   // Island SSR errors leave the page at 200, so assert the empty state and the island's trigger button.
@@ -95,6 +96,11 @@ const steps = [
     { status: 200, bodyIncludes: "Nie masz jeszcze projektów." },
   ],
   ["projects page renders add button", () => request("/projects"), { status: 200, bodyIncludes: "Dodaj projekt" }],
+  [
+    "today page renders empty state",
+    () => request("/today"),
+    { status: 200, bodyIncludes: ["Dziś", "Na dziś nic do zrobienia."] },
+  ],
   [
     "project create rejects empty name",
     () => request("/api/projects", { method: "POST", json: { ...validProject, name: "" } }),
@@ -263,6 +269,12 @@ const steps = [
       bodyOrder: ["Gamma smoke", "Zadanie smoke"],
     },
   ],
+  // Equal milestone dates: the nearest one is decided by seq, so Gamma (created first) wins and Beta stays out.
+  [
+    "today page lists the open task of the nearest milestone",
+    () => request("/today"),
+    { status: 200, bodyIncludes: ["Zadanie smoke", "Gamma smoke"], bodyExcludes: ["Beta smoke"] },
+  ],
   [
     "milestone close rejected while it has an open task",
     () =>
@@ -279,10 +291,20 @@ const steps = [
     { status: 200, bodyEquals: { "task.status": "done" } },
   ],
   [
+    "today page shows the milestone ready to close",
+    () => request("/today"),
+    { status: 200, bodyIncludes: ["Gamma smoke", "Wszystkie zadania zrobione"], bodyExcludes: ["Zadanie smoke"] },
+  ],
+  [
     "milestone close succeeds once its tasks are done",
     () =>
       request(`/api/projects/${projectId}/milestones/${milestoneA}`, { method: "PATCH", json: { completed: true } }),
     { status: 200, bodyField: "milestone.completed_at" },
+  ],
+  [
+    "today page moves on to the next milestone",
+    () => request("/today"),
+    { status: 200, bodyIncludes: ["Beta smoke", "Wszystkie zadania zrobione"], bodyExcludes: ["Gamma smoke"] },
   ],
   [
     "project page renders closed milestone task list",
@@ -467,7 +489,8 @@ function matches(expected, actual) {
       Object.entries(expected.bodyEquals).every(([path, value]) => readPath(actual.body, path) === value)) &&
     (expected.bodyIncludes === undefined ||
       [expected.bodyIncludes].flat().every((part) => actual.text.includes(part))) &&
-    (expected.bodyOrder === undefined || includesInOrder(actual.text, expected.bodyOrder))
+    (expected.bodyOrder === undefined || includesInOrder(actual.text, expected.bodyOrder)) &&
+    (expected.bodyExcludes === undefined || [expected.bodyExcludes].flat().every((part) => !actual.text.includes(part)))
   );
 }
 
@@ -490,7 +513,8 @@ function describeExpected(expected) {
     (expected.bodyIncludes ? [expected.bodyIncludes].flat().join(" + ") : undefined) ??
     (expected.bodyOrder ? expected.bodyOrder.join(" < ") : undefined) ??
     "";
-  return `${expected.status} ${detail}`;
+  const excludes = expected.bodyExcludes ? ` (without ${[expected.bodyExcludes].flat().join(" + ")})` : "";
+  return `${expected.status} ${detail}${excludes}`;
 }
 
 // After a failed step the project created earlier would stay behind; remove it while the session still exists.

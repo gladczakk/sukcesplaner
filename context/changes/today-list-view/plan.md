@@ -273,29 +273,29 @@ Jedna nowa migracja (`20261016120000_today_list.sql`, tylko funkcja, brak zmian 
 
 #### Automated
 
-- [x] 1.1 Wszystkie migracje aplikują się czysto od zera: `npx supabase db reset`
-- [x] 1.2 Testy pgTAP przechodzą, w tym nowy plik: `npx supabase test db`
-- [x] 1.3 Typy się zgadzają: `npx astro check`
+- [x] 1.1 Wszystkie migracje aplikują się czysto od zera: `npx supabase db reset` — ec9cde7
+- [x] 1.2 Testy pgTAP przechodzą, w tym nowy plik: `npx supabase test db` — ec9cde7
+- [x] 1.3 Typy się zgadzają: `npx astro check` — ec9cde7
 
 #### Manual
 
-- [x] 1.4 W psql `select * from public.today_list('2026-10-15')` zwraca oczekiwane wiersze `task`, `milestone` i `deferred` w poprawnej kolejności
+- [x] 1.4 W psql `select * from public.today_list('2026-10-15')` zwraca oczekiwane wiersze `task`, `milestone` i `deferred` w poprawnej kolejności — ec9cde7
 
 ### Phase 2: Odczyt i strona `/today`
 
 #### Automated
 
-- [ ] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [ ] 2.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [ ] 2.3 Build przechodzi: `npm run build`
-- [ ] 2.4 Smoke przechodzi, w tym nowe kroki strony i przekierowania: `npm run smoke`
+- [x] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
+- [x] 2.2 Sprawdzanie typów przechodzi: `npx astro check`
+- [x] 2.3 Build przechodzi: `npm run build`
+- [x] 2.4 Smoke przechodzi, w tym nowe kroki strony i przekierowania: `npm run smoke`
 
 #### Manual
 
-- [ ] 2.5 Po zalogowaniu ląduję na `/today`, a lista dla przygotowanych danych ma zadania najbliższych niezamkniętych milestonów w poprawnej kolejności i milestone do zamknięcia na końcu
-- [ ] 2.6 Chipy terminu (kolor, słowo, ikona), podsumowanie i linijka „Przeniesione na jutro" są poprawne
-- [ ] 2.7 Stan pusty, błąd odczytu, niezalogowane wejście oraz nawigacja (`aria-current`) działają zgodnie z opisem
-- [ ] 2.8 Wygląd i dostępność: motywy, 390 px i 1280 px, klawiatura, chipy czytelne jako tekst
+- [x] 2.5 Po zalogowaniu ląduję na `/today`, a lista dla przygotowanych danych ma zadania najbliższych niezamkniętych milestonów w poprawnej kolejności i milestone do zamknięcia na końcu
+- [x] 2.6 Chipy terminu (kolor, słowo, ikona), podsumowanie i linijka „Przeniesione na jutro" są poprawne
+- [x] 2.7 Stan pusty, błąd odczytu, niezalogowane wejście oraz nawigacja (`aria-current`) działają zgodnie z opisem
+- [x] 2.8 Wygląd i dostępność: motywy, 390 px i 1280 px, klawiatura, chipy czytelne jako tekst
 
 ### Phase 3: Zamknięcie milestona z listy
 

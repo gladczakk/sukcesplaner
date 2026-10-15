@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 
 interface Props {
   title?: string;
+  current?: "today" | "projects";
 }
 
-const { title } = Astro.props;
+const { title, current } = Astro.props;
 const { user } = Astro.locals;
 ---
 
@@ -14,10 +15,21 @@ const { user } = Astro.locals;
   <header class="border-b border-border bg-card">
     <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3 md:px-6">
       <nav class="flex items-center gap-6" aria-label="Główna nawigacja">
-        <a href="/projects" class="font-serif text-xl font-semibold text-foreground">
+        <a href="/today" class="font-serif text-xl font-semibold text-foreground">
           SukcesPlaner
         </a>
-        <a href="/projects" class="type-button text-foreground hover:underline">
+        <a
+          href="/today"
+          aria-current={current === "today" ? "page" : undefined}
+          class:list={["type-button text-foreground hover:underline", current === "today" && "underline"]}
+        >
+          Dziś
+        </a>
+        <a
+          href="/projects"
+          aria-current={current === "projects" ? "page" : undefined}
+          class:list={["type-button text-foreground hover:underline", current === "projects" && "underline"]}
+        >
           Projekty
         </a>
       </nav>

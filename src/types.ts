@@ -21,3 +21,24 @@ export type Task = Omit<Tables<"tasks">, "status"> & { status: TaskStatus };
 export type MilestoneListItem = Milestone & { task_count: number; tasks: Task[] };
 export type TaskInsert = Omit<TablesInsert<"tasks">, "status"> & { status?: TaskStatus };
 export type TaskUpdate = Omit<TablesUpdate<"tasks">, "status"> & { status?: TaskStatus };
+
+// Today view
+export interface TodayTask {
+  id: string;
+  title: string;
+  due_date: string | null;
+  status: TaskStatus;
+  project: { id: string; name: string };
+  milestone: { id: string; name: string; due_date: string };
+}
+export interface TodayMilestone {
+  id: string;
+  name: string;
+  due_date: string;
+  project: { id: string; name: string };
+}
+export interface TodayView {
+  tasks: TodayTask[];
+  milestones: TodayMilestone[];
+  deferredCount: number;
+}
