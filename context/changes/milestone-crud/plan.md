@@ -328,15 +328,15 @@ Jedna nowa migracja (`20261014120000_milestone_close_rule.sql`). Wdrożenie wyma
 
 #### Automated
 
-- [x] 3.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [x] 3.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [x] 3.3 Build przechodzi: `npm run build`
-- [x] 3.4 Smoke przechodzi, w tym nowe kroki strony milestonów i kolejność remisu: `npm run smoke`
+- [x] 3.1 Lint zmienionych plików bez błędów (`endOfLine: auto`) — a832612
+- [x] 3.2 Sprawdzanie typów przechodzi: `npx astro check` — a832612
+- [x] 3.3 Build przechodzi: `npm run build` — a832612
+- [x] 3.4 Smoke przechodzi, w tym nowe kroki strony milestonów i kolejność remisu: `npm run smoke` — a832612
 
 #### Manual
 
-- [x] 3.5 Pełny przepływ w przeglądarce: dodanie, edycja, zamknięcie, otwarcie ponowne, usunięcie milestona
-- [x] 3.6 Data graniczna, błąd daty przy polu i kolejność milestonów z tą samą datą
-- [x] 3.7 Blokada zamknięcia i liczniki usuwania z odmianą (zadania wstawione przez psql)
-- [x] 3.8 Regresja po wydzieleniu klienta: tworzenie, edycja i usuwanie projektu nadal działają
-- [x] 3.9 Wygląd i dostępność: motywy, 390 px i 1280 px, powrót fokusu po zamknięciu dialogów, klawiatura
+- [x] 3.5 Pełny przepływ w przeglądarce: dodanie, edycja, zamknięcie, otwarcie ponowne, usunięcie milestona — a832612
+- [x] 3.6 Data graniczna, błąd daty przy polu i kolejność milestonów z tą samą datą — a832612
+- [x] 3.7 Blokada zamknięcia i liczniki usuwania z odmianą (zadania wstawione przez psql) — a832612
+- [x] 3.8 Regresja po wydzieleniu klienta: tworzenie, edycja i usuwanie projektu nadal działają — a832612
+- [x] 3.9 Wygląd i dostępność: motywy, 390 px i 1280 px, powrót fokusu po zamknięciu dialogów, klawiatura — a832612
