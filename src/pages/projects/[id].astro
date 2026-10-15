@@ -4,6 +4,8 @@ import DeleteProjectDialog from "@/components/projects/DeleteProjectDialog";
 import MilestoneFormDialog from "@/components/projects/MilestoneFormDialog";
 import MilestoneRowActions from "@/components/projects/MilestoneRowActions";
 import ProjectFormDialog from "@/components/projects/ProjectFormDialog";
+import TaskFormDialog from "@/components/projects/TaskFormDialog";
+import TaskRowActions from "@/components/projects/TaskRowActions";
 import { formatDate, formatTimestamp, plural } from "@/lib/format";
 import { LIFE_AREA_LABELS } from "@/lib/life-areas";
 import { logError } from "@/lib/log";
@@ -108,61 +110,106 @@ if (notFound) Astro.response.status = 404;
             ) : (
               <ol class="mt-3 flex flex-col gap-3">
                 {milestones.map((milestone) => (
-                  <li class="flex flex-col gap-3 rounded-md border border-border bg-card p-4 shadow-card sm:flex-row sm:items-start sm:justify-between">
-                    <div class="flex min-w-0 items-start gap-3">
-                      <span
-                        aria-hidden="true"
-                        class:list={[
-                          "mt-2 size-3 shrink-0 rotate-45 border border-primary",
-                          milestone.completed_at ? "bg-primary" : "bg-card",
-                        ]}
-                      />
-                      <div class="min-w-0">
-                        <p
+                  <li class="flex flex-col gap-4 rounded-md border border-border bg-card p-4 shadow-card">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div class="flex min-w-0 items-start gap-3">
+                        <span
+                          aria-hidden="true"
                           class:list={[
-                            "type-section break-words",
-                            milestone.completed_at ? "text-muted-foreground" : "text-foreground",
+                            "mt-2 size-3 shrink-0 rotate-45 border border-primary",
+                            milestone.completed_at ? "bg-primary" : "bg-card",
                           ]}
-                        >
-                          {milestone.name}
-                        </p>
-                        <p class="type-meta mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground tabular-nums">
-                          <span>{formatDate(milestone.due_date)}</span>
-                          <span>
-                            {milestone.task_count} {plural(milestone.task_count, ["zadanie", "zadania", "zadań"])}
-                          </span>
-                          {milestone.completed_at && (
-                            <span class="inline-flex items-center gap-1 rounded-pill bg-success-soft px-2 text-success-ink">
-                              <svg
-                                class="size-3 shrink-0"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                aria-hidden="true"
-                              >
-                                <path d="M20 6 9 17l-5-5" />
-                              </svg>
-                              zamknięty {formatTimestamp(milestone.completed_at)}
+                        />
+                        <div class="min-w-0">
+                          <p
+                            class:list={[
+                              "type-section break-words",
+                              milestone.completed_at ? "text-muted-foreground" : "text-foreground",
+                            ]}
+                          >
+                            {milestone.name}
+                          </p>
+                          <p class="type-meta mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground tabular-nums">
+                            <span>{formatDate(milestone.due_date)}</span>
+                            <span>
+                              {milestone.task_count} {plural(milestone.task_count, ["zadanie", "zadania", "zadań"])}
                             </span>
-                          )}
-                        </p>
+                            {milestone.completed_at && (
+                              <span class="inline-flex items-center gap-1 rounded-pill bg-success-soft px-2 text-success-ink">
+                                <svg
+                                  class="size-3 shrink-0"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  aria-hidden="true"
+                                >
+                                  <path d="M20 6 9 17l-5-5" />
+                                </svg>
+                                zamknięty {formatTimestamp(milestone.completed_at)}
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      <MilestoneRowActions
+                        projectId={project.id}
+                        projectDueDate={project.due_date}
+                        milestone={{
+                          id: milestone.id,
+                          name: milestone.name,
+                          due_date: milestone.due_date,
+                          completed_at: milestone.completed_at,
+                        }}
+                        taskCount={milestone.task_count}
+                        client:load
+                      />
+                    </div>
+                    <div class="flex flex-col gap-3 border-t border-border pt-3">
+                      {milestone.tasks.length === 0 ? (
+                        <p class="type-meta text-muted-foreground">Brak zadań w tym milestonie.</p>
+                      ) : (
+                        <ul class="flex flex-col gap-2">
+                          {milestone.tasks.map((task) => (
+                            <li class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                              <div class="min-w-0">
+                                <p
+                                  class:list={[
+                                    "type-body break-words",
+                                    task.status === "done" ? "text-muted-foreground line-through" : "text-foreground",
+                                  ]}
+                                >
+                                  {task.title}
+                                </p>
+                                <p class="type-meta text-muted-foreground tabular-nums">
+                                  {task.due_date ? formatDate(task.due_date) : "bez terminu"}
+                                </p>
+                              </div>
+                              <TaskRowActions
+                                projectId={project.id}
+                                milestone={{ id: milestone.id, name: milestone.name, due_date: milestone.due_date }}
+                                task={{ id: task.id, title: task.title, due_date: task.due_date, status: task.status }}
+                                client:load
+                              />
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <div class="flex flex-wrap items-center gap-3">
+                        <TaskFormDialog
+                          mode="create"
+                          projectId={project.id}
+                          milestone={{ id: milestone.id, name: milestone.name, due_date: milestone.due_date }}
+                          disabled={milestone.completed_at !== null}
+                          client:load
+                        />
+                        {milestone.completed_at && (
+                          <p class="type-meta text-muted-foreground">Otwórz milestone, aby dodać zadanie.</p>
+                        )}
                       </div>
                     </div>
-                    <MilestoneRowActions
-                      projectId={project.id}
-                      projectDueDate={project.due_date}
-                      milestone={{
-                        id: milestone.id,
-                        name: milestone.name,
-                        due_date: milestone.due_date,
-                        completed_at: milestone.completed_at,
-                      }}
-                      taskCount={milestone.task_count}
-                      client:load
-                    />
                   </li>
                 ))}
               </ol>

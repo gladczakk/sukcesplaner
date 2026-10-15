@@ -251,7 +251,16 @@ const steps = [
     },
     { status: 201, bodyField: "task.id" },
   ],
-  // (page step T4 of phase 3 goes here)
+  // Island SSR errors leave the page at 200, so assert the task island's button and the task row order.
+  [
+    "project page renders task list",
+    () => request(`/projects/${projectId}`),
+    {
+      status: 200,
+      bodyIncludes: ["Dodaj zadanie", "Zadanie smoke"],
+      bodyOrder: ["Gamma smoke", "Zadanie smoke"],
+    },
+  ],
   [
     "milestone close rejected while it has an open task",
     () =>
@@ -273,7 +282,11 @@ const steps = [
       request(`/api/projects/${projectId}/milestones/${milestoneA}`, { method: "PATCH", json: { completed: true } }),
     { status: 200, bodyField: "milestone.completed_at" },
   ],
-  // (page step T8 of phase 3 goes here)
+  [
+    "project page renders closed milestone task list",
+    () => request(`/projects/${projectId}`),
+    { status: 200, bodyIncludes: ["Otwórz milestone, aby dodać zadanie.", "Edytuj zadanie Zadanie smoke"] },
+  ],
   [
     "task create in closed milestone is rejected",
     () =>

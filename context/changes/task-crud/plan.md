@@ -311,29 +311,29 @@ Jedna nowa migracja (`20261015120000_task_rules.sql`). Wdrożenie wymaga ręczne
 
 #### Automated
 
-- [x] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [x] 2.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [x] 2.3 Build przechodzi: `npm run build`
-- [x] 2.4 Smoke przechodzi, w tym nowe kroki API zadań: `npm run smoke`
+- [x] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`) — 6b1fc5b
+- [x] 2.2 Sprawdzanie typów przechodzi: `npx astro check` — 6b1fc5b
+- [x] 2.3 Build przechodzi: `npm run build` — 6b1fc5b
+- [x] 2.4 Smoke przechodzi, w tym nowe kroki API zadań: `npm run smoke` — 6b1fc5b
 
 #### Manual
 
-- [x] 2.5 Odpowiedzi API zadań (422, 404) są po polsku, wskazują pole i nie ujawniają treści błędów Postgresa
-- [x] 2.6 Zamknięcie milestona przez API z niezrobionym zadaniem zwraca 422 z liczbą, a po ustawieniu statusu `done` zamknięcie przechodzi
+- [x] 2.5 Odpowiedzi API zadań (422, 404) są po polsku, wskazują pole i nie ujawniają treści błędów Postgresa — 6b1fc5b
+- [x] 2.6 Zamknięcie milestona przez API z niezrobionym zadaniem zwraca 422 z liczbą, a po ustawieniu statusu `done` zamknięcie przechodzi — 6b1fc5b
 
 ### Phase 3: UI — hook, dialogi, lista zadań w widoku projektu, smoke stron
 
 #### Automated
 
-- [ ] 3.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [ ] 3.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [ ] 3.3 Build przechodzi: `npm run build`
-- [ ] 3.4 Smoke przechodzi, w tym nowe kroki stron zadań: `npm run smoke`
+- [x] 3.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
+- [x] 3.2 Sprawdzanie typów przechodzi: `npx astro check`
+- [x] 3.3 Build przechodzi: `npm run build`
+- [x] 3.4 Smoke przechodzi, w tym nowe kroki stron zadań: `npm run smoke`
 
 #### Manual
 
-- [ ] 3.5 Pełny przepływ w przeglądarce: dodanie, zmiana statusu, edycja, usunięcie zadania oraz zamknięcie milestona po ustawieniu zadań na „Zrobione"
-- [ ] 3.6 Terminy: `max` i błąd przy polu, komunikat przy przesunięciu daty milestona, kolejność zadań
-- [ ] 3.7 Zamknięty milestone: wyłączone „Dodaj zadanie", komunikat po cofnięciu statusu, edycja i usunięcie działają
-- [ ] 3.8 Regresja milestonów po zmianie `listMilestones`: dodawanie, edycja, zamykanie, usuwanie i liczniki w dialogu
-- [ ] 3.9 Wygląd i dostępność: motywy, 390 px i 1280 px, powrót fokusu po zamknięciu dialogów, klawiatura, nazwy przycisków
+- [x] 3.5 Pełny przepływ w przeglądarce: dodanie, zmiana statusu, edycja, usunięcie zadania oraz zamknięcie milestona po ustawieniu zadań na „Zrobione"
+- [x] 3.6 Terminy: `max` i błąd przy polu, komunikat przy przesunięciu daty milestona, kolejność zadań
+- [x] 3.7 Zamknięty milestone: wyłączone „Dodaj zadanie", komunikat po cofnięciu statusu, edycja i usunięcie działają
+- [x] 3.8 Regresja milestonów po zmianie `listMilestones`: dodawanie, edycja, zamykanie, usuwanie i liczniki w dialogu
+- [x] 3.9 Wygląd i dostępność: motywy, 390 px i 1280 px, powrót fokusu po zamknięciu dialogów, klawiatura, nazwy przycisków
