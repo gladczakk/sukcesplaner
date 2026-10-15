@@ -1,4 +1,5 @@
 ---
+import CloseMilestoneButton from "@/components/today/CloseMilestoneButton";
 import AppLayout from "@/layouts/AppLayout.astro";
 import { formatDate, plural } from "@/lib/format";
 import { logError } from "@/lib/log";
@@ -165,12 +166,20 @@ const chipClasses: Record<DueTone, string> = {
                 </p>
                 <p class="type-meta text-muted-foreground">Wszystkie zadania zrobione — milestone do zamknięcia</p>
               </div>
-              <a
-                href={`/projects/${milestone.project.id}`}
-                class="type-button shrink-0 self-start rounded-pill px-1 text-foreground underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              >
-                Otwórz projekt
-              </a>
+              <div class="flex shrink-0 flex-wrap items-start gap-2 self-start">
+                <CloseMilestoneButton
+                  client:load
+                  projectId={milestone.project.id}
+                  milestoneId={milestone.id}
+                  milestoneName={milestone.name}
+                />
+                <a
+                  href={`/projects/${milestone.project.id}`}
+                  class="type-button inline-flex h-8 items-center rounded-pill px-1 text-foreground underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  Otwórz projekt
+                </a>
+              </div>
             </li>
           ))}
         </ul>

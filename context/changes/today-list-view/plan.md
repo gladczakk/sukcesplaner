@@ -285,28 +285,28 @@ Jedna nowa migracja (`20261016120000_today_list.sql`, tylko funkcja, brak zmian 
 
 #### Automated
 
-- [x] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [x] 2.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [x] 2.3 Build przechodzi: `npm run build`
-- [x] 2.4 Smoke przechodzi, w tym nowe kroki strony i przekierowania: `npm run smoke`
+- [x] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`) — e40808a
+- [x] 2.2 Sprawdzanie typów przechodzi: `npx astro check` — e40808a
+- [x] 2.3 Build przechodzi: `npm run build` — e40808a
+- [x] 2.4 Smoke przechodzi, w tym nowe kroki strony i przekierowania: `npm run smoke` — e40808a
 
 #### Manual
 
-- [x] 2.5 Po zalogowaniu ląduję na `/today`, a lista dla przygotowanych danych ma zadania najbliższych niezamkniętych milestonów w poprawnej kolejności i milestone do zamknięcia na końcu
-- [x] 2.6 Chipy terminu (kolor, słowo, ikona), podsumowanie i linijka „Przeniesione na jutro" są poprawne
-- [x] 2.7 Stan pusty, błąd odczytu, niezalogowane wejście oraz nawigacja (`aria-current`) działają zgodnie z opisem
-- [x] 2.8 Wygląd i dostępność: motywy, 390 px i 1280 px, klawiatura, chipy czytelne jako tekst
+- [x] 2.5 Po zalogowaniu ląduję na `/today`, a lista dla przygotowanych danych ma zadania najbliższych niezamkniętych milestonów w poprawnej kolejności i milestone do zamknięcia na końcu — e40808a
+- [x] 2.6 Chipy terminu (kolor, słowo, ikona), podsumowanie i linijka „Przeniesione na jutro" są poprawne — e40808a
+- [x] 2.7 Stan pusty, błąd odczytu, niezalogowane wejście oraz nawigacja (`aria-current`) działają zgodnie z opisem — e40808a
+- [x] 2.8 Wygląd i dostępność: motywy, 390 px i 1280 px, klawiatura, chipy czytelne jako tekst — e40808a
 
 ### Phase 3: Zamknięcie milestona z listy
 
 #### Automated
 
-- [ ] 3.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [ ] 3.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [ ] 3.3 Build przechodzi: `npm run build`
-- [ ] 3.4 Smoke przechodzi, w tym asercje na treść wyspy: `npm run smoke`
+- [x] 3.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
+- [x] 3.2 Sprawdzanie typów przechodzi: `npx astro check`
+- [x] 3.3 Build przechodzi: `npm run build`
+- [x] 3.4 Smoke przechodzi, w tym asercje na treść wyspy: `npm run smoke`
 
 #### Manual
 
-- [ ] 3.5 „Zamknij milestone" z listy zamyka milestone i lista przechodzi do następnego; błąd (niedokończone zadanie dodane psql) jest po polsku
-- [ ] 3.6 Fokus zostaje na przycisku, nazwa z nazwą milestona, wygląd w obu motywach i na 390 px oraz 1280 px
+- [x] 3.5 „Zamknij milestone" z listy zamyka milestone i lista przechodzi do następnego; błąd (niedokończone zadanie dodane psql) jest po polsku
+- [x] 3.6 Fokus zostaje na przycisku, nazwa z nazwą milestona, wygląd w obu motywach i na 390 px oraz 1280 px

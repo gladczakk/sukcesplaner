@@ -293,7 +293,11 @@ const steps = [
   [
     "today page shows the milestone ready to close",
     () => request("/today"),
-    { status: 200, bodyIncludes: ["Gamma smoke", "Wszystkie zadania zrobione"], bodyExcludes: ["Zadanie smoke"] },
+    {
+      status: 200,
+      bodyIncludes: ["Gamma smoke", "Wszystkie zadania zrobione", "Zamknij milestone Gamma smoke"],
+      bodyExcludes: ["Zadanie smoke"],
+    },
   ],
   [
     "milestone close succeeds once its tasks are done",
@@ -304,7 +308,11 @@ const steps = [
   [
     "today page moves on to the next milestone",
     () => request("/today"),
-    { status: 200, bodyIncludes: ["Beta smoke", "Wszystkie zadania zrobione"], bodyExcludes: ["Gamma smoke"] },
+    {
+      status: 200,
+      bodyIncludes: ["Beta smoke", "Wszystkie zadania zrobione", "Zamknij milestone Beta smoke"],
+      bodyExcludes: ["Gamma smoke"],
+    },
   ],
   [
     "project page renders closed milestone task list",
