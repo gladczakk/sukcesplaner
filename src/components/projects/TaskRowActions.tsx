@@ -62,11 +62,11 @@ export default function TaskRowActions({ projectId, milestone, task }: TaskRowAc
     <div className="flex flex-col items-start gap-1">
       <div className="flex flex-wrap items-center gap-1">
         <Select
-          className="w-auto"
+          className="w-auto aria-disabled:opacity-50"
           aria-label={`Status zadania ${task.title}`}
           options={STATUS_OPTIONS}
           value={task.status}
-          disabled={pending}
+          aria-disabled={pending}
           onChange={(value) => {
             void changeStatus(value);
           }}

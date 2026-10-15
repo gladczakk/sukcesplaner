@@ -62,7 +62,8 @@ export default function MilestoneRowActions({
         <Button
           variant="secondary"
           size="sm"
-          disabled={pending}
+          className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
+          aria-disabled={pending}
           aria-label={`${isCompleted ? "Otwórz ponownie" : "Zamknij milestone"} ${milestone.name}`}
           onClick={() => {
             void toggle();

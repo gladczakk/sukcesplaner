@@ -125,7 +125,14 @@ export default function TaskFormDialog({ mode, projectId, milestone, task, disab
 
   if (disabled && !isEdit) {
     return (
-      <Button variant="secondary" size="sm" disabled aria-label={`Dodaj zadanie do milestona ${milestone.name}`}>
+      <Button
+        variant="secondary"
+        size="sm"
+        className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
+        aria-disabled="true"
+        aria-describedby={`closed-milestone-hint-${milestone.id}`}
+        aria-label={`Dodaj zadanie do milestona ${milestone.name}`}
+      >
         Dodaj zadanie
       </Button>
     );

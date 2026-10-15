@@ -9,6 +9,11 @@
 -- S-02): dodanie niezrobionego zadania do zamknietego milestona i cofniecie zadania na todo.
 -- Trigger na zadaniu czyta milestone z FOR SHARE, wiec zapis zadania szereguje sie z rownoleglym
 -- zamykaniem i zmiana daty milestona (trigger zamykania blokuje wiersz milestona na UPDATE).
+-- Znane ograniczenie: UPDATE zadania blokuje wiersz zadania, a potem trigger bierze FOR SHARE na
+-- milestonie, a kasujacy milestone DELETE blokuje milestone, potem zadania (kaskada) - przy rownoleglym
+-- zapisie zadania i usunieciu jego milestona mozliwy jest deadlock (40P01); Postgres przerywa jedna
+-- transakcje, a aplikacja zwraca ogolny blad bez wycieku. Aplikacja jednokontowa, zdarzenie praktycznie
+-- niespotykane.
 -- Teksty komunikatow sa kontraktem z serwisami w src/lib/services (dopasowanie po tekscie);
 -- komunikat o dacie milestona celowo nie zawiera frazy "Data milestona" (to regula daty projektu).
 

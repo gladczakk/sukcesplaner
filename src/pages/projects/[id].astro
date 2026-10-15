@@ -171,7 +171,7 @@ if (notFound) Astro.response.status = 404;
                       {milestone.tasks.length === 0 ? (
                         <p class="type-meta text-muted-foreground">Brak zadań w tym milestonie.</p>
                       ) : (
-                        <ul class="flex flex-col gap-2">
+                        <ul class="flex flex-col gap-2" aria-label={`Zadania milestona ${milestone.name}`}>
                           {milestone.tasks.map((task) => (
                             <li class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                               <div class="min-w-0">
@@ -206,7 +206,9 @@ if (notFound) Astro.response.status = 404;
                           client:load
                         />
                         {milestone.completed_at && (
-                          <p class="type-meta text-muted-foreground">Otwórz milestone, aby dodać zadanie.</p>
+                          <p id={`closed-milestone-hint-${milestone.id}`} class="type-meta text-muted-foreground">
+                            Otwórz milestone, aby dodać zadanie.
+                          </p>
                         )}
                       </div>
                     </div>

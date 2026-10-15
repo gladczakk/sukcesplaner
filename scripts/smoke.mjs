@@ -56,6 +56,8 @@ let completedAt = "";
 let taskId = "";
 const closedMilestoneTaskError =
   "Nie można dodać niezrobionego zadania do zamkniętego milestona. Otwórz milestone ponownie.";
+const taskDateError = "Termin zadania nie może być późniejszy niż data milestona";
+const milestoneBeforeTaskError = "Nie można ustawić tej daty: późniejszy termin ma 1 zadanie";
 const milestoneDateError = "Data milestona nie może być późniejsza niż termin projektu";
 
 const steps = [
@@ -228,7 +230,7 @@ const steps = [
         method: "POST",
         json: { title: "", due_date: null },
       }),
-    { status: 422, bodyField: "fieldErrors.title" },
+    { status: 422, bodyEquals: { "fieldErrors.title": "Podaj tytuł zadania" } },
   ],
   [
     "task create rejects date after milestone date",
@@ -237,7 +239,7 @@ const steps = [
         method: "POST",
         json: { title: "Zadanie smoke", due_date: "2100-01-01" },
       }),
-    { status: 422, bodyField: "fieldErrors.due_date" },
+    { status: 422, bodyEquals: { "fieldErrors.due_date": taskDateError } },
   ],
   [
     "task create succeeds",
@@ -249,7 +251,7 @@ const steps = [
       taskId = result.body?.task?.id ?? "";
       return result;
     },
-    { status: 201, bodyField: "task.id" },
+    { status: 201, bodyField: "task.id", bodyEquals: { "task.status": "todo", "task.due_date": "2099-12-30" } },
   ],
   // Island SSR errors leave the page at 200, so assert the task island's button and the task row order.
   [
@@ -312,7 +314,7 @@ const steps = [
         method: "PUT",
         json: { name: "Gamma smoke", due_date: "2099-12-29" },
       }),
-    { status: 422, bodyField: "fieldErrors.due_date" },
+    { status: 422, bodyEquals: { "fieldErrors.due_date": milestoneBeforeTaskError } },
   ],
   [
     "done task in closed milestone can be edited",
@@ -321,13 +323,40 @@ const steps = [
         method: "PUT",
         json: { title: "Zadanie smoke 2", due_date: null },
       }),
-    { status: 200, bodyEquals: { "task.title": "Zadanie smoke 2" } },
+    { status: 200, bodyEquals: { "task.title": "Zadanie smoke 2", "task.due_date": null } },
   ],
   [
     "milestone reopen after task steps succeeds",
     () =>
       request(`/api/projects/${projectId}/milestones/${milestoneA}`, { method: "PATCH", json: { completed: false } }),
     { status: 200, bodyEquals: { "milestone.completed_at": null } },
+  ],
+  [
+    "task update rejects date after milestone date",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${taskId}`, {
+        method: "PUT",
+        json: { title: "Zadanie smoke 2", due_date: "2100-01-01" },
+      }),
+    { status: 422, bodyEquals: { "fieldErrors.due_date": taskDateError } },
+  ],
+  [
+    "task create rejects a title of only spaces",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "   ", due_date: null },
+      }),
+    { status: 422, bodyEquals: { "fieldErrors.title": "Podaj tytuł zadania" } },
+  ],
+  [
+    "task under another milestone of the same project returns 404",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneB}/tasks/${taskId}`, {
+        method: "PATCH",
+        json: { status: "done" },
+      }),
+    { status: 404 },
   ],
   [
     "task status of unknown id returns 404",

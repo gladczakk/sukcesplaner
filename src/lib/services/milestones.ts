@@ -22,7 +22,7 @@ type MilestoneFailure = Exclude<MilestoneResult, { status: "ok" }>;
 const DUE_DATE_ERROR = "Data milestona nie może być późniejsza niż termin projektu";
 const NAME_ERROR = "Nazwa milestona musi mieć od 1 do 200 znaków";
 
-/** Extracts N from the closing-rule message "...niezrobione zadania (N)"; null when there is no number. */
+/** Extracts the trailing "(N)" from trigger messages ("...niezrobione zadania (N)", "...pozniejszym terminem (N)"); null when there is no number. */
 function parseOpenTaskCount(message: string): string | null {
   const open = message.lastIndexOf("(");
   const close = message.lastIndexOf(")");
