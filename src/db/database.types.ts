@@ -160,7 +160,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      today_list: {
+        Args: { p_today: string }
+        Returns: {
+          kind: string
+          life_area: string
+          milestone_due_date: string
+          milestone_id: string
+          milestone_name: string
+          project_id: string
+          project_name: string
+          task_deferred_until: string
+          task_due_date: string
+          task_id: string
+          task_status: string
+          task_title: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
