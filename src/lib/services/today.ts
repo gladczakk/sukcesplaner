@@ -6,15 +6,6 @@ import type { TaskStatus, TaskTargetProject, TodayDeferredTask, TodayMilestone, 
 
 type Client = SupabaseClient<Database>;
 
-/** Reads the embedded project of a milestone row without a cast; PostgREST returns an object, an array is tolerated. */
-function readEmbeddedProject(value: unknown): { id: string; name: string } | null {
-  const candidate: unknown = Array.isArray(value) ? value.at(0) : value;
-  if (typeof candidate !== "object" || candidate === null) return null;
-  const id: unknown = Reflect.get(candidate, "id");
-  const name: unknown = Reflect.get(candidate, "name");
-  return typeof id === "string" && typeof name === "string" ? { id, name } : null;
-}
-
 /**
  * Reads the open tasks of the nearest milestones, the milestones ready to close and the deferred tasks; SQL order is kept.
  * The generated RPC types mark every column non-null, but the task columns are NULL on 'milestone' rows;
@@ -77,12 +68,11 @@ export async function getTaskTargets(supabase: Client): Promise<TaskTargetProjec
 
   const targets = new Map<string, TaskTargetProject>();
   for (const row of data) {
-    const project = readEmbeddedProject(row.projects);
-    if (!project) {
-      logError("today-task-targets", new Error(`Milestone ${row.id} came without its project`));
-      continue;
-    }
-    const target = targets.get(row.project_id) ?? { id: project.id, name: project.name, milestones: [] };
+    const target = targets.get(row.project_id) ?? {
+      id: row.projects.id,
+      name: row.projects.name,
+      milestones: [],
+    };
     target.milestones.push({ id: row.id, name: row.name, due_date: row.due_date });
     targets.set(row.project_id, target);
   }

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { formatDate } from "@/lib/format";
 import { flattenTaskErrors, taskInputSchema, TASK_FIELDS, type TaskFieldErrors } from "@/lib/validation/task";
-import type { TaskTargetProject } from "@/types";
+import type { TaskTargetMilestone, TaskTargetProject } from "@/types";
 
 interface AddTaskFromTodayDialogProps {
   /** Projects with an open milestone; the milestones of each project are sorted from the nearest. */
@@ -35,6 +35,11 @@ const NOT_NEAREST_HINT =
 function initialValues(targets: TaskTargetProject[]): FormValues {
   const first = targets.at(0);
   return { projectId: first?.id ?? "", milestoneId: first?.milestones.at(0)?.id ?? "", title: "", due_date: "" };
+}
+
+function dueDateError(dueDate: string, milestone: TaskTargetMilestone): string | undefined {
+  if (dueDate === "" || dueDate <= milestone.due_date) return undefined;
+  return `Termin zadania nie może być późniejszy niż data milestona (${formatDate(milestone.due_date)})`;
 }
 
 export default function AddTaskFromTodayDialog({ targets }: AddTaskFromTodayDialogProps) {
@@ -63,15 +68,20 @@ export default function AddTaskFromTodayDialog({ targets }: AddTaskFromTodayDial
     setValues((current) => ({ ...current, [key]: value }));
   }
 
+  /** Re-checks the typed date against the newly selected milestone, so a date past its new `max` is flagged at once. */
+  function recheckDueDate(next: TaskTargetMilestone | undefined) {
+    setFieldErrors((current) => ({ ...current, due_date: next ? dueDateError(values.due_date, next) : undefined }));
+  }
+
   function changeProject(projectId: string) {
     const nearest = targets.find((target) => target.id === projectId)?.milestones.at(0);
     setValues((current) => ({ ...current, projectId, milestoneId: nearest?.id ?? "" }));
-    setFieldErrors((current) => ({ ...current, due_date: undefined }));
+    recheckDueDate(nearest);
   }
 
   function changeMilestone(milestoneId: string) {
     setValue("milestoneId", milestoneId);
-    setFieldErrors((current) => ({ ...current, due_date: undefined }));
+    recheckDueDate(project?.milestones.find((item) => item.id === milestoneId));
   }
 
   function focusFirstInvalid(errors: TaskFieldErrors) {
@@ -88,9 +98,8 @@ export default function AddTaskFromTodayDialog({ targets }: AddTaskFromTodayDial
     }
     const parsed = taskInputSchema.safeParse({ title: values.title, due_date: values.due_date });
     const errors: TaskFieldErrors = parsed.success ? {} : flattenTaskErrors(parsed.error);
-    if (!errors.due_date && values.due_date !== "" && values.due_date > milestone.due_date) {
-      errors.due_date = `Termin zadania nie może być późniejszy niż data milestona (${formatDate(milestone.due_date)})`;
-    }
+    const dateError = dueDateError(values.due_date, milestone);
+    if (!errors.due_date && dateError) errors.due_date = dateError;
     if (!parsed.success || Object.keys(errors).length > 0) {
       setFieldErrors(errors);
       focusFirstInvalid(errors);

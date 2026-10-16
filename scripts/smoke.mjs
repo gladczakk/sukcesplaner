@@ -288,7 +288,8 @@ const steps = [
         "Na jutro: Zadanie smoke",
         "Dodaj zadanie",
       ],
-      bodyOrder: ["Smoke project", "Gamma smoke"],
+      // Row-only texts: the project and milestone names also sit in the add-task island props, ahead of the list.
+      bodyOrder: ["Zadanie smoke", "Zrobione: Zadanie smoke"],
       // Without the empty-state text the add-task island got targets, so getTaskTargets returned the project.
       // The add-task island serializes every milestone name into its props, so a bare "Beta smoke" is always in the HTML;
       // a Beta list row would carry its close button instead.
