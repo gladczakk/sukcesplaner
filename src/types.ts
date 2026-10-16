@@ -37,8 +37,9 @@ export interface TodayMilestone {
   due_date: string;
   project: { id: string; name: string };
 }
+export type TodayDeferredTask = TodayTask & { deferred_until: string };
 export interface TodayView {
   tasks: TodayTask[];
   milestones: TodayMilestone[];
-  deferredCount: number;
+  deferred: TodayDeferredTask[];
 }

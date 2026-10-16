@@ -1,10 +1,17 @@
 import type { APIRoute } from "astro";
 import { errorResponse, json, readJsonBody } from "@/lib/api";
-import { deleteTask, setTaskStatus, updateTask } from "@/lib/services/tasks";
+import { deleteTask, setTaskDeferral, setTaskStatus, updateTask, type TaskResult } from "@/lib/services/tasks";
 import { createClient } from "@/lib/supabase";
+import { tomorrowInWarsaw } from "@/lib/today";
 import { milestoneIdSchema } from "@/lib/validation/milestone";
 import { projectIdSchema } from "@/lib/validation/project";
-import { flattenTaskErrors, taskIdSchema, taskInputSchema, taskStatusSchema } from "@/lib/validation/task";
+import {
+  flattenTaskErrors,
+  taskDeferralSchema,
+  taskIdSchema,
+  taskInputSchema,
+  taskStatusSchema,
+} from "@/lib/validation/task";
 
 export const prerender = false;
 
@@ -58,12 +65,27 @@ export const PATCH: APIRoute = async ({ request, cookies, params }) => {
   const parsedBody = await readJsonBody(request);
   if (!parsedBody.ok) return parsedBody.response;
 
-  const parsed = taskStatusSchema.safeParse(parsedBody.body);
-  if (!parsed.success) {
-    return errorResponse(422, parsed.error.issues.at(0)?.message ?? "Nieprawidłowe dane");
+  const body = parsedBody.body;
+  const isObject = typeof body === "object" && body !== null && !Array.isArray(body);
+  if (isObject && "status" in body && "deferred" in body) {
+    return errorResponse(422, "Podaj albo status, albo przeniesienie.");
   }
 
-  const result = await setTaskStatus(supabase, projectId.data, milestoneId.data, id.data, parsed.data.status);
+  let result: TaskResult;
+  if (isObject && "deferred" in body) {
+    const parsed = taskDeferralSchema.safeParse(body);
+    if (!parsed.success) {
+      return errorResponse(422, parsed.error.issues.at(0)?.message ?? "Nieprawidłowe dane");
+    }
+    const until = parsed.data.deferred === "tomorrow" ? tomorrowInWarsaw() : null;
+    result = await setTaskDeferral(supabase, projectId.data, milestoneId.data, id.data, until);
+  } else {
+    const parsed = taskStatusSchema.safeParse(body);
+    if (!parsed.success) {
+      return errorResponse(422, parsed.error.issues.at(0)?.message ?? "Nieprawidłowe dane");
+    }
+    result = await setTaskStatus(supabase, projectId.data, milestoneId.data, id.data, parsed.data.status);
+  }
   switch (result.status) {
     case "ok":
       return json({ task: result.task }, 200);

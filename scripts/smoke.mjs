@@ -281,6 +281,62 @@ const steps = [
     },
   ],
   [
+    "task defer to tomorrow succeeds",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${taskId}`, {
+        method: "PATCH",
+        json: { deferred: "tomorrow" },
+      }),
+    { status: 200, bodyField: "task.deferred_until" },
+  ],
+  [
+    "task status change clears the deferral",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${taskId}`, {
+        method: "PATCH",
+        json: { status: "partial" },
+      }),
+    { status: 200, bodyEquals: { "task.status": "partial", "task.deferred_until": null } },
+  ],
+  [
+    "task defer to tomorrow again succeeds",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${taskId}`, {
+        method: "PATCH",
+        json: { deferred: "tomorrow" },
+      }),
+    { status: 200, bodyField: "task.deferred_until" },
+  ],
+  // (page step D-deferred of phase 2 goes here)
+  [
+    "task deferral clear succeeds",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${taskId}`, {
+        method: "PATCH",
+        json: { deferred: null },
+      }),
+    { status: 200, bodyEquals: { "task.deferred_until": null } },
+  ],
+  // (page step D-actions of phase 2 goes here)
+  [
+    "task defer with an unknown value is rejected",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${taskId}`, {
+        method: "PATCH",
+        json: { deferred: "yesterday" },
+      }),
+    { status: 422, bodyEquals: { error: 'Podaj przeniesienie: "tomorrow" albo null' } },
+  ],
+  [
+    "task status together with deferral is rejected",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${taskId}`, {
+        method: "PATCH",
+        json: { status: "todo", deferred: "tomorrow" },
+      }),
+    { status: 422, bodyEquals: { error: "Podaj albo status, albo przeniesienie." } },
+  ],
+  [
     "milestone close rejected while it has an open task",
     () =>
       request(`/api/projects/${projectId}/milestones/${milestoneA}`, { method: "PATCH", json: { completed: true } }),
@@ -294,6 +350,15 @@ const steps = [
         json: { status: "done" },
       }),
     { status: 200, bodyEquals: { "task.status": "done" } },
+  ],
+  [
+    "task defer of a done task is rejected",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${taskId}`, {
+        method: "PATCH",
+        json: { deferred: "tomorrow" },
+      }),
+    { status: 422, bodyEquals: { error: "Zrobionego zadania nie można przenieść na jutro." } },
   ],
   [
     "today page shows the milestone ready to close",

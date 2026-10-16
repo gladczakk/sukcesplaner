@@ -17,7 +17,7 @@ Astro.response.headers.set("Cache-Control", "no-store");
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const today = todayInWarsaw();
 
-let view: TodayView = { tasks: [], milestones: [], deferredCount: 0 };
+let view: TodayView = { tasks: [], milestones: [], deferred: [] };
 let unavailable: string | null = null;
 if (!supabase) {
   unavailable = "Aplikacja nie jest teraz dostępna. Spróbuj ponownie za chwilę.";
@@ -123,8 +123,8 @@ const summary = [
           ))}
         </ul>
       )}
-      {view.deferredCount > 0 && (
-        <p class="type-meta mt-4 text-muted-foreground tabular-nums">Przeniesione na później: {view.deferredCount}</p>
+      {view.deferred.length > 0 && (
+        <p class="type-meta mt-4 text-muted-foreground tabular-nums">Przeniesione na później: {view.deferred.length}</p>
       )}
     </>
   )}

@@ -23,6 +23,8 @@ const TITLE_ERROR = "Tytuł zadania musi mieć od 1 do 200 znaków";
 const CLOSED_MILESTONE_ERROR =
   "Nie można dodać niezrobionego zadania do zamkniętego milestona. Otwórz milestone ponownie.";
 
+const DONE_DEFERRAL_ERROR = "Zrobionego zadania nie można przenieść na jutro.";
+
 function toTask(row: TaskRow): Task {
   return { ...row, status: row.status as TaskStatus };
 }
@@ -116,13 +118,46 @@ export async function setTaskStatus(
 
   const { data, error } = await supabase
     .from("tasks")
-    .update({ status })
+    .update({ status, deferred_until: null })
     .eq("id", taskId)
     .eq("milestone_id", milestoneId)
     .select();
   if (error) return translateError(error);
   const row = data.at(0);
   return row ? { status: "ok", task: toTask(row) } : { status: "not_found" };
+}
+
+/** Sets or clears `deferred_until`; a done task cannot be deferred (a status change clears the deferral in `setTaskStatus`). */
+export async function setTaskDeferral(
+  supabase: Client,
+  projectId: string,
+  milestoneId: string,
+  taskId: string,
+  until: string | null,
+): Promise<TaskResult> {
+  const milestone = await findMilestone(supabase, projectId, milestoneId);
+  if (milestone.status !== "found") return milestone;
+
+  const base = supabase
+    .from("tasks")
+    .update({ deferred_until: until })
+    .eq("id", taskId)
+    .eq("milestone_id", milestoneId);
+  const { data, error } = await (until === null ? base : base.neq("status", "done")).select();
+  if (error) return translateError(error);
+  const row = data.at(0);
+  if (row) return { status: "ok", task: toTask(row) };
+  if (until === null) return { status: "not_found" };
+
+  const existing = await supabase
+    .from("tasks")
+    .select("id")
+    .eq("id", taskId)
+    .eq("milestone_id", milestoneId)
+    .maybeSingle();
+  if (existing.error) return translateError(existing.error);
+  if (!existing.data) return { status: "not_found" };
+  return { status: "validation", error: DONE_DEFERRAL_ERROR, fieldErrors: {} };
 }
 
 export async function deleteTask(

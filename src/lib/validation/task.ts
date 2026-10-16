@@ -28,6 +28,10 @@ export const taskStatusSchema = z.object({
   status: z.enum(TASK_STATUSES, { error: "Podaj status: todo, partial lub done" }),
 });
 
+export const taskDeferralSchema = z.object({
+  deferred: z.union([z.literal("tomorrow"), z.null()], { error: 'Podaj przeniesienie: "tomorrow" albo null' }),
+});
+
 export const taskIdSchema = z.uuid();
 
 /** Flattens a zod error to the first message per task field. */

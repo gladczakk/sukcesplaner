@@ -16,6 +16,12 @@ export function todayInWarsaw(now: Date = new Date()): string {
 
 const DAY_MS = 86_400_000;
 
+/** The calendar day after today in Warsaw as `YYYY-MM-DD`; one day is added to the calendar date, so the server zone does not matter. */
+export function tomorrowInWarsaw(now: Date = new Date()): string {
+  const [year, month, day] = todayInWarsaw(now).split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day) + DAY_MS).toISOString().slice(0, 10);
+}
+
 /** Whole calendar days from `today` to `isoDate` (both `YYYY-MM-DD`); negative for past dates. */
 export function daysFromToday(isoDate: string, today: string): number {
   return Math.round((Date.parse(isoDate) - Date.parse(today)) / DAY_MS);
