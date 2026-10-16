@@ -253,13 +253,13 @@ Brak migracji i zmian schematu. Wdrożenie wymaga tylko ręcznego `supabase db p
 
 #### Automated
 
-- [x] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [x] 2.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [x] 2.3 Build przechodzi: `npm run build`
-- [x] 2.4 Smoke przechodzi, w tym asercje na treść wysp i sekcję przeniesionych: `npm run smoke`
+- [x] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`) — f84a011
+- [x] 2.2 Sprawdzanie typów przechodzi: `npx astro check` — f84a011
+- [x] 2.3 Build przechodzi: `npm run build` — f84a011
+- [x] 2.4 Smoke przechodzi, w tym asercje na treść wysp i sekcję przeniesionych: `npm run smoke` — f84a011
 
 #### Manual
 
-- [x] 2.5 Przepływy w przeglądarce: Zrobione, Częściowo (przełącznik), Na jutro, Przywróć na dziś, wiersz „milestone do zamknięcia", licznik przeniesionych
-- [x] 2.6 Błędy akcji po polsku, a zmiana statusu z widoku projektu czyści przeniesienie
-- [x] 2.7 Wygląd i dostępność: motywy, 390 px i 1280 px, fokus po żądaniu, klawiatura, `details`, nazwy przycisków z tytułem zadania
+- [x] 2.5 Przepływy w przeglądarce: Zrobione, Częściowo (przełącznik), Na jutro, Przywróć na dziś, wiersz „milestone do zamknięcia", licznik przeniesionych — f84a011
+- [x] 2.6 Błędy akcji po polsku, a zmiana statusu z widoku projektu czyści przeniesienie — f84a011
+- [x] 2.7 Wygląd i dostępność: motywy, 390 px i 1280 px, fokus po żądaniu, klawiatura, `details`, nazwy przycisków z tytułem zadania — f84a011
