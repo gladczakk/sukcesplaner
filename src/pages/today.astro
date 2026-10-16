@@ -138,7 +138,7 @@ const summary = [
         </ul>
       )}
       {view.deferred.length > 0 && (
-        <details class="mt-4 rounded-md border border-border bg-card shadow-card">
+        <details data-deferred-details class="mt-4 rounded-md border border-border bg-card shadow-card">
           <summary class="type-meta cursor-pointer rounded-md px-4 py-3 text-muted-foreground tabular-nums outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
             {`Przeniesione na później: ${view.deferred.length}`}
           </summary>
@@ -172,3 +172,23 @@ const summary = [
     </>
   )}
 </AppLayout>
+
+<script>
+  // A restore reloads the page; keep the deferred list open across the reload (sessionStorage may be unavailable).
+  const KEY = "today-deferred-open";
+  const details = document.querySelector<HTMLDetailsElement>("[data-deferred-details]");
+  if (details) {
+    try {
+      details.open = sessionStorage.getItem(KEY) === "1";
+    } catch {
+      // Storage blocked: the list stays collapsed.
+    }
+    details.addEventListener("toggle", () => {
+      try {
+        sessionStorage.setItem(KEY, details.open ? "1" : "0");
+      } catch {
+        // Storage blocked: nothing to remember.
+      }
+    });
+  }
+</script>
