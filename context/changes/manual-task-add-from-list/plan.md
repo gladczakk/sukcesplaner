@@ -165,13 +165,13 @@ Brak migracji i zmian schematu. Wdrożenie wymaga tylko ręcznego `supabase db p
 
 #### Automated
 
-- [x] 1.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [x] 1.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [x] 1.3 Build przechodzi: `npm run build`
-- [x] 1.4 Smoke przechodzi, w tym asercje na tekst wyspy (stan pusty i stan z danymi): `npm run smoke`
+- [x] 1.1 Lint zmienionych plików bez błędów (`endOfLine: auto`) — 67db7cc
+- [x] 1.2 Sprawdzanie typów przechodzi: `npx astro check` — 67db7cc
+- [x] 1.3 Build przechodzi: `npm run build` — 67db7cc
+- [x] 1.4 Smoke przechodzi, w tym asercje na tekst wyspy (stan pusty i stan z danymi): `npm run smoke` — 67db7cc
 
 #### Manual
 
-- [x] 1.5 Dodanie zadania do najbliższego milestona z listy, przełączanie projektu i milestona oraz błędy walidacji po polsku
-- [x] 1.6 Dalszy milestone: podpowiedź o widoczności (ogłaszana przez czytnik ekranu), zadanie poza listą, widoczne w widoku projektu
-- [x] 1.7 Stan pusty (wyłączony przycisk z linkiem) oraz wygląd i dostępność: motywy, 390 px i 1280 px, fokus, klawiatura, etykiety pól
+- [x] 1.5 Dodanie zadania do najbliższego milestona z listy, przełączanie projektu i milestona oraz błędy walidacji po polsku — 67db7cc
+- [x] 1.6 Dalszy milestone: podpowiedź o widoczności (ogłaszana przez czytnik ekranu), zadanie poza listą, widoczne w widoku projektu — 67db7cc
+- [x] 1.7 Stan pusty (wyłączony przycisk z linkiem) oraz wygląd i dostępność: motywy, 390 px i 1280 px, fokus, klawiatura, etykiety pól — 67db7cc
