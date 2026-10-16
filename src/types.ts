@@ -38,6 +38,15 @@ export interface TodayMilestone {
   project: { id: string; name: string };
 }
 export type TodayDeferredTask = TodayTask & { deferred_until: string };
+
+// Targets of the "add task" form on the today list: projects with an open milestone.
+export type TaskTargetMilestone = Pick<Milestone, "id" | "name" | "due_date">;
+/** `milestones` are open ones sorted from the nearest, so the first is the "nearest open" milestone of the project. */
+export interface TaskTargetProject {
+  id: string;
+  name: string;
+  milestones: TaskTargetMilestone[];
+}
 export interface TodayView {
   tasks: TodayTask[];
   milestones: TodayMilestone[];

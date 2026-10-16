@@ -99,7 +99,12 @@ const steps = [
   [
     "today page renders empty state",
     () => request("/today"),
-    { status: 200, bodyIncludes: "Na dziś nic do zrobienia.", bodyExcludes: "pozycj" },
+    {
+      status: 200,
+      // The second text is rendered only by the add-task island in its disabled state.
+      bodyIncludes: ["Na dziś nic do zrobienia.", "Najpierw dodaj projekt z otwartym milestonem"],
+      bodyExcludes: "pozycj",
+    },
   ],
   [
     "project create rejects empty name",
@@ -275,9 +280,23 @@ const steps = [
     () => request("/today"),
     {
       status: 200,
-      bodyIncludes: ["Zadanie smoke", "Gamma smoke", "1 pozycja", "Zrobione: Zadanie smoke", "Na jutro: Zadanie smoke"],
+      bodyIncludes: [
+        "Zadanie smoke",
+        "Gamma smoke",
+        "1 pozycja",
+        "Zrobione: Zadanie smoke",
+        "Na jutro: Zadanie smoke",
+        "Dodaj zadanie",
+      ],
       bodyOrder: ["Smoke project", "Gamma smoke"],
-      bodyExcludes: ["Beta smoke", "milestone do zamknięcia"],
+      // Without the empty-state text the add-task island got targets, so getTaskTargets returned the project.
+      // The add-task island serializes every milestone name into its props, so a bare "Beta smoke" is always in the HTML;
+      // a Beta list row would carry its close button instead.
+      bodyExcludes: [
+        "Zamknij milestone Beta smoke",
+        "milestone do zamknięcia",
+        "Najpierw dodaj projekt z otwartym milestonem",
+      ],
     },
   ],
   [

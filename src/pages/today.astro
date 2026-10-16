@@ -1,4 +1,5 @@
 ---
+import AddTaskFromTodayDialog from "@/components/today/AddTaskFromTodayDialog";
 import CloseMilestoneButton from "@/components/today/CloseMilestoneButton";
 import DueChip from "@/components/today/DueChip.astro";
 import RestoreDeferredButton from "@/components/today/RestoreDeferredButton";
@@ -6,10 +7,10 @@ import TodayTaskActions from "@/components/today/TodayTaskActions";
 import AppLayout from "@/layouts/AppLayout.astro";
 import { formatDate, plural } from "@/lib/format";
 import { logError } from "@/lib/log";
-import { getToday } from "@/lib/services/today";
+import { getTaskTargets, getToday } from "@/lib/services/today";
 import { createClient } from "@/lib/supabase";
 import { dueChip, formatTodayHeading, todayInWarsaw } from "@/lib/today";
-import type { TodayView } from "@/types";
+import type { TaskTargetProject, TodayView } from "@/types";
 
 export const prerender = false;
 
@@ -20,12 +21,13 @@ const supabase = createClient(Astro.request.headers, Astro.cookies);
 const today = todayInWarsaw();
 
 let view: TodayView = { tasks: [], milestones: [], deferred: [] };
+let targets: TaskTargetProject[] = [];
 let unavailable: string | null = null;
 if (!supabase) {
   unavailable = "Aplikacja nie jest teraz dostępna. Spróbuj ponownie za chwilę.";
 } else {
   try {
-    view = await getToday(supabase, today);
+    [view, targets] = await Promise.all([getToday(supabase, today), getTaskTargets(supabase)]);
   } catch (error) {
     logError("today-list", error);
     unavailable = "Nie udało się wczytać listy na dziś. Odśwież stronę za chwilę.";
@@ -49,10 +51,13 @@ const summary = [
 ---
 
 <AppLayout title="Dziś" current="today">
-  <div class="min-w-0">
-    <p class="type-eyebrow text-muted-foreground">Dziś</p>
-    <h1 class="type-display text-foreground">{formatTodayHeading(today)}</h1>
-    {!unavailable && itemCount > 0 && <p class="type-meta mt-1 text-muted-foreground tabular-nums">{summary}</p>}
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div class="min-w-0">
+      <p class="type-eyebrow text-muted-foreground">Dziś</p>
+      <h1 class="type-display text-foreground">{formatTodayHeading(today)}</h1>
+      {!unavailable && itemCount > 0 && <p class="type-meta mt-1 text-muted-foreground tabular-nums">{summary}</p>}
+    </div>
+    {!unavailable && <AddTaskFromTodayDialog client:load targets={targets} />}
   </div>
 
   {unavailable ? (
