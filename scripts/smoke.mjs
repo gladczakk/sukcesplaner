@@ -275,7 +275,7 @@ const steps = [
     () => request("/today"),
     {
       status: 200,
-      bodyIncludes: ["Zadanie smoke", "Gamma smoke", "1 pozycja"],
+      bodyIncludes: ["Zadanie smoke", "Gamma smoke", "1 pozycja", "Zrobione: Zadanie smoke", "Na jutro: Zadanie smoke"],
       bodyOrder: ["Smoke project", "Gamma smoke"],
       bodyExcludes: ["Beta smoke", "milestone do zamknięcia"],
     },
@@ -307,7 +307,15 @@ const steps = [
       }),
     { status: 200, bodyField: "task.deferred_until" },
   ],
-  // (page step D-deferred of phase 2 goes here)
+  [
+    "today page lists the deferred task with a restore action",
+    () => request("/today"),
+    {
+      status: 200,
+      bodyIncludes: ["Na dziś nic do zrobienia.", "Przeniesione na później: 1", "Przywróć na dziś: Zadanie smoke"],
+      bodyExcludes: ["Zrobione: Zadanie smoke"],
+    },
+  ],
   [
     "task deferral clear succeeds",
     () =>
@@ -317,7 +325,21 @@ const steps = [
       }),
     { status: 200, bodyEquals: { "task.deferred_until": null } },
   ],
-  // (page step D-actions of phase 2 goes here)
+  [
+    "today page shows the task actions of a partial task",
+    () => request("/today"),
+    {
+      status: 200,
+      bodyIncludes: [
+        "Zrobione: Zadanie smoke",
+        "Częściowo: Zadanie smoke",
+        "Na jutro: Zadanie smoke",
+        "· częściowo",
+        'aria-pressed="true"',
+      ],
+      bodyExcludes: ["Przeniesione na później"],
+    },
+  ],
   [
     "task defer with an unknown value is rejected",
     () =>

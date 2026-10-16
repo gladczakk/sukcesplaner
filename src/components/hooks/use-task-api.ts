@@ -77,6 +77,12 @@ export function useTaskApi() {
     [],
   );
 
+  const setTaskDeferral = useCallback(
+    (projectId: string, milestoneId: string, taskId: string, deferred: "tomorrow" | null) =>
+      saveTask(tasksUrl(projectId, milestoneId, taskId), "PATCH", { deferred }),
+    [],
+  );
+
   const deleteTask = useCallback(
     async (projectId: string, milestoneId: string, taskId: string): Promise<TaskApiDeleteResult> => {
       let response: Response;
@@ -97,5 +103,5 @@ export function useTaskApi() {
     [],
   );
 
-  return { createTask, updateTask, setTaskStatus, deleteTask };
+  return { createTask, updateTask, setTaskStatus, setTaskDeferral, deleteTask };
 }

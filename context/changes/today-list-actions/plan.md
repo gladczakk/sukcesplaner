@@ -239,27 +239,27 @@ Brak migracji i zmian schematu. Wdrożenie wymaga tylko ręcznego `supabase db p
 
 #### Automated
 
-- [x] 1.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [x] 1.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [x] 1.3 Build przechodzi: `npm run build`
-- [x] 1.4 Smoke przechodzi, w tym nowe kroki API przeniesienia: `npm run smoke`
+- [x] 1.1 Lint zmienionych plików bez błędów (`endOfLine: auto`) — ea58144
+- [x] 1.2 Sprawdzanie typów przechodzi: `npx astro check` — ea58144
+- [x] 1.3 Build przechodzi: `npm run build` — ea58144
+- [x] 1.4 Smoke przechodzi, w tym nowe kroki API przeniesienia: `npm run smoke` — ea58144
 
 #### Manual
 
-- [x] 1.5 Odpowiedzi API przeniesienia (200/422, błędna wartość, czyszczenie statusem) są po polsku i nie ujawniają treści błędów Postgresa
-- [x] 1.6 Zapisana data `deferred_until` to jutro w `Europe/Warsaw`
+- [x] 1.5 Odpowiedzi API przeniesienia (200/422, błędna wartość, czyszczenie statusem) są po polsku i nie ujawniają treści błędów Postgresa — ea58144
+- [x] 1.6 Zapisana data `deferred_until` to jutro w `Europe/Warsaw` — ea58144
 
 ### Phase 2: UI na `/today` — akcje wiersza i lista przeniesionych
 
 #### Automated
 
-- [ ] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
-- [ ] 2.2 Sprawdzanie typów przechodzi: `npx astro check`
-- [ ] 2.3 Build przechodzi: `npm run build`
-- [ ] 2.4 Smoke przechodzi, w tym asercje na treść wysp i sekcję przeniesionych: `npm run smoke`
+- [x] 2.1 Lint zmienionych plików bez błędów (`endOfLine: auto`)
+- [x] 2.2 Sprawdzanie typów przechodzi: `npx astro check`
+- [x] 2.3 Build przechodzi: `npm run build`
+- [x] 2.4 Smoke przechodzi, w tym asercje na treść wysp i sekcję przeniesionych: `npm run smoke`
 
 #### Manual
 
-- [ ] 2.5 Przepływy w przeglądarce: Zrobione, Częściowo (przełącznik), Na jutro, Przywróć na dziś, wiersz „milestone do zamknięcia", licznik przeniesionych
-- [ ] 2.6 Błędy akcji po polsku, a zmiana statusu z widoku projektu czyści przeniesienie
-- [ ] 2.7 Wygląd i dostępność: motywy, 390 px i 1280 px, fokus po żądaniu, klawiatura, `details`, nazwy przycisków z tytułem zadania
+- [x] 2.5 Przepływy w przeglądarce: Zrobione, Częściowo (przełącznik), Na jutro, Przywróć na dziś, wiersz „milestone do zamknięcia", licznik przeniesionych
+- [x] 2.6 Błędy akcji po polsku, a zmiana statusu z widoku projektu czyści przeniesienie
+- [x] 2.7 Wygląd i dostępność: motywy, 390 px i 1280 px, fokus po żądaniu, klawiatura, `details`, nazwy przycisków z tytułem zadania

@@ -1,6 +1,8 @@
 ---
 import CloseMilestoneButton from "@/components/today/CloseMilestoneButton";
 import DueChip from "@/components/today/DueChip.astro";
+import RestoreDeferredButton from "@/components/today/RestoreDeferredButton";
+import TodayTaskActions from "@/components/today/TodayTaskActions";
 import AppLayout from "@/layouts/AppLayout.astro";
 import { formatDate, plural } from "@/lib/format";
 import { logError } from "@/lib/log";
@@ -84,7 +86,19 @@ const summary = [
                   {task.status === "partial" && " · częściowo"}
                 </p>
               </div>
-              <DueChip chip={chip} />
+              <div class="flex min-w-0 shrink-0 flex-col items-start gap-2 sm:items-end">
+                <DueChip chip={chip} />
+                {task.status !== "done" && (
+                  <TodayTaskActions
+                    client:load
+                    projectId={task.project.id}
+                    milestoneId={task.milestone.id}
+                    taskId={task.id}
+                    title={task.title}
+                    status={task.status}
+                  />
+                )}
+              </div>
             </li>
           ))}
           {milestoneRows.map(({ milestone, chip }) => (
@@ -124,7 +138,36 @@ const summary = [
         </ul>
       )}
       {view.deferred.length > 0 && (
-        <p class="type-meta mt-4 text-muted-foreground tabular-nums">Przeniesione na później: {view.deferred.length}</p>
+        <details class="mt-4 rounded-md border border-border bg-card shadow-card">
+          <summary class="type-meta cursor-pointer rounded-md px-4 py-3 text-muted-foreground tabular-nums outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+            {`Przeniesione na później: ${view.deferred.length}`}
+          </summary>
+          <ul class="divide-y divide-border border-t border-border">
+            {view.deferred.map((task) => (
+              <li class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                <div class="min-w-0">
+                  <p class="type-task break-words text-foreground">{task.title}</p>
+                  <p class="type-meta break-words text-muted-foreground">
+                    <a
+                      href={`/projects/${task.project.id}`}
+                      class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    >
+                      {task.project.name}
+                    </a>
+                    {` · ${task.milestone.name} · wróci ${formatDate(task.deferred_until)}`}
+                  </p>
+                </div>
+                <RestoreDeferredButton
+                  client:load
+                  projectId={task.project.id}
+                  milestoneId={task.milestone.id}
+                  taskId={task.id}
+                  title={task.title}
+                />
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
     </>
   )}
