@@ -111,6 +111,38 @@ export type Database = {
         }
         Relationships: []
       }
+      task_occurrences: {
+        Row: {
+          created_at: string
+          occurrence_date: string
+          state: string
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          occurrence_date: string
+          state?: string
+          task_id: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          occurrence_date?: string
+          state?: string
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_occurrences_task_owner_fkey"
+            columns: ["task_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           created_at: string
@@ -118,6 +150,8 @@ export type Database = {
           due_date: string | null
           id: string
           milestone_id: string
+          recurrence_interval_days: number | null
+          recurrence_start_date: string | null
           status: string
           title: string
           updated_at: string
@@ -129,6 +163,8 @@ export type Database = {
           due_date?: string | null
           id?: string
           milestone_id: string
+          recurrence_interval_days?: number | null
+          recurrence_start_date?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -140,6 +176,8 @@ export type Database = {
           due_date?: string | null
           id?: string
           milestone_id?: string
+          recurrence_interval_days?: number | null
+          recurrence_start_date?: string | null
           status?: string
           title?: string
           updated_at?: string
@@ -173,6 +211,7 @@ export type Database = {
           task_deferred_until: string
           task_due_date: string
           task_id: string
+          task_recurrence_interval_days: number
           task_status: string
           task_title: string
         }[]
