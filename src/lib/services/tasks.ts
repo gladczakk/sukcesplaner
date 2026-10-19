@@ -29,6 +29,7 @@ const RECURRING_STATE_ERROR =
   "Zadania powtarzalnego nie można oznaczyć jako zrobione ani przenieść. Odhacz jego wystąpienie na liście Dziś.";
 const RECURRENCE_START_ERROR = "Termin milestona jest wcześniejszy niż dziś — powtarzanie nie miałoby kiedy się zacząć";
 const RECURRENCE_INTERVAL_ERROR = "Podaj liczbę dni od 2 do 30";
+const OCCURRENCE_ERROR = "To wystąpienie nie jest dziś aktualne. Odśwież stronę.";
 
 function toTask(row: TaskRow): Task {
   return { ...row, status: row.status as TaskStatus };
@@ -186,6 +187,31 @@ export async function setTaskDeferral(
   if (existing.error) return translateError(existing.error);
   if (!existing.data) return { status: "not_found" };
   return { status: "validation", error: DONE_DEFERRAL_ERROR, fieldErrors: {} };
+}
+
+/** Marks the occurrence of a recurring task on `date` as done; a repeated mark (double click) counts as success. */
+export async function completeOccurrence(
+  supabase: Client,
+  projectId: string,
+  milestoneId: string,
+  taskId: string,
+  date: string,
+): Promise<TaskResult> {
+  const milestone = await findMilestone(supabase, projectId, milestoneId);
+  if (milestone.status !== "found") return milestone;
+
+  const existing = await supabase.from("tasks").select().eq("id", taskId).eq("milestone_id", milestoneId).maybeSingle();
+  if (existing.error) return translateError(existing.error);
+  if (!existing.data) return { status: "not_found" };
+
+  const { error } = await supabase.from("task_occurrences").insert({ task_id: taskId, occurrence_date: date });
+  if (error && error.code !== "23505") {
+    if (error.code === "23514" && error.message.includes("Wystapienie")) {
+      return { status: "validation", error: OCCURRENCE_ERROR, fieldErrors: {} };
+    }
+    return translateError(error);
+  }
+  return { status: "ok", task: toTask(existing.data) };
 }
 
 export async function deleteTask(

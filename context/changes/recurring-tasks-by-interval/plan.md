@@ -391,28 +391,28 @@ Migracja jest addytywna: istniejące zadania mają `recurrence_*` NULL i działa
 
 #### Automated
 
-- [x] 3.1 Lint przechodzi: `npm run lint`
-- [x] 3.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build`
-- [x] 3.3 Smoke przechodzi, w tym kroki rutyny na liście i zamknięcia milestona z rutyną: `npm run smoke`
+- [x] 3.1 Lint przechodzi: `npm run lint` — 8ac880b
+- [x] 3.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build` — 8ac880b
+- [x] 3.3 Smoke przechodzi, w tym kroki rutyny na liście i zamknięcia milestona z rutyną: `npm run smoke` — 8ac880b
 
 #### Manual
 
-- [x] 3.4 Na `/today` rutyna jest na samym szczycie, nad zadaniem przeterminowanym, z etykietą rytmu, a licznik „N pozycji" ją zawiera
-- [x] 3.5 Rutyna z milestona, który nie jest najbliższy w projekcie, jest widoczna na liście
-- [x] 3.6 Po zamknięciu milestona z rutyną (ze strony projektu lub z wiersza „do zamknięcia") rutyna znika, a po ponownym otwarciu wraca
+- [x] 3.4 Na `/today` rutyna jest na samym szczycie, nad zadaniem przeterminowanym, z etykietą rytmu, a licznik „N pozycji" ją zawiera — 8ac880b
+- [x] 3.5 Rutyna z milestona, który nie jest najbliższy w projekcie, jest widoczna na liście — 8ac880b
+- [x] 3.6 Po zamknięciu milestona z rutyną (ze strony projektu lub z wiersza „do zamknięcia") rutyna znika, a po ponownym otwarciu wraca — 8ac880b
 
 ### Phase 4: Odhaczenie wystąpienia
 
 #### Automated
 
-- [ ] 4.1 Lint przechodzi: `npm run lint`
-- [ ] 4.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build`
-- [ ] 4.3 Smoke przechodzi, w tym kroki odhaczenia i treści wyspy: `npm run smoke`
-- [ ] 4.4 Test zepsucia (tymczasowy `throw` w `TodayTaskActions`) zaczerwienia krok smoke z treścią wyspy; po wycofaniu `npm run smoke` jest zielony
-- [ ] 4.5 Testy pgTAP nadal przechodzą: `npx supabase test db`
+- [x] 4.1 Lint przechodzi: `npm run lint`
+- [x] 4.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build`
+- [x] 4.3 Smoke przechodzi, w tym kroki odhaczenia i treści wyspy: `npm run smoke`
+- [x] 4.4 Test zepsucia (tymczasowy `throw` w `TodayTaskActions`) zaczerwienia krok smoke z treścią wyspy; po wycofaniu `npm run smoke` jest zielony
+- [x] 4.5 Testy pgTAP nadal przechodzą: `npx supabase test db`
 
 #### Manual
 
-- [ ] 4.6 Na `/today` przycisk „Zrobione" na rutynie odhacza ją i po odświeżeniu znika; zadania niepowtarzalne nadal mają „Zrobione", „Częściowo" i „Na jutro"
-- [ ] 4.7 Symulacja następnego dnia (`select * from public.today_list(<jutro>)` w psql) pokazuje rutynę codzienną ponownie, a rutynę co 2 dni dopiero po dwóch dniach
-- [ ] 4.8 Podwójne kliknięcie „Zrobione" nie powoduje błędu widocznego dla użytkownika
+- [x] 4.6 Na `/today` przycisk „Zrobione" na rutynie odhacza ją i po odświeżeniu znika; zadania niepowtarzalne nadal mają „Zrobione", „Częściowo" i „Na jutro"
+- [x] 4.7 Symulacja następnego dnia (`select * from public.today_list(<jutro>)` w psql) pokazuje rutynę codzienną ponownie, a rutynę co 2 dni dopiero po dwóch dniach
+- [x] 4.8 Podwójne kliknięcie „Zrobione" nie powoduje błędu widocznego dla użytkownika

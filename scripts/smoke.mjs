@@ -690,6 +690,81 @@ const steps = [
     () => request("/today"),
     { status: 200, bodyIncludes: ["Rutyna smoke 3", "co 3 dni"] },
   ],
+  // Occurrence done: only the routine row is a task island here (Beta/Gamma rows carry the close button), so the
+  // routine's island must render just "Zrobione" and none of the plain-task actions.
+  [
+    "today page renders the routine island with only the done action",
+    () => request("/today"),
+    {
+      status: 200,
+      bodyIncludes: ['aria-label="Zrobione: Rutyna smoke 3"', "co 3 dni"],
+      bodyExcludes: ['aria-label="Częściowo:', 'aria-label="Na jutro:'],
+    },
+  ],
+  [
+    "routine occurrence of an unknown task returns 404",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${otherProjectId}/occurrences`, {
+        method: "POST",
+      }),
+    { status: 404 },
+  ],
+  [
+    "routine occurrence is marked done",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${recurringTaskId}/occurrences`, {
+        method: "POST",
+      }),
+    { status: 201, bodyEquals: { "task.title": "Rutyna smoke 3" } },
+  ],
+  [
+    "routine occurrence marked twice still succeeds",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${recurringTaskId}/occurrences`, {
+        method: "POST",
+      }),
+    { status: 201, bodyEquals: { "task.title": "Rutyna smoke 3" } },
+  ],
+  // The title also sits in the island props, so its absence proves the row is gone; the milestone is now ready to close.
+  [
+    "today page drops the routine once its occurrence is done",
+    () => request("/today"),
+    {
+      status: 200,
+      bodyIncludes: ["1 pozycja · 1 milestone do zamknięcia", "Zamknij milestone Gamma smoke"],
+      bodyExcludes: ["Rutyna smoke 3", 'aria-label="Zrobione: Rutyna smoke 3"'],
+    },
+  ],
+  [
+    "plain task next to the finished routine is created",
+    async () => {
+      const result = await request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Zadanie smoke plain", due_date: "2099-12-30" },
+      });
+      termTaskId = result.body?.task?.id ?? "";
+      return result;
+    },
+    { status: 201, bodyField: "task.id" },
+  ],
+  [
+    "today page keeps three actions on the plain task",
+    () => request("/today"),
+    {
+      status: 200,
+      bodyIncludes: [
+        'aria-label="Zrobione: Zadanie smoke plain"',
+        'aria-label="Częściowo: Zadanie smoke plain"',
+        'aria-label="Na jutro: Zadanie smoke plain"',
+      ],
+      bodyExcludes: ["Rutyna smoke 3"],
+    },
+  ],
+  [
+    "plain task next to the finished routine is deleted",
+    () => request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${termTaskId}`, { method: "DELETE" }),
+    { status: 204 },
+  ],
   [
     "recurring task delete succeeds",
     () => request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${recurringTaskId}`, { method: "DELETE" }),

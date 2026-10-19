@@ -9,11 +9,21 @@ interface TodayTaskActionsProps {
   milestoneId: string;
   taskId: string;
   title: string;
-  status: "todo" | "partial";
+  /** Status of a plain task; a routine has none (it stays `todo`). */
+  status?: "todo" | "partial";
+  /** A routine row: the only action marks today's occurrence as done. */
+  recurring?: boolean;
 }
 
-export default function TodayTaskActions({ projectId, milestoneId, taskId, title, status }: TodayTaskActionsProps) {
-  const { setTaskStatus, setTaskDeferral } = useTaskApi();
+export default function TodayTaskActions({
+  projectId,
+  milestoneId,
+  taskId,
+  title,
+  status,
+  recurring = false,
+}: TodayTaskActionsProps) {
+  const { setTaskStatus, setTaskDeferral, completeOccurrence } = useTaskApi();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | undefined>();
 
@@ -60,41 +70,49 @@ export default function TodayTaskActions({ projectId, milestoneId, taskId, title
           aria-busy={pending}
           aria-label={`Zrobione: ${title}`}
           onClick={() => {
-            void run(() => setTaskStatus(projectId, milestoneId, taskId, "done"));
+            void run(() =>
+              recurring
+                ? completeOccurrence(projectId, milestoneId, taskId)
+                : setTaskStatus(projectId, milestoneId, taskId, "done"),
+            );
           }}
         >
           Zrobione
         </Button>
-        <Button
-          variant="secondary"
-          size="sm"
-          className={buttonClassName}
-          aria-disabled={pending}
-          aria-busy={pending}
-          aria-pressed={status === "partial"}
-          aria-label={`Częściowo: ${title}`}
-          onClick={() => {
-            void run(
-              () => setTaskStatus(projectId, milestoneId, taskId, status === "partial" ? "todo" : "partial"),
-              "Jeśli status się nie zgadza, odśwież stronę.",
-            );
-          }}
-        >
-          Częściowo
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className={buttonClassName}
-          aria-disabled={pending}
-          aria-busy={pending}
-          aria-label={`Na jutro: ${title}`}
-          onClick={() => {
-            void run(() => setTaskDeferral(projectId, milestoneId, taskId, "tomorrow"));
-          }}
-        >
-          Na jutro
-        </Button>
+        {recurring ? null : (
+          <>
+            <Button
+              variant="secondary"
+              size="sm"
+              className={buttonClassName}
+              aria-disabled={pending}
+              aria-busy={pending}
+              aria-pressed={status === "partial"}
+              aria-label={`Częściowo: ${title}`}
+              onClick={() => {
+                void run(
+                  () => setTaskStatus(projectId, milestoneId, taskId, status === "partial" ? "todo" : "partial"),
+                  "Jeśli status się nie zgadza, odśwież stronę.",
+                );
+              }}
+            >
+              Częściowo
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={buttonClassName}
+              aria-disabled={pending}
+              aria-busy={pending}
+              aria-label={`Na jutro: ${title}`}
+              onClick={() => {
+                void run(() => setTaskDeferral(projectId, milestoneId, taskId, "tomorrow"));
+              }}
+            >
+              Na jutro
+            </Button>
+          </>
+        )}
       </div>
       {error ? (
         <p role="alert" className="type-meta text-destructive-ink flex items-center gap-1">

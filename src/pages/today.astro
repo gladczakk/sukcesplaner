@@ -92,6 +92,16 @@ const summary = [
                   {` · ${formatRecurrence(routine.interval_days)}`}
                 </p>
               </div>
+              <div class="flex min-w-0 shrink-0 flex-col items-start gap-2 sm:items-end">
+                <TodayTaskActions
+                  client:load
+                  recurring
+                  projectId={routine.project.id}
+                  milestoneId={routine.milestone.id}
+                  taskId={routine.id}
+                  title={routine.title}
+                />
+              </div>
             </li>
           ))}
           {rows.map(({ task, chip }) => (
