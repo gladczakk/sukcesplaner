@@ -405,14 +405,14 @@ Migracja jest addytywna: istniejące zadania mają `recurrence_*` NULL i działa
 
 #### Automated
 
-- [x] 4.1 Lint przechodzi: `npm run lint`
-- [x] 4.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build`
-- [x] 4.3 Smoke przechodzi, w tym kroki odhaczenia i treści wyspy: `npm run smoke`
-- [x] 4.4 Test zepsucia (tymczasowy `throw` w `TodayTaskActions`) zaczerwienia krok smoke z treścią wyspy; po wycofaniu `npm run smoke` jest zielony
-- [x] 4.5 Testy pgTAP nadal przechodzą: `npx supabase test db`
+- [x] 4.1 Lint przechodzi: `npm run lint` — 2bffdcc
+- [x] 4.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build` — 2bffdcc
+- [x] 4.3 Smoke przechodzi, w tym kroki odhaczenia i treści wyspy: `npm run smoke` — 2bffdcc
+- [x] 4.4 Test zepsucia (tymczasowy `throw` w `TodayTaskActions`) zaczerwienia krok smoke z treścią wyspy; po wycofaniu `npm run smoke` jest zielony — 2bffdcc
+- [x] 4.5 Testy pgTAP nadal przechodzą: `npx supabase test db` — 2bffdcc
 
 #### Manual
 
-- [x] 4.6 Na `/today` przycisk „Zrobione" na rutynie odhacza ją i po odświeżeniu znika; zadania niepowtarzalne nadal mają „Zrobione", „Częściowo" i „Na jutro"
-- [x] 4.7 Symulacja następnego dnia (`select * from public.today_list(<jutro>)` w psql) pokazuje rutynę codzienną ponownie, a rutynę co 2 dni dopiero po dwóch dniach
-- [x] 4.8 Podwójne kliknięcie „Zrobione" nie powoduje błędu widocznego dla użytkownika
+- [x] 4.6 Na `/today` przycisk „Zrobione" na rutynie odhacza ją i po odświeżeniu znika; zadania niepowtarzalne nadal mają „Zrobione", „Częściowo" i „Na jutro" — 2bffdcc
+- [x] 4.7 Symulacja następnego dnia (`select * from public.today_list(<jutro>)` w psql) pokazuje rutynę codzienną ponownie, a rutynę co 2 dni dopiero po dwóch dniach — 2bffdcc
+- [x] 4.8 Podwójne kliknięcie „Zrobione" nie powoduje błędu widocznego dla użytkownika — 2bffdcc
