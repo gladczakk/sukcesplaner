@@ -54,6 +54,24 @@ let milestoneA = "";
 let milestoneB = "";
 let completedAt = "";
 let taskId = "";
+let recurringTaskId = "";
+const recurringDueDateError = "Zadanie powtarzalne nie ma własnego terminu";
+const recurrenceDaysError = "Podaj liczbę dni od 2 do 30";
+const recurringStateError =
+  "Zadania powtarzalnego nie można oznaczyć jako zrobione ani przenieść. Odhacz jego wystąpienie na liście Dziś.";
+const warsawParts = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Europe/Warsaw",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+// Today's date in Warsaw as YYYY-MM-DD, like `todayInWarsaw` in src/lib/today.ts.
+function warsawToday() {
+  const parts = warsawParts.formatToParts(new Date());
+  const part = (type) => parts.find((p) => p.type === type)?.value ?? "";
+  return `${part("year")}-${part("month")}-${part("day")}`;
+}
 const closedMilestoneTaskError =
   "Nie można dodać niezrobionego zadania do zamkniętego milestona. Otwórz milestone ponownie.";
 const taskDateError = "Termin zadania nie może być późniejszy niż data milestona";
@@ -528,6 +546,87 @@ const steps = [
     "task repeated delete returns 404",
     () => request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${taskId}`, { method: "DELETE" }),
     { status: 404 },
+  ],
+  // Recurring tasks (rhythm): the start date is today's Warsaw date, set by the server.
+  [
+    "recurring task create succeeds",
+    async () => {
+      const result = await request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Rutyna smoke", due_date: null, recurrence_interval_days: 3 },
+      });
+      recurringTaskId = result.body?.task?.id ?? "";
+      return result;
+    },
+    {
+      status: 201,
+      bodyEquals: {
+        "task.title": "Rutyna smoke",
+        "task.recurrence_interval_days": 3,
+        "task.recurrence_start_date": warsawToday(),
+        "task.due_date": null,
+        "task.status": "todo",
+      },
+    },
+  ],
+  [
+    "recurring task create rejects a due date",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Rutyna smoke 2", due_date: "2099-12-30", recurrence_interval_days: 2 },
+      }),
+    { status: 422, bodyEquals: { "fieldErrors.due_date": recurringDueDateError } },
+  ],
+  [
+    "recurring task create rejects a rhythm over 30 days",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Rutyna smoke 2", due_date: null, recurrence_interval_days: 31 },
+      }),
+    { status: 422, bodyEquals: { "fieldErrors.recurrence_interval_days": recurrenceDaysError } },
+  ],
+  [
+    "recurring task status done is rejected",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${recurringTaskId}`, {
+        method: "PATCH",
+        json: { status: "done" },
+      }),
+    { status: 422, bodyEquals: { error: recurringStateError } },
+  ],
+  [
+    "recurring task update with only a title keeps the rhythm",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${recurringTaskId}`, {
+        method: "PUT",
+        json: { title: "Rutyna smoke 3" },
+      }),
+    {
+      status: 200,
+      bodyEquals: {
+        "task.title": "Rutyna smoke 3",
+        "task.recurrence_interval_days": 3,
+        "task.recurrence_start_date": warsawToday(),
+      },
+    },
+  ],
+  // Island SSR errors leave the page at 200: the rhythm label is server-rendered, the edit button comes from the island,
+  // and a recurring task must not render the status select.
+  [
+    "project page renders the recurring task without a status select",
+    () => request(`/projects/${projectId}`),
+    {
+      status: 200,
+      bodyIncludes: ["Rutyna smoke 3", "co 3 dni", "Edytuj zadanie Rutyna smoke 3"],
+      bodyExcludes: ["Status zadania Rutyna smoke 3"],
+    },
+  ],
+  [
+    "recurring task delete succeeds",
+    () => request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${recurringTaskId}`, { method: "DELETE" }),
+    { status: 204 },
   ],
   [
     "milestone create in unknown project returns 404",

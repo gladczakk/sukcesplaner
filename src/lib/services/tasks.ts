@@ -2,8 +2,9 @@ import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/db/database.types";
 import { logError } from "@/lib/log";
 import { GENERIC_ERROR, SESSION_ERROR, readFailure } from "@/lib/services/postgrest";
+import { todayInWarsaw } from "@/lib/today";
 import type { Task, TaskStatus } from "@/types";
-import type { TaskFieldErrors, TaskInput } from "@/lib/validation/task";
+import type { TaskCreateInput, TaskFieldErrors, TaskInput } from "@/lib/validation/task";
 
 type Client = SupabaseClient<Database>;
 type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
@@ -24,6 +25,10 @@ const CLOSED_MILESTONE_ERROR =
   "Nie można dodać niezrobionego zadania do zamkniętego milestona. Otwórz milestone ponownie.";
 
 const DONE_DEFERRAL_ERROR = "Zrobionego zadania nie można przenieść na jutro.";
+const RECURRING_STATE_ERROR =
+  "Zadania powtarzalnego nie można oznaczyć jako zrobione ani przenieść. Odhacz jego wystąpienie na liście Dziś.";
+const RECURRENCE_START_ERROR = "Termin milestona jest wcześniejszy niż dziś — powtarzanie nie miałoby kiedy się zacząć";
+const RECURRENCE_INTERVAL_ERROR = "Podaj liczbę dni od 2 do 30";
 
 function toTask(row: TaskRow): Task {
   return { ...row, status: row.status as TaskStatus };
@@ -39,6 +44,23 @@ function translateError(error: PostgrestError): TaskFailure {
     }
     if (error.message.includes("tasks_title_length")) {
       return { status: "validation", error: TITLE_ERROR, fieldErrors: { title: TITLE_ERROR } };
+    }
+    if (error.message.includes("tasks_recurrence_shape")) {
+      return { status: "validation", error: RECURRING_STATE_ERROR, fieldErrors: {} };
+    }
+    if (error.message.includes("Powtarzanie zadania")) {
+      return {
+        status: "validation",
+        error: RECURRENCE_START_ERROR,
+        fieldErrors: { recurrence_interval_days: RECURRENCE_START_ERROR },
+      };
+    }
+    if (error.message.includes("tasks_recurrence_interval_check")) {
+      return {
+        status: "validation",
+        error: RECURRENCE_INTERVAL_ERROR,
+        fieldErrors: { recurrence_interval_days: RECURRENCE_INTERVAL_ERROR },
+      };
     }
   }
   if (error.code === "23503") {
@@ -71,14 +93,20 @@ export async function createTask(
   supabase: Client,
   projectId: string,
   milestoneId: string,
-  input: TaskInput,
+  input: TaskCreateInput,
 ): Promise<TaskResult> {
   const milestone = await findMilestone(supabase, projectId, milestoneId);
   if (milestone.status !== "found") return milestone;
 
+  // The rhythm starts today (Warsaw date, set here so a task added just after midnight gets the right day).
+  const interval = input.recurrence_interval_days;
   const { data, error } = await supabase
     .from("tasks")
-    .insert({ ...input, milestone_id: milestoneId })
+    .insert({
+      ...input,
+      milestone_id: milestoneId,
+      recurrence_start_date: interval === null ? null : todayInWarsaw(),
+    })
     .select();
   if (error) return translateError(error);
   const row = data.at(0);

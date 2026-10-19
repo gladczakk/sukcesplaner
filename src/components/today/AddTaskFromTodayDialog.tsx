@@ -8,7 +8,16 @@ import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { formatDate } from "@/lib/format";
-import { flattenTaskErrors, taskInputSchema, TASK_FIELDS, type TaskFieldErrors } from "@/lib/validation/task";
+import {
+  flattenTaskErrors,
+  isRecurrenceMode,
+  readRecurrenceInterval,
+  RECURRENCE_MODE_OPTIONS,
+  taskCreateSchema,
+  TASK_FIELDS,
+  type RecurrenceMode,
+  type TaskFieldErrors,
+} from "@/lib/validation/task";
 import type { TaskTargetMilestone, TaskTargetProject } from "@/types";
 
 interface AddTaskFromTodayDialogProps {
@@ -21,20 +30,32 @@ interface FormValues {
   milestoneId: string;
   title: string;
   due_date: string;
+  /** Rhythm choice; `recurrence_interval_days` holds the number of days of "Co X dni". */
+  repeat: RecurrenceMode;
+  recurrence_interval_days: string;
 }
 
 const ID_PREFIX = "today-add-task";
 const FIELD_IDS: Record<(typeof TASK_FIELDS)[number], string> = {
   title: `${ID_PREFIX}-title`,
   due_date: `${ID_PREFIX}-due-date`,
+  recurrence_interval_days: `${ID_PREFIX}-recurrence-days`,
 };
+const REPEAT_ID = `${ID_PREFIX}-repeat`;
 const EMPTY_HINT_ID = `${ID_PREFIX}-empty-hint`;
 const NOT_NEAREST_HINT =
   "Ten milestone nie jest najbliższy w projekcie — zadanie pojawi się na liście Dziś, gdy stanie się najbliższy.";
 
 function initialValues(targets: TaskTargetProject[]): FormValues {
   const first = targets.at(0);
-  return { projectId: first?.id ?? "", milestoneId: first?.milestones.at(0)?.id ?? "", title: "", due_date: "" };
+  return {
+    projectId: first?.id ?? "",
+    milestoneId: first?.milestones.at(0)?.id ?? "",
+    title: "",
+    due_date: "",
+    repeat: "none",
+    recurrence_interval_days: "",
+  };
 }
 
 function dueDateError(dueDate: string, milestone: TaskTargetMilestone): string | undefined {
@@ -68,6 +89,12 @@ export default function AddTaskFromTodayDialog({ targets }: AddTaskFromTodayDial
     setValues((current) => ({ ...current, [key]: value }));
   }
 
+  function changeRepeat(value: string) {
+    if (!isRecurrenceMode(value)) return;
+    setValues((current) => ({ ...current, repeat: value, due_date: value === "none" ? current.due_date : "" }));
+    setFieldErrors((current) => ({ ...current, due_date: undefined, recurrence_interval_days: undefined }));
+  }
+
   /** Re-checks the typed date against the newly selected milestone, so a date past its new `max` is flagged at once. */
   function recheckDueDate(next: TaskTargetMilestone | undefined) {
     setFieldErrors((current) => ({ ...current, due_date: next ? dueDateError(values.due_date, next) : undefined }));
@@ -86,7 +113,10 @@ export default function AddTaskFromTodayDialog({ targets }: AddTaskFromTodayDial
 
   function focusFirstInvalid(errors: TaskFieldErrors) {
     const first = TASK_FIELDS.find((field) => errors[field]);
-    if (first) document.getElementById(FIELD_IDS[first])?.focus();
+    if (!first) return;
+    // Without the number input ("Codziennie"), a rhythm error belongs to the select.
+    const target = first === "recurrence_interval_days" && values.repeat !== "every" ? REPEAT_ID : FIELD_IDS[first];
+    document.getElementById(target)?.focus();
   }
 
   async function submit() {
@@ -96,9 +126,17 @@ export default function AddTaskFromTodayDialog({ targets }: AddTaskFromTodayDial
       setGeneralError("Wybierz projekt i milestone.");
       return;
     }
-    const parsed = taskInputSchema.safeParse({ title: values.title, due_date: values.due_date });
+    const rhythm = readRecurrenceInterval(values.repeat, values.recurrence_interval_days);
+    // A recurring task has no due date of its own.
+    const dueDate = values.repeat === "none" ? values.due_date : "";
+    const parsed = taskCreateSchema.safeParse({
+      title: values.title,
+      due_date: dueDate,
+      recurrence_interval_days: rhythm.value,
+    });
     const errors: TaskFieldErrors = parsed.success ? {} : flattenTaskErrors(parsed.error);
-    const dateError = dueDateError(values.due_date, milestone);
+    if (rhythm.error) errors.recurrence_interval_days = rhythm.error;
+    const dateError = dueDateError(dueDate, milestone);
     if (!errors.due_date && dateError) errors.due_date = dateError;
     if (!parsed.success || Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -218,18 +256,54 @@ export default function AddTaskFromTodayDialog({ targets }: AddTaskFromTodayDial
               }}
             />
           </Field>
-          <Field id={FIELD_IDS.due_date} label="Termin (opcjonalny)" error={fieldErrors.due_date}>
-            <Input
-              id={FIELD_IDS.due_date}
-              name="due_date"
-              type="date"
-              max={milestone?.due_date}
-              value={values.due_date}
-              onChange={(event) => {
-                setValue("due_date", event.target.value);
-              }}
+          <Field
+            id={REPEAT_ID}
+            label="Powtarzanie"
+            error={values.repeat === "every" ? undefined : fieldErrors.recurrence_interval_days}
+          >
+            <Select
+              id={REPEAT_ID}
+              name="repeat"
+              value={values.repeat}
+              options={RECURRENCE_MODE_OPTIONS}
+              onChange={changeRepeat}
             />
           </Field>
+          {values.repeat === "every" ? (
+            <Field
+              id={FIELD_IDS.recurrence_interval_days}
+              label="Co ile dni (2–30)"
+              error={fieldErrors.recurrence_interval_days}
+              required
+            >
+              <Input
+                id={FIELD_IDS.recurrence_interval_days}
+                name="recurrence_interval_days"
+                type="number"
+                inputMode="numeric"
+                min={2}
+                max={30}
+                value={values.recurrence_interval_days}
+                onChange={(event) => {
+                  setValue("recurrence_interval_days", event.target.value);
+                }}
+              />
+            </Field>
+          ) : null}
+          {values.repeat === "none" ? (
+            <Field id={FIELD_IDS.due_date} label="Termin (opcjonalny)" error={fieldErrors.due_date}>
+              <Input
+                id={FIELD_IDS.due_date}
+                name="due_date"
+                type="date"
+                max={milestone?.due_date}
+                value={values.due_date}
+                onChange={(event) => {
+                  setValue("due_date", event.target.value);
+                }}
+              />
+            </Field>
+          ) : null}
           {generalError ? (
             <p role="alert" className="type-meta text-destructive-ink flex items-center gap-1">
               <CircleAlert className="size-4 shrink-0" aria-hidden="true" />

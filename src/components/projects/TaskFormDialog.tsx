@@ -6,12 +6,23 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { formatDate } from "@/lib/format";
-import { flattenTaskErrors, taskInputSchema, TASK_FIELDS, type TaskFieldErrors } from "@/lib/validation/task";
+import { Select } from "@/components/ui/select";
+import { formatDate, formatRecurrence } from "@/lib/format";
+import {
+  flattenTaskErrors,
+  isRecurrenceMode,
+  readRecurrenceInterval,
+  RECURRENCE_MODE_OPTIONS,
+  taskCreateSchema,
+  taskInputSchema,
+  TASK_FIELDS,
+  type RecurrenceMode,
+  type TaskFieldErrors,
+} from "@/lib/validation/task";
 import type { Milestone, Task } from "@/types";
 
 type ParentMilestone = Pick<Milestone, "id" | "due_date" | "name">;
-type EditableTask = Pick<Task, "id" | "title" | "due_date">;
+type EditableTask = Pick<Task, "id" | "title" | "due_date" | "recurrence_interval_days">;
 
 interface TaskFormDialogProps {
   mode: "create" | "edit";
@@ -26,17 +37,23 @@ interface TaskFormDialogProps {
 interface FormValues {
   title: string;
   due_date: string;
+  /** Rhythm choice (create mode only); `recurrence_interval_days` holds the number of days of "Co X dni". */
+  repeat: RecurrenceMode;
+  recurrence_interval_days: string;
 }
 
 const FIELD_IDS: Record<(typeof TASK_FIELDS)[number], string> = {
   title: "title",
   due_date: "due-date",
+  recurrence_interval_days: "recurrence-days",
 };
 
 function initialValues(task?: EditableTask): FormValues {
   return {
     title: task?.title ?? "",
     due_date: task?.due_date ?? "",
+    repeat: "none",
+    recurrence_interval_days: "",
   };
 }
 
@@ -50,6 +67,9 @@ export default function TaskFormDialog({ mode, projectId, milestone, task, disab
 
   const isEdit = mode === "edit";
   const idPrefix = isEdit && task ? `edit-task-${task.id}` : `create-task-${milestone.id}`;
+  // A recurring task has no due date of its own; its rhythm is chosen on create and only shown on edit.
+  const editedRhythm = isEdit ? (task?.recurrence_interval_days ?? null) : null;
+  const repeating = isEdit ? editedRhythm !== null : values.repeat !== "none";
 
   function handleOpenChange(next: boolean) {
     if (pending) return;
@@ -65,17 +85,34 @@ export default function TaskFormDialog({ mode, projectId, milestone, task, disab
     setValues((current) => ({ ...current, [key]: value }));
   }
 
+  function changeRepeat(value: string) {
+    if (!isRecurrenceMode(value)) return;
+    setValues((current) => ({ ...current, repeat: value, due_date: value === "none" ? current.due_date : "" }));
+    setFieldErrors((current) => ({ ...current, due_date: undefined, recurrence_interval_days: undefined }));
+  }
+
   function focusFirstInvalid(errors: TaskFieldErrors) {
     const first = TASK_FIELDS.find((field) => errors[field]);
-    if (first) document.getElementById(`${idPrefix}-${FIELD_IDS[first]}`)?.focus();
+    if (!first) return;
+    // Without the number input ("Codziennie"), a rhythm error belongs to the select.
+    const target = first === "recurrence_interval_days" && values.repeat !== "every" ? "repeat" : FIELD_IDS[first];
+    document.getElementById(`${idPrefix}-${target}`)?.focus();
   }
 
   async function submit() {
     if (pending) return;
     setGeneralError(undefined);
-    const parsed = taskInputSchema.safeParse(values);
+    const rhythm: ReturnType<typeof readRecurrenceInterval> = isEdit
+      ? { value: null }
+      : readRecurrenceInterval(values.repeat, values.recurrence_interval_days);
+    const dueDate = repeating ? "" : values.due_date;
+    // Edit goes through PUT, which never changes the rhythm, so only the create schema carries it.
+    const parsed = isEdit
+      ? taskInputSchema.safeParse({ title: values.title, due_date: dueDate })
+      : taskCreateSchema.safeParse({ title: values.title, due_date: dueDate, recurrence_interval_days: rhythm.value });
     const errors: TaskFieldErrors = parsed.success ? {} : flattenTaskErrors(parsed.error);
-    if (!errors.due_date && values.due_date !== "" && values.due_date > milestone.due_date) {
+    if (rhythm.error) errors.recurrence_interval_days = rhythm.error;
+    if (!errors.due_date && dueDate !== "" && dueDate > milestone.due_date) {
       errors.due_date = `Termin zadania nie może być późniejszy niż data milestona (${formatDate(milestone.due_date)})`;
     }
     if (!parsed.success || Object.keys(errors).length > 0) {
@@ -92,7 +129,7 @@ export default function TaskFormDialog({ mode, projectId, milestone, task, disab
       const result =
         isEdit && task
           ? await updateTask(projectId, milestone.id, task.id, parsed.data)
-          : await createTask(projectId, milestone.id, parsed.data);
+          : await createTask(projectId, milestone.id, { ...parsed.data, recurrence_interval_days: rhythm.value });
       switch (result.status) {
         case "ok":
           navigating = true;
@@ -167,18 +204,61 @@ export default function TaskFormDialog({ mode, projectId, milestone, task, disab
               }}
             />
           </Field>
-          <Field id={`${idPrefix}-due-date`} label="Termin (opcjonalny)" error={fieldErrors.due_date}>
-            <Input
-              id={`${idPrefix}-due-date`}
-              name="due_date"
-              type="date"
-              max={milestone.due_date}
-              value={values.due_date}
-              onChange={(event) => {
-                setValue("due_date", event.target.value);
-              }}
-            />
-          </Field>
+          {isEdit && editedRhythm !== null ? (
+            <Field id={`${idPrefix}-repeat`} label="Powtarzanie">
+              <Input id={`${idPrefix}-repeat`} name="repeat" value={formatRecurrence(editedRhythm)} readOnly />
+            </Field>
+          ) : null}
+          {isEdit ? null : (
+            <Field
+              id={`${idPrefix}-repeat`}
+              label="Powtarzanie"
+              error={values.repeat === "every" ? undefined : fieldErrors.recurrence_interval_days}
+            >
+              <Select
+                id={`${idPrefix}-repeat`}
+                name="repeat"
+                value={values.repeat}
+                options={RECURRENCE_MODE_OPTIONS}
+                onChange={changeRepeat}
+              />
+            </Field>
+          )}
+          {!isEdit && values.repeat === "every" ? (
+            <Field
+              id={`${idPrefix}-${FIELD_IDS.recurrence_interval_days}`}
+              label="Co ile dni (2–30)"
+              error={fieldErrors.recurrence_interval_days}
+              required
+            >
+              <Input
+                id={`${idPrefix}-${FIELD_IDS.recurrence_interval_days}`}
+                name="recurrence_interval_days"
+                type="number"
+                inputMode="numeric"
+                min={2}
+                max={30}
+                value={values.recurrence_interval_days}
+                onChange={(event) => {
+                  setValue("recurrence_interval_days", event.target.value);
+                }}
+              />
+            </Field>
+          ) : null}
+          {repeating ? null : (
+            <Field id={`${idPrefix}-due-date`} label="Termin (opcjonalny)" error={fieldErrors.due_date}>
+              <Input
+                id={`${idPrefix}-due-date`}
+                name="due_date"
+                type="date"
+                max={milestone.due_date}
+                value={values.due_date}
+                onChange={(event) => {
+                  setValue("due_date", event.target.value);
+                }}
+              />
+            </Field>
+          )}
           {generalError ? (
             <p role="alert" className="type-meta text-destructive-ink flex items-center gap-1">
               <CircleAlert className="size-4 shrink-0" aria-hidden="true" />

@@ -363,29 +363,29 @@ Migracja jest addytywna: istniejące zadania mają `recurrence_*` NULL i działa
 
 #### Automated
 
-- [x] 1.1 Migracja stosuje się czysto na świeżej bazie: `npx supabase db reset`
-- [x] 1.2 Wszystkie testy pgTAP przechodzą, także zaktualizowane istniejące: `npx supabase test db`
-- [x] 1.3 Typy zawierają `recurrence_interval_days`, `recurrence_start_date`, tabelę `task_occurrences` i `task_recurrence_interval_days` w wyniku `today_list`, a diff pliku jest ograniczony do tych zmian
-- [x] 1.4 Lint i sprawdzenie typów przechodzą: `npm run lint` oraz `npx astro check`
+- [x] 1.1 Migracja stosuje się czysto na świeżej bazie: `npx supabase db reset` — c0facc5
+- [x] 1.2 Wszystkie testy pgTAP przechodzą, także zaktualizowane istniejące: `npx supabase test db` — c0facc5
+- [x] 1.3 Typy zawierają `recurrence_interval_days`, `recurrence_start_date`, tabelę `task_occurrences` i `task_recurrence_interval_days` w wyniku `today_list`, a diff pliku jest ograniczony do tych zmian — c0facc5
+- [x] 1.4 Lint i sprawdzenie typów przechodzą: `npm run lint` oraz `npx astro check` — c0facc5
 
 #### Manual
 
-- [x] 1.5 Na lokalnych danych bez zadań powtarzalnych `select * from public.today_list(<dziś>)` zwraca ten sam zestaw i kolejność wierszy co przed migracją
-- [x] 1.6 Ręczne `update milestones set completed_at = now()` na milestonie z jedną rutyną i bez innych niezrobionych zadań kończy się sukcesem
+- [x] 1.5 Na lokalnych danych bez zadań powtarzalnych `select * from public.today_list(<dziś>)` zwraca ten sam zestaw i kolejność wierszy co przed migracją — c0facc5
+- [x] 1.6 Ręczne `update milestones set completed_at = now()` na milestonie z jedną rutyną i bez innych niezrobionych zadań kończy się sukcesem — c0facc5
 
 ### Phase 2: Tworzenie zadania z rytmem
 
 #### Automated
 
-- [ ] 2.1 Lint przechodzi: `npm run lint`
-- [ ] 2.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build`
-- [ ] 2.3 Smoke przechodzi, w tym nowe kroki tworzenia z rytmem: `npm run smoke`
+- [x] 2.1 Lint przechodzi: `npm run lint`
+- [x] 2.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build`
+- [x] 2.3 Smoke przechodzi, w tym nowe kroki tworzenia z rytmem: `npm run smoke`
 
 #### Manual
 
-- [ ] 2.4 W obu formularzach (strona projektu i `/today`) działa wybór „Codziennie" i „Co X dni", pole liczby dni waliduje zakres 2–30, a pole terminu znika przy rytmie
-- [ ] 2.5 Na stronie projektu zadanie powtarzalne ma etykietę rytmu, nie ma przełącznika statusu, a edycja otwiera się z rytmem tylko do odczytu; usunięcie działa
-- [ ] 2.6 Dodanie zadania powtarzalnego do milestona z datą wcześniejszą niż dziś pokazuje czytelny błąd zamiast cichego zadania, które nigdy się nie pojawi
+- [x] 2.4 W obu formularzach (strona projektu i `/today`) działa wybór „Codziennie" i „Co X dni", pole liczby dni waliduje zakres 2–30, a pole terminu znika przy rytmie
+- [x] 2.5 Na stronie projektu zadanie powtarzalne ma etykietę rytmu, nie ma przełącznika statusu, a edycja otwiera się z rytmem tylko do odczytu; usunięcie działa
+- [x] 2.6 Dodanie zadania powtarzalnego do milestona z datą wcześniejszą niż dziś pokazuje czytelny błąd zamiast cichego zadania, które nigdy się nie pojawi
 
 ### Phase 3: Rutyny na liście na dziś
 

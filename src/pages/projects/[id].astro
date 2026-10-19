@@ -6,7 +6,7 @@ import MilestoneRowActions from "@/components/projects/MilestoneRowActions";
 import ProjectFormDialog from "@/components/projects/ProjectFormDialog";
 import TaskFormDialog from "@/components/projects/TaskFormDialog";
 import TaskRowActions from "@/components/projects/TaskRowActions";
-import { formatDate, formatTimestamp, plural } from "@/lib/format";
+import { formatDate, formatRecurrence, formatTimestamp, plural } from "@/lib/format";
 import { LIFE_AREA_LABELS } from "@/lib/life-areas";
 import { logError } from "@/lib/log";
 import { listMilestones } from "@/lib/services/milestones";
@@ -184,13 +184,23 @@ if (notFound) Astro.response.status = 404;
                                   {task.title}
                                 </p>
                                 <p class="type-meta text-muted-foreground tabular-nums">
-                                  {task.due_date ? formatDate(task.due_date) : "bez terminu"}
+                                  {task.recurrence_interval_days !== null
+                                    ? formatRecurrence(task.recurrence_interval_days)
+                                    : task.due_date
+                                      ? formatDate(task.due_date)
+                                      : "bez terminu"}
                                 </p>
                               </div>
                               <TaskRowActions
                                 projectId={project.id}
                                 milestone={{ id: milestone.id, name: milestone.name, due_date: milestone.due_date }}
-                                task={{ id: task.id, title: task.title, due_date: task.due_date, status: task.status }}
+                                task={{
+                                  id: task.id,
+                                  title: task.title,
+                                  due_date: task.due_date,
+                                  status: task.status,
+                                  recurrence_interval_days: task.recurrence_interval_days,
+                                }}
                                 client:load
                               />
                             </li>

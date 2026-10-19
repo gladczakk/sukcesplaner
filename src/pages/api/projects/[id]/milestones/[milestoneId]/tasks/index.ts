@@ -4,7 +4,7 @@ import { createTask } from "@/lib/services/tasks";
 import { createClient } from "@/lib/supabase";
 import { milestoneIdSchema } from "@/lib/validation/milestone";
 import { projectIdSchema } from "@/lib/validation/project";
-import { flattenTaskErrors, taskInputSchema } from "@/lib/validation/task";
+import { flattenTaskErrors, taskCreateSchema } from "@/lib/validation/task";
 
 export const prerender = false;
 
@@ -23,7 +23,7 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
   const parsedBody = await readJsonBody(request);
   if (!parsedBody.ok) return parsedBody.response;
 
-  const parsed = taskInputSchema.safeParse(parsedBody.body);
+  const parsed = taskCreateSchema.safeParse(parsedBody.body);
   if (!parsed.success) {
     return errorResponse(422, "Popraw zaznaczone pola", flattenTaskErrors(parsed.error));
   }

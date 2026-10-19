@@ -34,3 +34,9 @@ export function plural(n: number, forms: readonly [string, string, string]): str
   if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
   return forms[2];
 }
+
+/** Label of a task rhythm: 1 -> "codziennie", 2 -> "co 2 dni", 5 -> "co 5 dni". */
+export function formatRecurrence(intervalDays: number): string {
+  if (intervalDays === 1) return "codziennie";
+  return `co ${intervalDays} ${plural(intervalDays, ["dzień", "dni", "dni"])}`;
+}

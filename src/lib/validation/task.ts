@@ -2,7 +2,7 @@ import { z } from "zod";
 import { TASK_STATUSES } from "@/types";
 import { dateField, nameField } from "@/lib/validation/fields";
 
-export const TASK_FIELDS = ["title", "due_date"] as const;
+export const TASK_FIELDS = ["title", "due_date", "recurrence_interval_days"] as const;
 export type TaskField = (typeof TASK_FIELDS)[number];
 export type TaskFieldErrors = Partial<Record<TaskField, string>>;
 
@@ -23,6 +23,53 @@ export const taskInputSchema = z.object({
 });
 
 export type TaskInput = z.output<typeof taskInputSchema>;
+
+const RECURRENCE_ERROR = "Podaj liczbę dni od 2 do 30";
+
+// Creation only: PUT keeps `taskInputSchema`, so zod strips a rhythm sent on edit and the rhythm never changes.
+// A missing value, null and an empty string all mean "no rhythm"; 1 = every day, 2..30 = every X days.
+export const taskCreateSchema = taskInputSchema
+  .extend({
+    recurrence_interval_days: z.preprocess(
+      (value) => (value === undefined || value === "" ? null : value),
+      z
+        .number({ error: RECURRENCE_ERROR })
+        .int(RECURRENCE_ERROR)
+        .min(1, RECURRENCE_ERROR)
+        .max(30, RECURRENCE_ERROR)
+        .nullable(),
+    ),
+  })
+  .refine((task) => task.recurrence_interval_days === null || task.due_date === null, {
+    path: ["due_date"],
+    message: "Zadanie powtarzalne nie ma własnego terminu",
+  });
+
+export type TaskCreateInput = z.output<typeof taskCreateSchema>;
+
+export type RecurrenceMode = "none" | "daily" | "every";
+
+export const RECURRENCE_MODE_OPTIONS: { value: RecurrenceMode; label: string }[] = [
+  { value: "none", label: "Nie powtarzaj" },
+  { value: "daily", label: "Codziennie" },
+  { value: "every", label: "Co X dni" },
+];
+
+export function isRecurrenceMode(value: string): value is RecurrenceMode {
+  return RECURRENCE_MODE_OPTIONS.some((option) => option.value === value);
+}
+
+/** Maps the form choice to `recurrence_interval_days`: "Codziennie" -> 1, "Co X dni" -> X (2..30), "Nie powtarzaj" -> null. */
+export function readRecurrenceInterval(mode: RecurrenceMode, days: string): { value: number | null; error?: string } {
+  if (mode === "none") return { value: null };
+  if (mode === "daily") return { value: 1 };
+  const trimmed = days.trim();
+  const parsed = Number(trimmed);
+  if (trimmed === "" || !Number.isInteger(parsed) || parsed < 2 || parsed > 30) {
+    return { value: null, error: RECURRENCE_ERROR };
+  }
+  return { value: parsed };
+}
 
 export const taskStatusSchema = z.object({
   status: z.enum(TASK_STATUSES, { error: "Podaj status: todo, partial lub done" }),
