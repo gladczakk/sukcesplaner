@@ -5,7 +5,7 @@ import DueChip from "@/components/today/DueChip.astro";
 import RestoreDeferredButton from "@/components/today/RestoreDeferredButton";
 import TodayTaskActions from "@/components/today/TodayTaskActions";
 import AppLayout from "@/layouts/AppLayout.astro";
-import { formatDate, plural } from "@/lib/format";
+import { formatDate, formatRecurrence, plural } from "@/lib/format";
 import { logError } from "@/lib/log";
 import { getTaskTargets, getToday } from "@/lib/services/today";
 import { createClient } from "@/lib/supabase";
@@ -20,7 +20,7 @@ Astro.response.headers.set("Cache-Control", "no-store");
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const today = todayInWarsaw();
 
-let view: TodayView = { tasks: [], milestones: [], deferred: [] };
+let view: TodayView = { routines: [], tasks: [], milestones: [], deferred: [] };
 let targets: TaskTargetProject[] = [];
 let unavailable: string | null = null;
 if (!supabase) {
@@ -36,7 +36,8 @@ if (!supabase) {
 
 const rows = view.tasks.map((task) => ({ task, chip: dueChip(task.due_date, today) }));
 const milestoneRows = view.milestones.map((milestone) => ({ milestone, chip: dueChip(milestone.due_date, today) }));
-const itemCount = view.tasks.length + view.milestones.length;
+// Routines count as items but have no due date, so they are never overdue.
+const itemCount = view.routines.length + view.tasks.length + view.milestones.length;
 const overdueCount =
   rows.filter((row) => row.chip.tone === "overdue").length +
   milestoneRows.filter((row) => row.chip.tone === "overdue").length;
@@ -75,6 +76,24 @@ const summary = [
         </div>
       ) : (
         <ul class="mt-8 divide-y divide-border rounded-md border border-border bg-card shadow-card">
+          {view.routines.map((routine) => (
+            <li class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+              <div class="min-w-0">
+                <p class="type-task break-words text-foreground">{routine.title}</p>
+                <p class="type-meta break-words text-muted-foreground">
+                  <a
+                    href={`/projects/${routine.project.id}`}
+                    class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    {routine.project.name}
+                  </a>
+                  {" · "}
+                  {routine.milestone.name}
+                  {` · ${formatRecurrence(routine.interval_days)}`}
+                </p>
+              </div>
+            </li>
+          ))}
           {rows.map(({ task, chip }) => (
             <li class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
               <div class="min-w-0">

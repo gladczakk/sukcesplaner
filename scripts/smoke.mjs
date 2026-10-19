@@ -55,6 +55,7 @@ let milestoneB = "";
 let completedAt = "";
 let taskId = "";
 let recurringTaskId = "";
+let termTaskId = "";
 const recurringDueDateError = "Zadanie powtarzalne nie ma własnego terminu";
 const recurrenceDaysError = "Podaj liczbę dni od 2 do 30";
 const recurringStateError =
@@ -622,6 +623,72 @@ const steps = [
       bodyIncludes: ["Rutyna smoke 3", "co 3 dni", "Edytuj zadanie Rutyna smoke 3"],
       bodyExcludes: ["Status zadania Rutyna smoke 3"],
     },
+  ],
+  // The routine is a list row (no island): its title and rhythm are visible row text. It sits above a task with an own date.
+  [
+    "task with a due date is created next to the routine",
+    async () => {
+      const result = await request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Zadanie smoke term", due_date: "2099-12-30" },
+      });
+      termTaskId = result.body?.task?.id ?? "";
+      return result;
+    },
+    { status: 201, bodyField: "task.id" },
+  ],
+  [
+    "today page lists the routine above the dated task",
+    () => request("/today"),
+    {
+      status: 200,
+      // The routine title occurs only in its row; the task title also occurs later in its island props, so a reversed order fails.
+      bodyIncludes: ["Rutyna smoke 3", "co 3 dni", "2 pozycje", "Zadanie smoke term"],
+      bodyOrder: ["Rutyna smoke 3", "Zadanie smoke term"],
+      bodyExcludes: ["milestone do zamknięcia"],
+    },
+  ],
+  [
+    "dated task next to the routine is deleted",
+    () => request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${termTaskId}`, { method: "DELETE" }),
+    { status: 204 },
+  ],
+  [
+    "today page shows a milestone with only a routine as ready to close",
+    () => request("/today"),
+    {
+      status: 200,
+      bodyIncludes: [
+        "Rutyna smoke 3",
+        "co 3 dni",
+        "2 pozycje · 1 milestone do zamknięcia",
+        "Wszystkie zadania zrobione",
+        "Zamknij milestone Gamma smoke",
+      ],
+      bodyOrder: ["Rutyna smoke 3", "Wszystkie zadania zrobione"],
+    },
+  ],
+  [
+    "milestone with only a routine closes",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}`, { method: "PATCH", json: { completed: true } }),
+    { status: 200, bodyField: "milestone.completed_at" },
+  ],
+  [
+    "today page drops the routine of a closed milestone",
+    () => request("/today"),
+    { status: 200, bodyIncludes: ["Beta smoke", "1 pozycja"], bodyExcludes: ["Rutyna smoke 3"] },
+  ],
+  [
+    "milestone with a routine reopens",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}`, { method: "PATCH", json: { completed: false } }),
+    { status: 200, bodyEquals: { "milestone.completed_at": null } },
+  ],
+  [
+    "today page brings the routine back after reopening",
+    () => request("/today"),
+    { status: 200, bodyIncludes: ["Rutyna smoke 3", "co 3 dni"] },
   ],
   [
     "recurring task delete succeeds",

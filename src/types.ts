@@ -31,6 +31,14 @@ export interface TodayTask {
   project: { id: string; name: string };
   milestone: { id: string; name: string; due_date: string };
 }
+/** A recurring task whose rhythm makes today an occurrence; it has no own due date. */
+export interface TodayRoutine {
+  id: string;
+  title: string;
+  interval_days: number;
+  project: { id: string; name: string };
+  milestone: { id: string; name: string; due_date: string };
+}
 export interface TodayMilestone {
   id: string;
   name: string;
@@ -48,6 +56,7 @@ export interface TaskTargetProject {
   milestones: TaskTargetMilestone[];
 }
 export interface TodayView {
+  routines: TodayRoutine[];
   tasks: TodayTask[];
   milestones: TodayMilestone[];
   deferred: TodayDeferredTask[];

@@ -377,29 +377,29 @@ Migracja jest addytywna: istniejące zadania mają `recurrence_*` NULL i działa
 
 #### Automated
 
-- [x] 2.1 Lint przechodzi: `npm run lint`
-- [x] 2.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build`
-- [x] 2.3 Smoke przechodzi, w tym nowe kroki tworzenia z rytmem: `npm run smoke`
+- [x] 2.1 Lint przechodzi: `npm run lint` — e923770
+- [x] 2.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build` — e923770
+- [x] 2.3 Smoke przechodzi, w tym nowe kroki tworzenia z rytmem: `npm run smoke` — e923770
 
 #### Manual
 
-- [x] 2.4 W obu formularzach (strona projektu i `/today`) działa wybór „Codziennie" i „Co X dni", pole liczby dni waliduje zakres 2–30, a pole terminu znika przy rytmie
-- [x] 2.5 Na stronie projektu zadanie powtarzalne ma etykietę rytmu, nie ma przełącznika statusu, a edycja otwiera się z rytmem tylko do odczytu; usunięcie działa
-- [x] 2.6 Dodanie zadania powtarzalnego do milestona z datą wcześniejszą niż dziś pokazuje czytelny błąd zamiast cichego zadania, które nigdy się nie pojawi
+- [x] 2.4 W obu formularzach (strona projektu i `/today`) działa wybór „Codziennie" i „Co X dni", pole liczby dni waliduje zakres 2–30, a pole terminu znika przy rytmie — e923770
+- [x] 2.5 Na stronie projektu zadanie powtarzalne ma etykietę rytmu, nie ma przełącznika statusu, a edycja otwiera się z rytmem tylko do odczytu; usunięcie działa — e923770
+- [x] 2.6 Dodanie zadania powtarzalnego do milestona z datą wcześniejszą niż dziś pokazuje czytelny błąd zamiast cichego zadania, które nigdy się nie pojawi — e923770
 
 ### Phase 3: Rutyny na liście na dziś
 
 #### Automated
 
-- [ ] 3.1 Lint przechodzi: `npm run lint`
-- [ ] 3.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build`
-- [ ] 3.3 Smoke przechodzi, w tym kroki rutyny na liście i zamknięcia milestona z rutyną: `npm run smoke`
+- [x] 3.1 Lint przechodzi: `npm run lint`
+- [x] 3.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build`
+- [x] 3.3 Smoke przechodzi, w tym kroki rutyny na liście i zamknięcia milestona z rutyną: `npm run smoke`
 
 #### Manual
 
-- [ ] 3.4 Na `/today` rutyna jest na samym szczycie, nad zadaniem przeterminowanym, z etykietą rytmu, a licznik „N pozycji" ją zawiera
-- [ ] 3.5 Rutyna z milestona, który nie jest najbliższy w projekcie, jest widoczna na liście
-- [ ] 3.6 Po zamknięciu milestona z rutyną (ze strony projektu lub z wiersza „do zamknięcia") rutyna znika, a po ponownym otwarciu wraca
+- [x] 3.4 Na `/today` rutyna jest na samym szczycie, nad zadaniem przeterminowanym, z etykietą rytmu, a licznik „N pozycji" ją zawiera
+- [x] 3.5 Rutyna z milestona, który nie jest najbliższy w projekcie, jest widoczna na liście
+- [x] 3.6 Po zamknięciu milestona z rutyną (ze strony projektu lub z wiersza „do zamknięcia") rutyna znika, a po ponownym otwarciu wraca
 
 ### Phase 4: Odhaczenie wystąpienia
 

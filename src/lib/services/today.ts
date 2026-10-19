@@ -2,22 +2,39 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/db/database.types";
 import { logError } from "@/lib/log";
 import { readFailure } from "@/lib/services/postgrest";
-import type { TaskStatus, TaskTargetProject, TodayDeferredTask, TodayMilestone, TodayTask, TodayView } from "@/types";
+import type {
+  TaskStatus,
+  TaskTargetProject,
+  TodayDeferredTask,
+  TodayMilestone,
+  TodayRoutine,
+  TodayTask,
+  TodayView,
+} from "@/types";
 
 type Client = SupabaseClient<Database>;
 
 /**
- * Reads the open tasks of the nearest milestones, the milestones ready to close and the deferred tasks; SQL order is kept.
+ * Reads the routines due today, the open tasks of the nearest milestones, the milestones ready to close and the deferred tasks; SQL order is kept.
  * The generated RPC types mark every column non-null, but the task columns are NULL on 'milestone' rows;
- * rows are therefore read by `kind` and the task columns only on 'task' rows.
+ * rows are therefore read by `kind` and the task columns only on 'task', 'routine' and 'deferred' rows.
  */
 export async function getToday(supabase: Client, today: string): Promise<TodayView> {
   const { data, error } = await supabase.rpc("today_list", { p_today: today });
   if (error) throw readFailure(error);
 
-  const view: TodayView = { tasks: [], milestones: [], deferred: [] };
+  const view: TodayView = { routines: [], tasks: [], milestones: [], deferred: [] };
   for (const row of data) {
-    if (row.kind === "task") {
+    if (row.kind === "routine") {
+      const routine: TodayRoutine = {
+        id: row.task_id,
+        title: row.task_title,
+        interval_days: row.task_recurrence_interval_days,
+        project: { id: row.project_id, name: row.project_name },
+        milestone: { id: row.milestone_id, name: row.milestone_name, due_date: row.milestone_due_date },
+      };
+      view.routines.push(routine);
+    } else if (row.kind === "task") {
       const task: TodayTask = {
         id: row.task_id,
         title: row.task_title,
