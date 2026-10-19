@@ -1,44 +1,46 @@
 ---
 project: SukcesPlaner
-context_type: greenfield
-created: 2026-09-19
-updated: 2026-09-19
+context_type: brownfield
 product_type: web-app
+created: 2026-10-16
+updated: 2026-10-16
 target_scale:
   users: small
   qps: low
   data_volume: small
 timeline_budget:
-  mvp_weeks: 3
-  hard_deadline: 2026-11-04
+  delivery_weeks: 3
+  hard_deadline: null
   after_hours_only: true
 checkpoint:
   current_phase: 8
   phases_completed: [1, 2, 3, 4, 5, 6, 7]
   gray_areas_resolved:
-    - topic: "kategoria bólu"
-      decision: "obciążenie koordynacyjne + rozproszenie narzędzi"
-    - topic: "insight"
-      decision: "jedno miejsce dla różnych obszarów życia + automatyczne generowanie listy na dziś"
-    - topic: "zasięg głównej persony"
-      decision: "szersza nisza — osoby żonglujące wieloma długoterminowymi projektami życiowymi, nie tylko sama uczestniczka"
-    - topic: "mechanizm dostępu"
-      decision: "logowanie (email+hasło / OAuth), model płaski w MVP — bez ról"
-    - topic: "timeline MVP"
-      decision: "3 tygodnie (~30h przy 10h/tydzień) na przepływ 1-9; potwierdzone jako wykonalne przez uczestniczkę"
-    - topic: "zakres CRUD"
-      decision: "pełny CRUD (create/edit/delete) dla projektów, milestonów i zadań w MVP"
-    - topic: "data startu zadania"
-      decision: "poza MVP — zadanie widoczne codziennie od razu, gdy należy do najbliższego nieskończonego milestona"
-    - topic: "sortowanie zadań bez deadline'u"
-      decision: "na końcu listy, po zadaniach z deadline'em, ale nadal widoczne"
-    - topic: "NFR"
-      decision: "szybkość ładowania listy na dziś, dostępność na telefonie i komputerze, spójny/staranny wygląd wizualny"
-    - topic: "ramowanie produktu"
-      decision: "web-app, mała skala użytkowników, hard deadline 2026-11-04, praca po godzinach"
-    - topic: "non-goals"
-      decision: "brak powtarzalności/rutyn, brak udostępniania, brak zadań wolnostojących, brak natywnej apki mobilnej, brak statystyk/raportów"
-  frs_drafted: 14
+    - topic: "rytmy powtarzania"
+      decision: "codziennie, co X dni oraz wybrane dni tygodnia; tydzień/miesiąc poza zakresem tej zmiany"
+    - topic: "przypisanie zadania powtarzalnego"
+      decision: "zadanie powtarzalne zawsze należy do milestona (jak każde zadanie); zadania bez milestona nadal poza zakresem — decyzja cofnięta przez użytkownika 2026-10-16"
+    - topic: "powiązanie z milestonem regularnym"
+      decision: "tylko powiązanie, bez wpływu na zamknięcie milestona"
+    - topic: "dostęp"
+      decision: "bez zmian — logowanie, jedno konto, bez ról"
+    - topic: "zakres vs termin"
+      decision: "zakres: zadanie powtarzalne w milestonie, rytmy co X dni i wybrane dni tygodnia; szacunek 2–3 tygodnie (mieści się w 3 tyg.)"
+    - topic: "blast radius"
+      decision: "przenoszenie na jutro oraz oznaczanie zrobione/częściowo zrobione"
+    - topic: "gdzie ustawia się powtarzanie"
+      decision: "wszędzie, gdzie dodaje/edytuje się zadanie (z listy na dziś i w formularzu zadania pod milestonem)"
+    - topic: "edycja cyklu"
+      decision: "można zmienić rytm i wyłączyć powtarzanie; historia i dzisiejsze wystąpienie zostają, zmiana działa od dziś"
+    - topic: "start cyklu"
+      decision: "od dnia dodania zadania; pierwsze wystąpienie jest tego dnia"
+    - topic: "zasięg wystąpień"
+      decision: "powtarzalne zadanie pojawia się w wyznaczone dni od wstawienia do końca milestona, niezależnie od tego, czy milestone jest najbliższy (wyjątek od reguły najbliższego milestona)"
+    - topic: "niezrobione wystąpienie"
+      decision: "wygasa, ale widocznie oznaczone jako pominięte"
+    - topic: "przeniesienie wystąpienia"
+      decision: "to samo wystąpienie zmienia dzień; dozwolone tylko na dzień, w którym to zadanie nie ma własnego wystąpienia"
+  frs_drafted: 6
   quality_check_status: accepted
 ---
 
@@ -46,119 +48,99 @@ checkpoint:
 
 ## Seed idea
 
-Aplikacja do zarządzania długimi projektami: podział na milestony z deadline'ami, wewnątrz milestonów mniejsze zadania (w tym zadania powtarzalne), na tej podstawie generowana jest lista zadań na konkretny dzień.
+Zadanie dodane ręcznie (z listy na dziś) ma mieć możliwość bycia powtarzalnym: codziennie albo co X dni.
 
-## Participant context (informational, not PRD content)
+## Current System
 
-- Doświadczenie: analityczka biznesowa w IT; programowała ostatnio ok. 10 lat temu (studia); korzysta z Claude Code w VS Code dotychczas do wymagań/poprawek bugów, nie do budowania funkcji od zera.
-- Dostępność: ok. 10h/tydzień, jeden tydzień urlopu w okresie do pierwszego terminu (4.11.2026) — łączna pojemność ok. 55h.
-- Sugestia z /10x-idea-check (do potwierdzenia/odrzucenia w trakcie shapingu): przyciąć pierwszy przepływ do projekt → milestone z deadline'em → zadania (bez powtarzalności na start) → lista zadań na dziś; powtarzalność i bardziej złożona priorytetyzacja jako rozszerzenie.
+SukcesPlaner: projekty z milestonami (z datami) i zadaniami; aplikacja wylicza listę zadań na dziś z najbliższego niezamkniętego milestona każdego projektu. Na liście: oznaczenie zrobione / częściowo zrobione oraz przeniesienie na jutro. Ręczne dodanie zadania z listy (FR-008) jest zaplanowane, jeszcze niezaimplementowane. Każde zadanie musi dziś należeć do milestona.
 
 ## Vision & Problem Statement
 
-Osoby żonglujące kilkoma równoległymi, długoterminowymi projektami z różnych obszarów życia (np. edukacja domowa, trening do zawodów, projekty w pracy) rozpraszają śledzenie zadań i terminów pomiędzy wieloma kalendarzami i listami. Każdego dnia ręcznie odtwarzają te same rutynowe zadania, a terminy kluczowych kamieni milowych (np. konsultacja przed egzaminem) bywają przeoczone, bo nie ma jednego miejsca łączącego wszystkie wątki.
-
-Istniejące narzędzia do zarządzania projektami wymagają ręcznego planowania dnia i są budowane z myślą o kontekście firmowym, a kalendarze osobiste żyją osobno od projektów. Brakuje narzędzia, które łączy różne obszary życia w jednym miejscu i samo wylicza, co należy zrobić danego dnia dla każdego projektu, na podstawie milestonów, deadline'ów i zadań (w tym powtarzalnych).
+Rutynowe zadania (np. pranie codziennie, retinol co drugi dzień, trening/bieganie/mobility w wybrane dni, sprzątanie łazienki co tydzień, uzupełnienie godzin w pracy co miesiąc) trzeba dziś odtwarzać ręcznie. Zmiana ma pozwolić, by zadanie wracało na listę na dziś według zadanego rytmu. Gdy milestone zakłada regularność (np. regularne treningi), powtarzalne zadania mają dać się z nim powiązać.
 
 ## User & Persona
 
-Osoba prowadząca kilka równoległych, długoterminowych projektów obejmujących różne obszary życia — zarówno prywatne (np. edukacja domowa, przygotowania do zawodów sportowych), jak i zawodowe. Sięga po narzędzie codziennie, planując dzień, oraz przy definiowaniu nowego projektu z milestonami i zadaniami.
+Ta sama persona co dotąd: osoba prowadząca kilka równoległych, długoterminowych projektów z różnych obszarów życia (dom, pielęgnacja, sport, praca), planująca dzień codziennie.
 
-## Access Control
+## Access Control Changes
 
-Logowanie (email + hasło lub OAuth). W MVP model płaski — każde konto widzi i zarządza wyłącznie swoimi projektami, milestonami i zadaniami; brak ról i udostępniania.
-
-> Forward (poza MVP, nie zamykać drogi architekturze): możliwość delegowania/udostępniania zadań lub projektów innej osobie w przyszłości.
+No access control changes — current model preserved (logowanie, jedno konto widzi tylko swoje dane, bez ról).
 
 ## Success Criteria
 
 ### Primary
-- Użytkownik może: zalogować się → dodać projekt (nazwa, termin, opis, obszar życia) → dodać milestony z datami → dodać zadania (opcjonalnie z własnym deadline'em) potrzebne do dotarcia do milestona → wejść na listę zadań na dziś i zobaczyć wszystko, co trzeba zrobić przed najbliższymi deadline'ami → przenieść zadanie na jutro, oznaczyć jako zrobione/częściowo zrobione, oraz ręcznie dodać zadanie z poziomu listy.
+- Użytkownik może dodać zadanie pod milestonem, włączyć powtarzanie (codziennie, co X dni albo w wybrane dni tygodnia), a zadanie pojawia się na liście na dziś w dni zgodne z rytmem; po odhaczeniu lub przeniesieniu na jutro kolejne wystąpienie wraca według rytmu.
 
 ### Secondary
-- Filtrowanie listy zadań/projektów wg obszaru życia (dom/sport/praca).
+- Zadanie powtarzalne jest na liście widocznie oznaczone jako powtarzalne.
 
 ### Guardrails
-- Żadne dodane zadanie ani milestone nie może zniknąć lub zostać pominięte na liście na dziś bez wiedzy użytkownika.
-- Zbliżający się deadline milestona jest sygnalizowany z wyprzedzeniem, zanim minie.
+- Zadania niepowtarzalne działają jak dotąd (odhaczenie usuwa je z listy, przeniesienie na jutro jak w S-05).
+- Reguła listy na dziś (najbliższy niezamknięty milestone każdego projektu) bez zmian dla zadań niepowtarzalnych; zadania powtarzalne mają własną regułę (wyjątek: pojawiają się niezależnie od tego, czy milestone jest najbliższy).
+- Zadanie nie znika z listy na dziś bez wiedzy użytkownika (niezrobione wystąpienie powtarzalne wygasa tylko widocznie oznaczone jako pominięte).
+- Wystąpienia zadania powtarzalnego nie można przenieść na dzień, w którym to samo zadanie ma już własne wystąpienie (codzienne zadanie nie może iść na jutro; bieganie w środy i piątki, niezrobione w środę, można przenieść na czwartek, ale nie na piątek).
 
-> Forward (poza MVP): podgląd list zadań dla kolejnych dni; projekty typu "rutyna" z codziennymi, zawsze gotowymi do odhaczenia krokami (alternatywna droga do zadań powtarzalnych); zadania wolnostojące (bez przypisania do milestona); subtaski w ramach zadania do oznaczania częściowego wykonania.
+## Blast radius
 
-## Functional Requirements
+Przenoszenie na jutro oraz oznaczanie zrobione/częściowo zrobione (wskazane przez użytkownika jako najbardziej narażone).
 
-### Uwierzytelnianie
-- FR-001: Użytkownik może zalogować się (email+hasło lub OAuth), aby uzyskać dostęp do swojego konta. Priority: must-have
-  > Socrates: Kontrargument rozważony: "dla jednoosobowego użytku wystarczyłoby coś prostszego niż logowanie/OAuth". Rozstrzygnięcie: FR zostaje bez zmian — logowanie zabezpiecza projekty przed dostępem osób trzecich i przygotowuje grunt pod docelowe udostępnienie narzędzia szerszemu gronu odbiorców.
+## Scope of Change
 
-### Projekty
-- FR-002: Użytkownik może utworzyć projekt z nazwą, terminem, opcjonalnym opisem i obszarem życia. Priority: must-have
-  > Socrates: Kontrargument rozważony: "cel projektu jako wolny tekst jest zbyt nieprecyzyjny, by cokolwiek z nim automatycznie zrobić". Rozstrzygnięcie: pole "cel" usunięte z FR; obszar życia zostaje.
-- FR-003: Użytkownik może edytować i usuwać projekt. Usunięcie projektu, który ma milestony lub zadania, wymaga potwierdzenia i usuwa razem z nim wszystkie jego milestony i zadania. Data żadnego milestona w projekcie nie może wykraczać poza termin projektu — walidacja przy tworzeniu/edycji. Priority: must-have
-  > Socrates: Kontrargument rozważony: "usunięcie projektu może przypadkowo skasować wszystkie milestony i zadania bez ostrzeżenia" oraz "edycja terminu projektu może rozjechać się z już ustawionymi milestonami". Rozstrzygnięcie: oba uznane za zasadne — dodano wymóg potwierdzenia przed usunięciem oraz walidację dat milestonów względem terminu projektu.
-
-### Milestony
-- FR-004: Użytkownik może dodać do projektu milestony z obowiązkową datą (nie opcjonalną). Milestony w projekcie są uporządkowane wg dat. Milestone jest samodzielnym elementem — nie musi zawierać żadnych zadań, by być widoczny/liczony. Priority: must-have
-  > Socrates: Kontrargument rozważony: "niejasne czy milestone może istnieć bez zadań" oraz "kolejność milestonów nie jest określona". Rozstrzygnięcie: data milestona jest obowiązkowa i determinuje kolejność; milestone bez zadań jest poprawnym stanem (milestone traktowany jako zadanie sam w sobie).
-- FR-005: Użytkownik może edytować i usuwać milestony. Usunięcie milestona, który ma przypisane zadania, wymaga potwierdzenia i usuwa razem z nim te zadania. Priority: must-have
-  > Socrates: Kontrargument rozważony: "usunięcie milestona osieraca jego zadania". Rozstrzygnięcie: usunięcie milestona usuwa razem z nim jego zadania, po potwierdzeniu — spójne z FR-003.
-
-### Zadania
-- FR-006: Użytkownik może dodać do milestona zadania niezbędne do jego osiągnięcia, opcjonalnie z własnym deadline'em. W MVP każde zadanie musi należeć do milestona — zadania wolnostojące (bez milestona) nie są wspierane. Priority: must-have
-  > Socrates: Kontrargument rozważony: "wymuszanie przypisania zadania do milestona jest zbyt sztywne dla drobnych zadań niezwiązanych z żadnym kamieniem milowym". Rozstrzygnięcie: sztywność zaakceptowana na MVP; zadania wolnostojące odłożone poza MVP (patrz FR-008).
-- FR-007: Użytkownik może edytować i usuwać zadania. Priority: must-have
+- FR-016: Użytkownik może ustawić zadaniu powtarzanie: codziennie, co X dni albo w wybrane dni tygodnia — przy dodawaniu i edycji zadania, wszędzie gdzie je dodaje. Priority: must-have. Change: new
+  > Socrates: Kontrargument rozważony: "'co X dni' liczone od czego?". Rozstrzygnięcie: od dnia dodania zadania; pierwsze wystąpienie jest tego dnia.
+- FR-017: Zadanie powtarzalne pojawia się na liście na dziś w dni zgodne z rytmem, od dnia wstawienia do końca milestona, niezależnie od tego, czy milestone jest najbliższy. Priority: must-have. Change: new
+  > Socrates: Kontrargument rozważony: rutyna z dalszego milestona nie pojawi się na liście. Rozstrzygnięcie: rutyna niezależnie od daty milestona pojawia się w wyznaczone dni od wstawienia zadania do końca milestona.
+- FR-018: Zadanie powtarzalne jest na liście widocznie oznaczone jako powtarzalne. Priority: nice-to-have. Change: new
   > Socrates: Brak kontrargumentu; FR zostaje bez zmian.
-- FR-008: Użytkownik może ręcznie dodać zadanie z poziomu listy zadań na dziś, wybierając projekt i milestone, do którego zadanie należy. Priority: must-have
-  > Socrates: Kontrargument rozważony: "niejasne czy ręcznie dodane zadanie musi należeć do projektu/milestona". Rozstrzygnięcie: musi — zadania wolnostojące (bez milestona/projektu) odłożone poza MVP.
-
-### Lista zadań na dziś
-- FR-009: Użytkownik może zobaczyć listę zadań na dziś, zbierającą zadania ze wszystkich projektów spełniające regułę kwalifikacji (dokładna reguła zdefiniowana w Business Logic). Priority: must-have
-  > Socrates: Kontrargument rozważony: "brak jasnej reguły co kwalifikuje zadanie do listy na dziś". Rozstrzygnięcie: reguła kwalifikacji zostaje zdefiniowana jako jedno zdanie w sekcji Business Logic (faza 5) — FR-009 odwołuje się do niej.
-- FR-010: Zadania na liście są uporządkowane od najbliższego terminu do najdalszego; zadania bez własnego deadline'u trafiają na koniec listy, ale pozostają widoczne. Priority: must-have
-  > Socrates: Kontrargument rozważony: "sortowanie tylko wg bliskości deadline'u zepchnie w dół pilne zadania bez deadline'u". Rozstrzygnięcie: zaakceptowane jako znane ograniczenie MVP; obsługa pilnych zadań bez deadline'u przez dodanie ich bezpośrednio jako zadanie na dziś jest funkcją poza MVP (patrz FR-008 / wolnostojące zadania).
-- FR-013: Użytkownik może przefiltrować listę zadań na dziś wg obszaru życia projektu. Priority: nice-to-have
-- FR-014: Zadania na liście są wizualnie oznaczone kolorem przypisanym do ich projektu. Priority: nice-to-have
-- FR-011: Użytkownik może oznaczyć zadanie jako zrobione lub częściowo zrobione. Priority: must-have
-  > Socrates: Kontrargument rozważony: "'częściowo zrobione' bez opisu postępu jest zbyt niejednoznaczne". Rozstrzygnięcie: wystarczające na MVP; subtaski i ich odznaczanie w ramach częściowego wykonania to rozszerzenie poza MVP.
-- FR-012: Użytkownik może przenieść niedokończone/częściowo zrobione zadanie na jutro. Priority: must-have
-  > Socrates: Kontrargument rozważony: "ciągłe przenoszenie na jutro może maskować zaległości i nie sygnalizować zagrożenia milestona". Rozstrzygnięcie: ryzyko pokryte przez istniejący guardrail — zbliżający się deadline milestona jest sygnalizowany z wyprzedzeniem niezależnie od historii przenoszenia zadań.
+- FR-019: Użytkownik może przenieść wystąpienie zadania powtarzalnego na inny dzień tylko wtedy, gdy tego dnia to zadanie nie ma własnego wystąpienia. Priority: must-have. Change: modified (FR-012)
+  > Socrates: Kontrargument rozważony: "co z oryginalnym wystąpieniem po przeniesieniu?". Rozstrzygnięcie: to samo wystąpienie zmienia dzień.
+- FR-011: Oznaczenie wystąpienia zadania powtarzalnego jako zrobione nie kończy zadania, kolejne wystąpienie wraca według rytmu; niezrobione wystąpienie wygasa, widocznie oznaczone jako pominięte. Priority: must-have. Change: modified
+  > Socrates: Kontrargument rozważony: niezrobione wystąpienie z wczoraj wygasa po cichu. Rozstrzygnięcie: wygasa, ale widocznie oznaczone jako pominięte.
+- FR-020: Użytkownik może zmienić rytm albo wyłączyć powtarzanie zadania. Priority: must-have. Change: modified (FR-007)
+  > Socrates: Kontrargument rozważony: wyłączenie nie może kasować historii zrobionych. Rozstrzygnięcie: historia i dzisiejsze wystąpienie zostają; zmiana działa od dziś (wyłączenie usuwa tylko przyszłe wystąpienia).
+- FR-009, FR-010: Lista na dziś i jej sortowanie dla zadań niepowtarzalnych. Change: preserved
+- Zachowanie zadań niepowtarzalnych (odhaczenie, przeniesienie na jutro jak w S-05). Change: preserved
 
 ## User Stories
 
-### US-01: Użytkownik widzi listę zadań na dziś posortowaną wg pilności
+### US-02: Użytkownik widzi zadanie powtarzalne w dni zgodne z rytmem
 
-- **Given** zalogowany użytkownik ma co najmniej jeden projekt z milestonami i zadaniami
-- **When** wchodzi na listę zadań na dziś
-- **Then** widzi zadania ze wszystkich swoich projektów wymagające uwagi dzisiaj, posortowane tak, że zadania z bliższym deadline'em (własnym lub milestona) są wyżej
+- **Given** zalogowany użytkownik ma w milestonie zadanie „bieganie" powtarzane w środy i piątki
+- **When** wchodzi na listę zadań na dziś w środę
+- **Then** widzi na liście bieganie; gdy go nie wykona, może przenieść je na czwartek, ale nie na piątek, bo piątek ma własne wystąpienie
 
 #### Acceptance Criteria
-- Zadanie bez ukończenia i z minionym lub dzisiejszym deadline'em pojawia się na liście
-- Kolejność listy odzwierciedla bliskość deadline'u — najbliższy termin na górze
-- Oznaczenie zadania jako zrobione usuwa je z listy na dziś
-- Oznaczenie jako częściowo zrobione i przeniesienie na jutro przenosi pozostałą część na listę następnego dnia
+- Zadanie codzienne pojawia się każdego dnia od dnia dodania do końca milestona i nie można go przenieść na jutro
+- Niezrobione wystąpienie wygasa i jest widocznie oznaczone jako pominięte
+- Wyłączenie powtarzania zachowuje historię i dzisiejsze wystąpienie
 
-## Business Logic
+## Business Logic Changes
 
-Lista zadań na dziś pokazuje wszystkie niedokończone zadania należące do najbliższego, jeszcze niezamkniętego milestona każdego projektu, uporządkowane od najbliższego terminu do najdalszego (zadania bez terminu na końcu), a gdy wszystkie zadania danego milestona zostaną ukończone, na liście pojawia się sam milestone jako ostatni krok do zamknięcia.
+Zadanie powtarzalne pojawia się na liście na dziś w każdy dzień wynikający z jego rytmu, od dnia dodania do końca milestona (niezależnie od tego, czy to najbliższy milestone), a niezrobione wystąpienie wygasa jako widocznie pominięte.
 
-Reguła korzysta z: listy projektów użytkownika, milestonów każdego projektu wraz z ich datami, zadań przypisanych do każdego milestona wraz z opcjonalnymi własnymi deadline'ami oraz ich stanem ukończenia (zrobione / częściowo zrobione / niezrobione).
+Obecna reguła: lista na dziś pokazuje niedokończone zadania z najbliższego niezamkniętego milestona każdego projektu. Zmiana: zadania powtarzalne są wyjątkiem — pojawiają się w wyznaczone dni nawet wtedy, gdy ich milestone nie jest najbliższy; zadania niepowtarzalne podlegają obecnej regule bez zmian.
 
-Wynikiem jest jedna, codzienna lista pozycji do zrobienia obejmująca jednocześnie wszystkie projekty użytkownika, posortowana wg pilności.
+Rytm to jedno z: codziennie, co X dni (liczone od dnia dodania, pierwsze wystąpienie tego dnia) lub wybrane dni tygodnia. Wystąpienie można odhaczyć, przenieść na inny dzień (tylko na dzień, w którym to zadanie nie ma własnego wystąpienia — codzienne zadanie nie może iść na jutro) albo pominąć; pominięte wystąpienie jest widocznie oznaczone, po czym znika z listy. Zmiana rytmu i wyłączenie powtarzania działają od dziś; historia i dzisiejsze wystąpienie zostają.
 
-Użytkownik widzi tę listę od razu po wejściu na widok "dziś"; w miarę odznaczania zadań i zbliżania się terminów lista aktualizuje się automatycznie każdego dnia, bez ręcznego planowania.
+## Constraints & Compatibility
+
+- Istniejące zadania w systemie są niepowtarzalne i działają bez zmian; brak migracji danych po stronie użytkownika.
+- Istniejące zachowanie, które musi zostać: lista na dziś dla zadań niepowtarzalnych (reguła najbliższego milestona), sortowanie (FR-010), odhaczenie zadań niepowtarzalnych, przeniesienie na jutro jak w S-05.
 
 ## Non-Functional Requirements
 
-- Lista zadań na dziś ładuje się odczuwalnie natychmiast (poniżej 1 sekundy w typowych warunkach) — użytkownik nie czeka, żeby zobaczyć plan na dziś.
-- Produkt pozostaje w pełni używalny zarówno na ekranie telefonu, jak i komputera, bez utraty dostępu do żadnej funkcji.
-- Interfejs zachowuje spójny, staranny wygląd wizualny na wszystkich widokach.
+Bez nowych NFR; obowiązują istniejące (lista na dziś ładuje się poniżej 1 sekundy, używalność na telefonie i komputerze, spójny wygląd).
 
 ## Non-Goals
 
-- Zadania powtarzalne i projekty typu "rutyna" — MVP nie obsługuje powtarzalności; każde zadanie ma jednorazowy deadline (bez osobnej daty startu).
-- Udostępnianie lub delegowanie projektów innym osobom — MVP zostaje przy płaskim modelu jednego konta = jeden prywatny zestaw danych.
-- Zadania wolnostojące (bez przypisania do milestona) — każde zadanie musi należeć do milestona.
-- Natywna aplikacja mobilna — MVP to aplikacja webowa używalna z przeglądarki na telefonie i komputerze, nie osobna apka ze sklepu.
-- Statystyki i raporty postępu — brak wykresów/podsumowań progresu projektów w MVP.
+- Rytm tygodniowy i miesięczny (co tydzień, co miesiąc) — poza zakresem tej zmiany; dostępne rytmy: codziennie, co X dni, wybrane dni tygodnia.
+- Licznik realizacji i statystyki regularności (np. „trening 8/12 w miesiącu") — statystyki pozostają poza zakresem.
+- Wpływ cyklu na zamknięcie milestona — milestone zamyka się według obecnej reguły, niezależnie od tego, czy cykl jest „spełniony".
+- Zadania bez milestona (powtarzalne i niepowtarzalne) — każde zadanie musi należeć do milestona.
+
+## Forward: technical-roadmap
+
+- Rytmy tygodniowe i miesięczne (sprzątanie łazienki co tydzień, uzupełnianie godzin w pracy co miesiąc) oraz powiązanie powtarzalnych treningów z licznikiem realizacji milestona — kandydaci na kolejną transzę.
 
 ## Quality cross-check
 

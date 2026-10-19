@@ -3,189 +3,148 @@ project: SukcesPlaner
 version: 1
 status: draft
 created: 2026-09-24
-updated: 2026-10-14
-prd_version: 1
-main_goal: speed
-top_blocker: time
-milestone_id: first-usable-daily-list
-milestone_seq: 1
+updated: 2026-10-19
+prd_version: 2
+main_goal: low-complexity
+top_blocker: decisions
+milestone_id: recurring-tasks
+milestone_seq: 2
 milestone_status: open
 ---
 
 # Roadmap: SukcesPlaner
 
-> Derived from `context/foundation/prd.md` (v1) + auto-researched codebase baseline.
+> Derived from `context/foundation/prd-v2.md` (v2) + auto-researched codebase baseline.
 > Edit-in-place; archive when superseded.
 > Slices below are listed in dependency order. The "At a glance" table is the index.
 
 ## Milestone
 
-**M-1: Pierwsza działająca pętla — od projektu do listy na dziś** — Status: open
+**M-2: Zadania powtarzalne w milestonie** — Status: open
 
-- **Intent:** Dostarczyć kompletną, wertykalną pętlę MVP — użytkownik zakłada projekt z milestonami i zadaniami, a produkt sam wylicza, co zrobić dziś — dowodząc głównej hipotezy Vision przed twardym terminem 2026-11-04.
-- **Source materials:** `context/foundation/prd.md` (v1)
-- **Done when:** każde F-NN i S-NN poniżej ma status `done`.
-- **Scope anchors:** FR-001 do FR-012, US-01 (FR-013, FR-014, FR-015 są nice-to-have i zostały odłożone — patrz `## Parked`).
+- **Intent:** Dostarczyć możliwość nadania zadaniu rytmu (codziennie, co X dni, wybrane dni tygodnia), tak by rutynowe zadania same wracały na listę na dziś, bez psucia istniejących akcji na liście (odhaczenie, przeniesienie na jutro).
+- **Source materials:** `context/foundation/prd-v2.md` (v2) — delta względem PRD v1.
+- **Done when:** każde S-NN poniżej ma status `done`.
+- **Scope anchors:** FR-016, FR-017, FR-019, FR-011 (zmieniony), FR-020, US-02 (FR-018 jest nice-to-have i został odłożony — patrz `## Parked`).
 
 ## Vision recap
 
-Osoby żonglujące kilkoma równoległymi, długoterminowymi projektami z różnych obszarów życia (dom, sport, praca) rozpraszają śledzenie zadań i terminów pomiędzy wieloma narzędziami, a terminy kluczowych kamieni milowych bywają przeoczone. SukcesPlaner łączy te obszary w jednym miejscu i sam wylicza, co należy zrobić danego dnia, na podstawie milestonów, deadline'ów i zadań — bez ręcznego planowania dnia.
+Rutynowe zadania (np. pranie codziennie, retinol co drugi dzień, trening w wybrane dni tygodnia) trzeba dziś dodawać ręcznie za każdym razem, bo aplikacja nie potrafi sama przypominać zadania w ustalonym rytmie. Zmiana pozwala, by zadanie wracało na listę na dziś według rytmu, a zadania niepowtarzalne zachowują się dokładnie jak dotąd.
 
 ## North star
 
-**S-04: Automatycznie generowana lista zadań na dziś** — to jedyna sformułowana historyjka użytkownika (US-01) w PRD i sedno propozycji wartości produktu.
+**S-07: Zadanie co X dni wraca na listę na dziś** — to najmniejszy kompletny przepływ, który dowodzi, że rutyna sama wraca na listę, bez dotykania istniejących akcji z listy, więc pasuje do celu `low-complexity`.
 
-> "Gwiazda przewodnia" oznacza tu: najmniejszy kompletny wycinek, którego dostarczenie dowodzi głównej hipotezy produktu — że jedno miejsce może automatycznie połączyć różne obszary życia w codzienną listę do zrobienia, bez ręcznego planowania. Umieszczona tak wcześnie, jak pozwalają jej zależności danych (S-01–S-03), bo reszta funkcji ma sens tylko wtedy, gdy to działa.
+> „Gwiazda przewodnia" oznacza tu: najmniejszy kompletny wycinek, którego dostarczenie dowodzi głównej hipotezy zmiany — że zadanie z rytmem samo pojawia się na liście w odpowiednie dni. Umieszczona tak wcześnie, jak pozwalają zależności, bo reszta ma sens tylko wtedy, gdy to działa.
 
 ## At a glance
 
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 | --- | --- | --- | --- | --- | --- |
-| F-01 | core-domain-schema | (foundation) tabele projects/milestones/tasks + RLS istnieją w Supabase | — | FR-003, FR-005, Access Control | done |
-| S-01 | project-crud | tworzyć/edytować/usuwać projekt (nazwa, termin, opis, obszar życia) | F-01, istniejący przepływ logowania (baseline: present) | FR-001, FR-002, FR-003 | done |
-| S-02 | milestone-crud | dodawać/edytować/usuwać milestony projektu z obowiązkową datą | S-01 | FR-004, FR-005 | proposed |
-| S-03 | task-crud | dodawać/edytować/usuwać zadania w ramach milestona | S-02 | FR-006, FR-007 | proposed |
-| S-04 | today-list-view | zobaczyć automatycznie wygenerowaną listę zadań na dziś ze wszystkich projektów | S-01, S-02, S-03 | US-01, FR-009, FR-010 | proposed |
-| S-05 | today-list-actions | oznaczyć zadanie jako zrobione/częściowo zrobione i przenieść na jutro | S-04 | FR-011, FR-012 | proposed |
-| S-06 | manual-task-add-from-list | ręcznie dodać zadanie z poziomu listy na dziś | S-04 | FR-008 | proposed |
+| S-07 | recurring-tasks-by-interval | ustawić zadaniu rytm „codziennie" lub „co X dni" i zobaczyć je na liście na dziś w pasujące dni | Zakończony M-1 (zadania w milestonie, lista na dziś, ręczne dodawanie z listy) | FR-016, FR-017, US-02 | ready |
+| S-08 | recurring-tasks-by-weekdays | ustawić zadaniu rytm „w wybrane dni tygodnia" i zobaczyć je na liście w te dni | S-07 | FR-016, FR-017, US-02 | proposed |
+| S-09 | recurring-occurrence-actions | odhaczyć, pominąć lub przenieść wystąpienie zadania powtarzalnego według reguł (przeniesienie tylko na dzień bez własnego wystąpienia) | S-07 | FR-011, FR-019, US-02 | proposed |
+| S-10 | recurring-task-edit-disable | zmienić rytm albo wyłączyć powtarzanie zadania bez utraty historii | S-07, S-08 | FR-020 | proposed |
 
 ## Baseline
 
-Co już jest w kodzie na dzień `2026-09-24` (auto-zbadane + potwierdzone przez użytkownika).
-Foundations poniżej zakładają, że to jest na miejscu i NIE odtwarzają tego od nowa.
+What's already in place in the codebase as of `2026-10-19` (auto-researched).
+Slices below assume these are present and do NOT re-scaffold them.
 
-- **Frontend:** partial — szkielet Astro (`src/layouts/Layout.astro`, `src/components/Topbar.astro`, `Banner.astro`, `Welcome.astro`) + jeden komponent shadcn (`src/components/ui/button.tsx`); brak ekranów domenowych (projekty/milestony/zadania/lista na dziś).
-- **Backend / API:** partial — wyłącznie trasy auth (`src/pages/api/auth/{signin,signup,signout}.ts`); brak API dla projektów/milestonów/zadań.
-- **Data:** absent — `supabase/migrations/` puste, brak `src/types.ts`.
-- **Auth:** present — pełny przepływ (`src/middleware.ts`, `src/lib/supabase.ts`, strony `signin`/`signup`/`confirm-email`, chroniony `dashboard.astro`).
-- **Deploy / infra:** present, per `tech-stack.md` + `infrastructure.md` — Cloudflare Workers, `wrangler.jsonc` już wdrożony w scaffoldzie, zero migracji potrzebne.
-- **Observability:** absent — brak biblioteki logowania/śledzenia błędów w zależnościach.
+- **Frontend:** present — Astro + React; komponenty `src/components/{projects,today,ui}`, strony projektów i `today`.
+- **Backend / API:** present — trasy API dla projektów, serwisy w `src/lib/services/` (milestones, tasks, today).
+- **Data:** present — migracje w `supabase/migrations/` (schemat domenowy, RLS, reguły milestona i zadań, lista na dziś).
+- **Auth:** present — pełny przepływ logowania (middleware, strony auth).
+- **Deploy / infra:** present — Cloudflare, workflow CI (`.github/workflows/ci.yml`).
+- **Observability:** partial — wewnętrzny `src/lib/log.ts`, bez zewnętrznego śledzenia błędów.
 
 ## Foundations
 
-### F-01: Domenowy schemat danych (projects / milestones / tasks)
-
-- **Outcome:** (foundation) tabele `projects`, `milestones`, `tasks` istnieją w Supabase Postgres z politykami RLS (jedno konto = jeden prywatny zestaw danych), kaskadowym usuwaniem (projekt → milestony → zadania; milestone → zadania) i ograniczeniem, że data milestona nie może wykraczać poza termin projektu.
-- **Change ID:** core-domain-schema
-- **PRD refs:** FR-003, FR-005, Access Control
-- **Unlocks:** S-01, S-02, S-03
-- **Prerequisites:** —
-- **Parallel with:** —
-- **Blockers:** —
-- **Unknowns:** —
-- **Risk:** Schemat i reguły kaskadowego usuwania muszą być poprawne od razu — błąd tutaj propaguje się do każdego wycinka, który go konsumuje. Sekwencjonowany jako pierwszy, zanim jakikolwiek CRUD ruszy.
-- **Status:** done
+Brak. Stan bazowy pokrywa wszystkie warstwy potrzebne tej zmiany; model danych rytmu i generowanie wystąpień powstają wewnątrz pierwszego wycinka, który ich używa (S-07), zamiast osobnego Foundation.
 
 ## Slices
 
-### S-01: Zarządzanie projektem
+### S-07: Zadanie co X dni wraca na listę na dziś
 
-- **Outcome:** user może utworzyć, edytować i usunąć projekt (nazwa, termin, opcjonalny opis, obszar życia); usunięcie projektu z milestonami/zadaniami wymaga potwierdzenia i kasuje je kaskadowo.
-- **Change ID:** project-crud
-- **PRD refs:** FR-001, FR-002, FR-003
-- **Prerequisites:** F-01, istniejący przepływ logowania (baseline: present, bez pracy Foundation)
+- **Outcome:** user może ustawić zadaniu (przy dodawaniu z listy na dziś i w formularzu zadania pod milestonem) rytm „codziennie" lub „co X dni" (X od 2 do 30), a zadanie pojawia się na liście na dziś w pasujące dni, od dnia dodania do daty milestona albo jego zamknięcia (co nastąpi wcześniej), nawet gdy ten milestone nie jest najbliższy, i trafia na górę listy; zadania powtarzalne nie blokują zamknięcia milestona, a zadania bez rytmu działają bez zmian.
+- **Change ID:** recurring-tasks-by-interval
+- **PRD refs:** FR-016, FR-017, US-02
+- **Prerequisites:** Zakończony M-1 (zadania w milestonie, lista na dziś, ręczne dodawanie z listy)
 - **Parallel with:** —
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Musi powstać przed czymkolwiek innym — milestony i zadania wymagają istniejącego projektu; opóźnienie tutaj opóźnia cały łańcuch.
-- **Status:** done
+- **Risk:** To gwiazda przewodnia i pierwszy kontakt z regułą wyjątku od „najbliższego milestona" oraz ze zmianą reguły zamykania milestona, więc błąd tutaj propaguje się na wszystkie kolejne wycinki; sekwencjonowany pierwszy, bo nie dotyka akcji z S-05.
+- **Status:** ready
 
-### S-02: Zarządzanie milestonami
+### S-08: Rytm w wybrane dni tygodnia
 
-- **Outcome:** user może dodać do projektu milestony z obowiązkową datą (uporządkowane wg dat, duplikaty dopuszczalne), edytować je i usuwać; usunięcie milestona z zadaniami wymaga potwierdzenia i kasuje je kaskadowo; data milestona jest walidowana względem terminu projektu (FR-003).
-- **Change ID:** milestone-crud
-- **PRD refs:** FR-004, FR-005
-- **Prerequisites:** S-01
-- **Parallel with:** —
+- **Outcome:** user może ustawić zadaniu rytm „w wybrane dni tygodnia" (np. trening w środy i piątki) i widzi je na liście w te dni, na tych samych zasadach co zadanie z rytmem co X dni.
+- **Change ID:** recurring-tasks-by-weekdays
+- **PRD refs:** FR-016, FR-017, US-02
+- **Prerequisites:** S-07
+- **Parallel with:** S-09
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Walidacja daty względem projektu i kaskadowe usuwanie muszą być spójne z regułą z S-01 (FR-003) — błąd tutaj przenosi się na listę na dziś (S-04).
+- **Risk:** Drugi mechanizm rytmu obok „co X dni"; sekwencjonowany po S-07, żeby wspólna reguła wystąpień została sprawdzona na prostszym przypadku.
 - **Status:** proposed
 
-### S-03: Zarządzanie zadaniami
+### S-09: Akcje na wystąpieniu zadania powtarzalnego
 
-- **Outcome:** user może dodać do milestona zadania (opcjonalnie z własnym deadline'em), edytować je i usuwać.
-- **Change ID:** task-crud
-- **PRD refs:** FR-006, FR-007
-- **Prerequisites:** S-02
-- **Parallel with:** —
+- **Outcome:** user może odhaczyć wystąpienie zadania powtarzalnego (zadanie wraca według rytmu), widzi niezrobione wystąpienie następnego dnia jako pominięte (potem znika; stan „częściowo zrobione" nie dotyczy zadań powtarzalnych), i może przenieść wystąpienie na inny dzień tylko wtedy, gdy tego dnia to zadanie nie ma własnego wystąpienia.
+- **Change ID:** recurring-occurrence-actions
+- **PRD refs:** FR-011, FR-019, US-02
+- **Prerequisites:** S-07
+- **Parallel with:** S-08, S-10
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** Musi istnieć, zanim jakikolwiek stan zadania (zrobione/częściowo/przeniesione) będzie miał co reprezentować na liście na dziś.
+- **Risk:** Zmienia istniejące akcje z S-05 (odhaczenie, przeniesienie na jutro), wskazane w shapingu jako najbardziej narażone na regresję; zadania niepowtarzalne muszą działać dokładnie jak dotąd.
 - **Status:** proposed
 
-### S-04: Lista zadań na dziś
+### S-10: Zmiana rytmu i wyłączenie powtarzania
 
-- **Outcome:** user widzi automatycznie wygenerowaną listę zadań na dziś — wszystkie niedokończone zadania z najbliższego, jeszcze niezamkniętego milestona każdego projektu, posortowane od najbliższego terminu do najdalszego (zadania bez terminu na końcu); gdy wszystkie zadania milestona są ukończone, na liście pojawia się sam milestone jako ostatni krok do zamknięcia.
-- **Change ID:** today-list-view
-- **PRD refs:** US-01, FR-009, FR-010
-- **Prerequisites:** S-01, S-02, S-03
-- **Parallel with:** —
+- **Outcome:** user może zmienić rytm albo wyłączyć powtarzanie istniejącego zadania; historia i dzisiejsze wystąpienie zostają, a zmiana działa od dziś.
+- **Change ID:** recurring-task-edit-disable
+- **PRD refs:** FR-020
+- **Prerequisites:** S-07, S-08
+- **Parallel with:** S-09
 - **Blockers:** —
 - **Unknowns:** —
-- **Risk:** To jest gwiazda przewodnia — reguła kwalifikacji z Business Logic musi być poprawna od razu, bo na niej opiera się cała propozycja wartości produktu. Sekwencjonowana najwcześniej, jak pozwalają jej zależności od realnych danych.
-- **Status:** proposed
-
-### S-05: Działania na liście na dziś
-
-- **Outcome:** user może oznaczyć zadanie na liście na dziś jako zrobione lub częściowo zrobione, oraz przenieść niedokończone/częściowo zrobione zadanie na jutro.
-- **Change ID:** today-list-actions
-- **PRD refs:** FR-011, FR-012
-- **Prerequisites:** S-04
-- **Parallel with:** S-06
-- **Blockers:** —
-- **Unknowns:** —
-- **Risk:** Zależy od istnienia widoku listy na dziś (S-04); przeniesienie na jutro musi respektować regułę kwalifikacji, żeby zadanie nie zniknęło bez wiedzy użytkownika (guardrail PRD).
-- **Status:** proposed
-
-### S-06: Ręczne dodanie zadania z listy
-
-- **Outcome:** user może ręcznie dodać nowe zadanie bezpośrednio z listy na dziś, wybierając projekt i milestone, do którego zadanie ma należeć.
-- **Change ID:** manual-task-add-from-list
-- **PRD refs:** FR-008
-- **Prerequisites:** S-04
-- **Parallel with:** S-05
-- **Blockers:** —
-- **Unknowns:** —
-- **Risk:** Mała, samodzielna funkcja — może być budowana równolegle z S-05, bo obie tylko konsumują widok z S-04 bez wzajemnej zależności.
+- **Risk:** Edycja po fakcie musi zachować zrobione wystąpienia; sekwencjonowany po obu rytmach, żeby zmiana obejmowała każdy rodzaj rytmu.
 - **Status:** proposed
 
 ## Backlog Handoff
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 | --- | --- | --- | --- | --- |
-| F-01 | core-domain-schema | Domenowy schemat danych: projects / milestones / tasks + RLS | yes | Run `/10x-plan core-domain-schema` |
-| S-01 | project-crud | Zarządzanie projektem (create/edit/delete) | no | Czeka na F-01 |
-| S-02 | milestone-crud | Zarządzanie milestonami (create/edit/delete) | no | Czeka na S-01 |
-| S-03 | task-crud | Zarządzanie zadaniami (create/edit/delete) | no | Czeka na S-02 |
-| S-04 | today-list-view | Automatycznie generowana lista zadań na dziś | no | Czeka na S-01, S-02, S-03 — gwiazda przewodnia |
-| S-05 | today-list-actions | Akcje na liście na dziś: zrobione / częściowo / przeniesienie na jutro | no | Czeka na S-04 |
-| S-06 | manual-task-add-from-list | Ręczne dodanie zadania z listy na dziś | no | Czeka na S-04 |
+| S-07 | recurring-tasks-by-interval | Zadanie z rytmem „codziennie / co X dni" wraca na listę na dziś | yes | Run `/10x-plan recurring-tasks-by-interval` |
+| S-08 | recurring-tasks-by-weekdays | Rytm w wybrane dni tygodnia | no | Czeka na S-07 |
+| S-09 | recurring-occurrence-actions | Akcje na wystąpieniu zadania powtarzalnego (zrobione / pominięte / przeniesione) | no | Czeka na S-07 |
+| S-10 | recurring-task-edit-disable | Zmiana rytmu i wyłączenie powtarzania | no | Czeka na S-07 i S-08 |
 
 ## Open Roadmap Questions
 
-Brak — wszystkie pierwotne pytania PRD zostały rozstrzygnięte przed wygenerowaniem tej mapy drogowej (patrz `prd.md` § Open Questions), a wywiad z Kroku 5 nie ujawnił nowych pytań przekrojowych.
+Brak — pięć pytań otwartych z PRD v2 rozstrzygnięto 2026-10-19 i wpisano do `prd-v2.md` (patrz jego sekcja Open Questions).
 
 ## Parked
 
-- **FR-013: Filtrowanie listy zadań/projektów wg obszaru życia** — Why parked: priorytet nice-to-have w PRD; odłożone, aby dotrzymać sztywnego terminu 2026-11-04 (main_goal: speed).
-- **FR-014: Kolorowe oznaczenie zadań wg projektu** — Why parked: priorytet nice-to-have w PRD; odłożone z tego samego powodu co FR-013.
-- **FR-015: Wizualne oznaczenie przeterminowanych projektów/milestonów** — Why parked: priorytet nice-to-have w PRD; czysto kosmetyczne oznaczenie bez zmiany logiki kwalifikacji.
-- **Zadania powtarzalne i projekty typu "rutyna"** — Why parked: PRD § Non-Goals — MVP nie obsługuje powtarzalności.
-- **Udostępnianie lub delegowanie projektów/zadań innym osobom** — Why parked: PRD § Non-Goals — płaski model jednego konta.
-- **Zadania wolnostojące (bez milestona)** — Why parked: PRD § Non-Goals — każde zadanie musi należeć do milestona.
-- **Natywna aplikacja mobilna** — Why parked: PRD § Non-Goals — tylko aplikacja webowa.
-- **Statystyki i raporty postępu** — Why parked: PRD § Non-Goals — brak wykresów/podsumowań w MVP.
-- **Podgląd list zadań dla kolejnych dni** — Why parked: PRD § Non-Goals — tylko lista na dziś.
-- **Subtaski w ramach zadania** — Why parked: PRD § Non-Goals — tylko stany zrobione/częściowo zrobione.
+- **FR-018: Oznaczenie powtarzalnego zadania na liście** — Why parked: nice-to-have w PRD v2; cel `low-complexity`, czysto widoczne oznaczenie bez zmiany logiki.
+- **Rytm tygodniowy i miesięczny (co tydzień, co miesiąc)** — Why parked: PRD v2 § Non-Goals; do zastąpienia „co 7 dni" lub dniem tygodnia.
+- **Licznik realizacji i statystyki regularności** — Why parked: PRD v2 § Non-Goals; statystyki pozostają poza zakresem.
+- **Wpływ cyklu na zamknięcie milestona** — Why parked: PRD v2 § Non-Goals; milestone zamyka się według obecnej reguły.
+- **Zadania bez milestona (powtarzalne i niepowtarzalne)** — Why parked: PRD v2 i PRD v1 § Non-Goals; każde zadanie musi należeć do milestona.
+- **FR-013: Filtrowanie listy wg obszaru życia** — Why parked: nice-to-have w PRD v1; poza zakresem tego milestona.
+- **FR-014: Kolorowe oznaczenie zadań wg projektu** — Why parked: nice-to-have w PRD v1; poza zakresem tego milestona.
+- **FR-015: Wizualne oznaczenie przeterminowanych projektów/milestonów** — Why parked: nice-to-have w PRD v1; czysto kosmetyczne.
+- **Udostępnianie lub delegowanie projektów/zadań innym osobom** — Why parked: PRD v1 § Non-Goals — płaski model jednego konta.
+- **Natywna aplikacja mobilna** — Why parked: PRD v1 § Non-Goals — tylko aplikacja webowa.
+- **Statystyki i raporty postępu** — Why parked: PRD v1 § Non-Goals — brak wykresów/podsumowań.
+- **Podgląd list zadań dla kolejnych dni** — Why parked: PRD v1 § Non-Goals — tylko lista na dziś.
+- **Subtaski w ramach zadania** — Why parked: PRD v1 § Non-Goals — tylko stany zrobione/częściowo zrobione.
 
 ## Milestone History
 
-(Puste — to pierwszy kamień milowy tego projektu.)
+- **M-1: Pierwsza działająca pętla — od projektu do listy na dziś** (`first-usable-daily-list`) — closed 2026-10-19. Dostarczona kompletna pętla MVP: projekt z milestonami i zadaniami, lista na dziś z akcjami (zrobione / częściowo / przeniesienie na jutro) oraz ręczne dodawanie zadań z listy.
 
 ## Done
 
-- **S-01: user może utworzyć, edytować i usunąć projekt (nazwa, termin, opcjonalny opis, obszar życia); usunięcie projektu z milestonami/zadaniami wymaga potwierdzenia i kasuje je kaskadowo.** — Archived 2026-10-14 → `context/archive/2026-10-09-project-crud/`. Lesson: —.
-
-- **F-01: (foundation) tabele `projects`, `milestones`, `tasks` istnieją w Supabase Postgres z politykami RLS (jedno konto = jeden prywatny zestaw danych), kaskadowym usuwaniem (projekt → milestony → zadania; milestone → zadania) i ograniczeniem, że data milestona nie może wykraczać poza termin projektu.** — Archived 2026-10-14 → `context/archive/2026-10-09-core-domain-schema/`. Lesson: —.
-
+(Puste — `/10x-archive` dopisze tu wpis, gdy zmiana pasująca do Change ID zostanie zarchiwizowana.)
