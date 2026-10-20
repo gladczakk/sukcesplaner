@@ -1,7 +1,7 @@
 ---
 change_id: recurring-tasks-by-weekdays
 title: Recurring tasks by weekdays
-status: implementing
+status: implemented
 created: 2026-10-20
 updated: 2026-10-20
 archived_at: null

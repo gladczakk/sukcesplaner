@@ -379,14 +379,14 @@ Migracja jest addytywna: istniejące zadania mają `recurrence_weekdays` NULL, a
 
 #### Automated
 
-- [x] 4.1 Lint plików zmiany przechodzi: `npm run lint` (z zastrzeżeniem bazowych błędów spoza S-08)
-- [x] 4.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build` (po `npx astro preview stop`)
-- [x] 4.3 Smoke przechodzi, w tym kroki rutyn z dniami tygodnia na `/today` i odhaczenia: `npm run smoke`
-- [x] 4.4 Test zepsucia (tymczasowy `throw` w `TodayTaskActions`) zaczerwienia krok smoke z treścią wyspy rutyny z dniami; po wycofaniu smoke jest zielony
-- [x] 4.5 Testy pgTAP przechodzą: `npx supabase test db`
+- [x] 4.1 Lint plików zmiany przechodzi: `npm run lint` (z zastrzeżeniem bazowych błędów spoza S-08) — 60574fb
+- [x] 4.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build` (po `npx astro preview stop`) — 60574fb
+- [x] 4.3 Smoke przechodzi, w tym kroki rutyn z dniami tygodnia na `/today` i odhaczenia: `npm run smoke` — 60574fb
+- [x] 4.4 Test zepsucia (tymczasowy `throw` w `TodayTaskActions`) zaczerwienia krok smoke z treścią wyspy rutyny z dniami; po wycofaniu smoke jest zielony — 60574fb
+- [x] 4.5 Testy pgTAP przechodzą: `npx supabase test db` — 60574fb
 
 #### Manual
 
 - [x] 4.6 Na `/today` rutyna z dniami zawierającymi dzisiejszy dzień jest na szczycie z etykietą dni, przycisk „Zrobione" odhacza ją i po odświeżeniu znika
-- [x] 4.7 Rutyna z dniami nie obejmującymi dzisiaj nie jest na liście, a na stronie projektu ma swoją etykietę
-- [x] 4.8 Treść PRD v2 (Non-Goals i opis dni tygodnia) odpowiada decyzjom z planu
+- [x] 4.7 Rutyna z dniami nie obejmującymi dzisiaj nie jest na liście, a na stronie projektu ma swoją etykietę — 60574fb
+- [x] 4.8 Treść PRD v2 (Non-Goals i opis dni tygodnia) odpowiada decyzjom z planu — 60574fb
