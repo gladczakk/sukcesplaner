@@ -89,7 +89,7 @@ const summary = [
                   </a>
                   {" · "}
                   {routine.milestone.name}
-                  {` · ${formatRecurrence(routine.interval_days)}`}
+                  {` · ${formatRecurrence({ intervalDays: routine.interval_days, weekdays: null })}`}
                 </p>
               </div>
               <div class="flex min-w-0 shrink-0 flex-col items-start gap-2 sm:items-end">

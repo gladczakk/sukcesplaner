@@ -21,7 +21,7 @@ export type TaskApiDeleteResult =
 
 /** Input of the task form; an empty or null `due_date` clears the due date. */
 export type TaskApiInput = Omit<TaskInput, "due_date"> & { due_date: string | null };
-/** Input of the create form; adds the rhythm (`recurrence_interval_days`, null = no repeat). */
+/** Input of the create form; adds the rhythm (`recurrence_interval_days` or `recurrence_weekdays`, both null = no repeat). */
 export type TaskApiCreateInput = Omit<TaskCreateInput, "due_date"> & { due_date: string | null };
 
 function tasksUrl(projectId: string, milestoneId: string, taskId?: string): string {

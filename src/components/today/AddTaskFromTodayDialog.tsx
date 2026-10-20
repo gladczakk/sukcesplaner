@@ -40,6 +40,7 @@ const FIELD_IDS: Record<(typeof TASK_FIELDS)[number], string> = {
   title: `${ID_PREFIX}-title`,
   due_date: `${ID_PREFIX}-due-date`,
   recurrence_interval_days: `${ID_PREFIX}-recurrence-days`,
+  recurrence_weekdays: `${ID_PREFIX}-recurrence-weekdays`,
 };
 const REPEAT_ID = `${ID_PREFIX}-repeat`;
 const EMPTY_HINT_ID = `${ID_PREFIX}-empty-hint`;

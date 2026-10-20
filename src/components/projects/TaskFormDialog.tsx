@@ -22,7 +22,10 @@ import {
 import type { Milestone, Task } from "@/types";
 
 type ParentMilestone = Pick<Milestone, "id" | "due_date" | "name">;
-type EditableTask = Pick<Task, "id" | "title" | "due_date" | "recurrence_interval_days">;
+type EditableTask = Pick<
+  Task,
+  "id" | "title" | "due_date" | "recurrence_interval_days" | "recurrence_weekdays" | "is_recurring"
+>;
 
 interface TaskFormDialogProps {
   mode: "create" | "edit";
@@ -46,6 +49,7 @@ const FIELD_IDS: Record<(typeof TASK_FIELDS)[number], string> = {
   title: "title",
   due_date: "due-date",
   recurrence_interval_days: "recurrence-days",
+  recurrence_weekdays: "recurrence-weekdays",
 };
 
 function initialValues(task?: EditableTask): FormValues {
@@ -68,7 +72,10 @@ export default function TaskFormDialog({ mode, projectId, milestone, task, disab
   const isEdit = mode === "edit";
   const idPrefix = isEdit && task ? `edit-task-${task.id}` : `create-task-${milestone.id}`;
   // A recurring task has no due date of its own; its rhythm is chosen on create and only shown on edit.
-  const editedRhythm = isEdit ? (task?.recurrence_interval_days ?? null) : null;
+  const editedRhythm =
+    isEdit && task?.is_recurring === true
+      ? formatRecurrence({ intervalDays: task.recurrence_interval_days, weekdays: task.recurrence_weekdays })
+      : null;
   const repeating = isEdit ? editedRhythm !== null : values.repeat !== "none";
 
   function handleOpenChange(next: boolean) {
@@ -129,7 +136,11 @@ export default function TaskFormDialog({ mode, projectId, milestone, task, disab
       const result =
         isEdit && task
           ? await updateTask(projectId, milestone.id, task.id, parsed.data)
-          : await createTask(projectId, milestone.id, { ...parsed.data, recurrence_interval_days: rhythm.value });
+          : await createTask(projectId, milestone.id, {
+              ...parsed.data,
+              recurrence_interval_days: rhythm.value,
+              recurrence_weekdays: null,
+            });
       switch (result.status) {
         case "ok":
           navigating = true;
@@ -206,7 +217,7 @@ export default function TaskFormDialog({ mode, projectId, milestone, task, disab
           </Field>
           {isEdit && editedRhythm !== null ? (
             <Field id={`${idPrefix}-repeat`} label="Powtarzanie">
-              <Input id={`${idPrefix}-repeat`} name="repeat" value={formatRecurrence(editedRhythm)} readOnly />
+              <Input id={`${idPrefix}-repeat`} name="repeat" value={editedRhythm} readOnly />
             </Field>
           ) : null}
           {isEdit ? null : (

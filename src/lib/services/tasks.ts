@@ -4,7 +4,7 @@ import { logError } from "@/lib/log";
 import { GENERIC_ERROR, SESSION_ERROR, readFailure } from "@/lib/services/postgrest";
 import { todayInWarsaw } from "@/lib/today";
 import type { Task, TaskStatus } from "@/types";
-import type { TaskCreateInput, TaskFieldErrors, TaskInput } from "@/lib/validation/task";
+import type { TaskCreateInput, TaskField, TaskFieldErrors, TaskInput } from "@/lib/validation/task";
 
 type Client = SupabaseClient<Database>;
 type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
@@ -29,13 +29,19 @@ const RECURRING_STATE_ERROR =
   "Zadanie powtarzalne nie ma własnego terminu i nie można go oznaczyć jako zrobione ani przenieść. Odhacz jego wystąpienie na liście Dziś.";
 const RECURRENCE_START_ERROR = "Termin milestona jest wcześniejszy niż dziś — powtarzanie nie miałoby kiedy się zacząć";
 const RECURRENCE_INTERVAL_ERROR = "Podaj liczbę dni od 2 do 30";
+const RECURRENCE_WEEKDAYS_ERROR = "Wybierz co najmniej jeden dzień tygodnia";
+const ONE_RHYTHM_ERROR = "Wybierz jeden rytm: co X dni albo dni tygodnia";
 const OCCURRENCE_ERROR = "To wystąpienie nie jest dziś aktualne. Odśwież stronę.";
 
 function toTask(row: TaskRow): Task {
   return { ...row, status: row.status as TaskStatus };
 }
 
-function translateError(error: PostgrestError): TaskFailure {
+/** `rhythmField` is the field a start-date error is shown on: the rhythm the task being written has. */
+function translateError(
+  error: PostgrestError,
+  rhythmField: Extract<TaskField, "recurrence_interval_days" | "recurrence_weekdays"> = "recurrence_interval_days",
+): TaskFailure {
   if (error.code === "23514") {
     if (error.message.includes("Termin zadania")) {
       return { status: "validation", error: DUE_DATE_ERROR, fieldErrors: { due_date: DUE_DATE_ERROR } };
@@ -53,8 +59,18 @@ function translateError(error: PostgrestError): TaskFailure {
       return {
         status: "validation",
         error: RECURRENCE_START_ERROR,
-        fieldErrors: { recurrence_interval_days: RECURRENCE_START_ERROR },
+        fieldErrors: { [rhythmField]: RECURRENCE_START_ERROR },
       };
+    }
+    if (error.message.includes("tasks_recurrence_weekdays_check")) {
+      return {
+        status: "validation",
+        error: RECURRENCE_WEEKDAYS_ERROR,
+        fieldErrors: { recurrence_weekdays: RECURRENCE_WEEKDAYS_ERROR },
+      };
+    }
+    if (error.message.includes("tasks_recurrence_one_rhythm_check")) {
+      return { status: "validation", error: ONE_RHYTHM_ERROR, fieldErrors: {} };
     }
     if (error.message.includes("tasks_recurrence_interval_check")) {
       return {
@@ -99,17 +115,18 @@ export async function createTask(
   const milestone = await findMilestone(supabase, projectId, milestoneId);
   if (milestone.status !== "found") return milestone;
 
-  // The rhythm starts today (Warsaw date, set here so a task added just after midnight gets the right day).
-  const interval = input.recurrence_interval_days;
+  // The rhythm (interval or weekdays) starts today (Warsaw date, set here so a task added just after midnight gets the right day).
+  const hasWeekdays = input.recurrence_weekdays !== null;
+  const hasRhythm = input.recurrence_interval_days !== null || hasWeekdays;
   const { data, error } = await supabase
     .from("tasks")
     .insert({
       ...input,
       milestone_id: milestoneId,
-      recurrence_start_date: interval === null ? null : todayInWarsaw(),
+      recurrence_start_date: hasRhythm ? todayInWarsaw() : null,
     })
     .select();
-  if (error) return translateError(error);
+  if (error) return translateError(error, hasWeekdays ? "recurrence_weekdays" : "recurrence_interval_days");
   const row = data.at(0);
   return row ? { status: "ok", task: toTask(row) } : { status: "not_found" };
 }

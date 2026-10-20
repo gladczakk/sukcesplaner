@@ -1,3 +1,5 @@
+import { WEEKDAYS } from "@/lib/weekdays";
+
 const dateFormatter = new Intl.DateTimeFormat("pl-PL", {
   day: "numeric",
   month: "short",
@@ -35,8 +37,18 @@ export function plural(n: number, forms: readonly [string, string, string]): str
   return forms[2];
 }
 
-/** Label of a task rhythm: 1 -> "codziennie", 2 -> "co 2 dni", 5 -> "co 5 dni". */
-export function formatRecurrence(intervalDays: number): string {
-  if (intervalDays === 1) return "codziennie";
-  return `co ${intervalDays} ${plural(intervalDays, ["dzień", "dni", "dni"])}`;
+/**
+ * Label of a task rhythm, whichever kind it is: interval 1 or all seven weekdays -> "codziennie", 5 -> "co 5 dni",
+ * weekdays -> abbreviations from Monday ("pn, śr, pt"). A task without a rhythm gets an empty label.
+ */
+export function formatRecurrence(rhythm: { intervalDays: number | null; weekdays: readonly number[] | null }): string {
+  const { intervalDays, weekdays } = rhythm;
+  if (intervalDays !== null) {
+    if (intervalDays === 1) return "codziennie";
+    return `co ${intervalDays} ${plural(intervalDays, ["dzień", "dni", "dni"])}`;
+  }
+  if (weekdays === null) return "";
+  const chosen = WEEKDAYS.filter((day) => weekdays.includes(day.value));
+  if (chosen.length === WEEKDAYS.length) return "codziennie";
+  return chosen.map((day) => day.short).join(", ");
 }

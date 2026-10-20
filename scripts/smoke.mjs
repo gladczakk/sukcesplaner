@@ -56,10 +56,14 @@ let completedAt = "";
 let taskId = "";
 let recurringTaskId = "";
 let termTaskId = "";
+let weekdaysTaskId = "";
 let pastMilestoneId = "";
 const recurringDueDateError = "Zadanie powtarzalne nie ma własnego terminu";
 const recurrenceDaysError = "Podaj liczbę dni od 2 do 30";
 const recurrenceStartError = "Termin milestona jest wcześniejszy niż dziś — powtarzanie nie miałoby kiedy się zacząć";
+const weekdaysEmptyError = "Wybierz co najmniej jeden dzień tygodnia";
+const weekdaysInvalidError = "Podaj dni tygodnia jako liczby od 1 do 7, bez powtórzeń";
+const oneRhythmError = "Wybierz jeden rytm: co X dni albo dni tygodnia";
 const recurringStateError =
   "Zadanie powtarzalne nie ma własnego terminu i nie można go oznaczyć jako zrobione ani przenieść. Odhacz jego wystąpienie na liście Dziś.";
 const warsawParts = new Intl.DateTimeFormat("en-CA", {
@@ -641,6 +645,118 @@ const steps = [
         "task.recurrence_start_date": warsawToday(),
       },
     },
+  ],
+  // Weekday rhythm (Wednesday + Friday): the whole block, including its cleanup, sits before any /today step, so the
+  // weekday of the day the smoke runs cannot change the counts asserted there.
+  [
+    "weekdays task create succeeds",
+    async () => {
+      const result = await request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Dni smoke", due_date: null, recurrence_weekdays: [3, 5] },
+      });
+      weekdaysTaskId = result.body?.task?.id ?? "";
+      return result;
+    },
+    {
+      status: 201,
+      bodyEquals: {
+        "task.title": "Dni smoke",
+        "task.recurrence_weekdays.0": 3,
+        "task.recurrence_weekdays.1": 5,
+        "task.recurrence_interval_days": null,
+        "task.recurrence_start_date": warsawToday(),
+        "task.is_recurring": true,
+        "task.due_date": null,
+        "task.status": "todo",
+      },
+    },
+  ],
+  [
+    "weekdays task create rejects weekdays together with an interval",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Dni smoke 2", due_date: null, recurrence_interval_days: 2, recurrence_weekdays: [3, 5] },
+      }),
+    { status: 422, bodyEquals: { "fieldErrors.recurrence_weekdays": oneRhythmError } },
+  ],
+  [
+    "weekdays task create rejects an empty list",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Dni smoke 2", due_date: null, recurrence_weekdays: [] },
+      }),
+    { status: 422, bodyEquals: { "fieldErrors.recurrence_weekdays": weekdaysEmptyError } },
+  ],
+  [
+    "weekdays task create rejects a day over 7",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Dni smoke 2", due_date: null, recurrence_weekdays: [8] },
+      }),
+    { status: 422, bodyEquals: { "fieldErrors.recurrence_weekdays": weekdaysInvalidError } },
+  ],
+  [
+    "weekdays task create rejects a duplicated day",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Dni smoke 2", due_date: null, recurrence_weekdays: [3, 3] },
+      }),
+    { status: 422, bodyEquals: { "fieldErrors.recurrence_weekdays": weekdaysInvalidError } },
+  ],
+  [
+    "weekdays task create rejects a due date",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Dni smoke 2", due_date: "2099-12-30", recurrence_weekdays: [3, 5] },
+      }),
+    { status: 422, bodyEquals: { "fieldErrors.due_date": recurringDueDateError } },
+  ],
+  [
+    "weekdays task status done is rejected",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${weekdaysTaskId}`, {
+        method: "PATCH",
+        json: { status: "done" },
+      }),
+    { status: 422, bodyEquals: { error: recurringStateError } },
+  ],
+  [
+    "weekdays task update with only a title keeps the weekdays",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${weekdaysTaskId}`, {
+        method: "PUT",
+        json: { title: "Dni smoke 2" },
+      }),
+    {
+      status: 200,
+      bodyEquals: {
+        "task.title": "Dni smoke 2",
+        "task.recurrence_weekdays.0": 3,
+        "task.recurrence_weekdays.1": 5,
+        "task.recurrence_start_date": warsawToday(),
+      },
+    },
+  ],
+  // The label is server-rendered, the edit button comes from the island, and a recurring task has no status select.
+  [
+    "project page renders the weekdays task label without a status select",
+    () => request(`/projects/${projectId}`),
+    {
+      status: 200,
+      bodyIncludes: ["Dni smoke 2", "śr, pt", "Edytuj zadanie Dni smoke 2"],
+      bodyExcludes: ["Status zadania Dni smoke 2"],
+    },
+  ],
+  [
+    "weekdays task delete succeeds",
+    () => request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${weekdaysTaskId}`, { method: "DELETE" }),
+    { status: 204 },
   ],
   // Island SSR errors leave the page at 200: the rhythm label is server-rendered, the edit button comes from the island,
   // and a recurring task must not render the status select.

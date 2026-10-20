@@ -184,8 +184,11 @@ if (notFound) Astro.response.status = 404;
                                   {task.title}
                                 </p>
                                 <p class="type-meta text-muted-foreground tabular-nums">
-                                  {task.recurrence_interval_days !== null
-                                    ? formatRecurrence(task.recurrence_interval_days)
+                                  {task.is_recurring === true
+                                    ? formatRecurrence({
+                                        intervalDays: task.recurrence_interval_days,
+                                        weekdays: task.recurrence_weekdays,
+                                      })
                                     : task.due_date
                                       ? formatDate(task.due_date)
                                       : "bez terminu"}
@@ -200,6 +203,8 @@ if (notFound) Astro.response.status = 404;
                                   due_date: task.due_date,
                                   status: task.status,
                                   recurrence_interval_days: task.recurrence_interval_days,
+                                  recurrence_weekdays: task.recurrence_weekdays,
+                                  is_recurring: task.is_recurring,
                                 }}
                                 client:load
                               />

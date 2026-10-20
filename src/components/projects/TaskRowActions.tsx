@@ -10,7 +10,10 @@ import { TASK_STATUSES, type Milestone, type Task, type TaskStatus } from "@/typ
 interface TaskRowActionsProps {
   projectId: string;
   milestone: Pick<Milestone, "id" | "due_date" | "name">;
-  task: Pick<Task, "id" | "title" | "due_date" | "status" | "recurrence_interval_days">;
+  task: Pick<
+    Task,
+    "id" | "title" | "due_date" | "status" | "recurrence_interval_days" | "recurrence_weekdays" | "is_recurring"
+  >;
 }
 
 const STATUS_OPTIONS: SelectOption[] = [
@@ -62,7 +65,7 @@ export default function TaskRowActions({ projectId, milestone, task }: TaskRowAc
     <div className="flex flex-col items-start gap-1">
       <div className="flex flex-wrap items-center gap-1">
         {/* A recurring task is ticked off per occurrence on the Dziś list, so it has no status switch. */}
-        {task.recurrence_interval_days === null ? (
+        {task.is_recurring !== true ? (
           <Select
             className="w-auto aria-disabled:opacity-50"
             aria-label={`Status zadania ${task.title}`}

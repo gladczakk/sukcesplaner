@@ -338,28 +338,28 @@ Migracja jest addytywna: istniejące zadania mają `recurrence_weekdays` NULL, a
 
 #### Automated
 
-- [x] 1.1 Migracja stosuje się czysto na świeżej bazie: `npx supabase db reset`
-- [x] 1.2 Wszystkie testy pgTAP przechodzą, istniejące 209 i nowe: `npx supabase test db`
-- [x] 1.3 Typy zawierają `recurrence_weekdays`, `is_recurring` i `task_recurrence_weekdays` w wyniku `today_list`, a diff pliku jest ograniczony do tych zmian
-- [x] 1.4 Lint plików zmiany i sprawdzenie typów przechodzą: `npm run lint` (z zastrzeżeniem bazowych błędów spoza S-08) oraz `npx astro check`
+- [x] 1.1 Migracja stosuje się czysto na świeżej bazie: `npx supabase db reset` — cead948
+- [x] 1.2 Wszystkie testy pgTAP przechodzą, istniejące 209 i nowe: `npx supabase test db` — cead948
+- [x] 1.3 Typy zawierają `recurrence_weekdays`, `is_recurring` i `task_recurrence_weekdays` w wyniku `today_list`, a diff pliku jest ograniczony do tych zmian — cead948
+- [x] 1.4 Lint plików zmiany i sprawdzenie typów przechodzą: `npm run lint` (z zastrzeżeniem bazowych błędów spoza S-08) oraz `npx astro check` — cead948
 
 #### Manual
 
-- [x] 1.5 Na lokalnych danych z rutynami interwałowymi z S-07 `select * from public.today_list(<dziś>)` zwraca ten sam zestaw i kolejność wierszy co przed migracją
-- [x] 1.6 Ręczne `update milestones set completed_at = now()` na milestonie z jedną rutyną dni tygodnia i bez innych niezrobionych zadań kończy się sukcesem
+- [x] 1.5 Na lokalnych danych z rutynami interwałowymi z S-07 `select * from public.today_list(<dziś>)` zwraca ten sam zestaw i kolejność wierszy co przed migracją — cead948
+- [x] 1.6 Ręczne `update milestones set completed_at = now()` na milestonie z jedną rutyną dni tygodnia i bez innych niezrobionych zadań kończy się sukcesem — cead948
 
 ### Phase 2: Tworzenie zadania z dniami tygodnia (API)
 
 #### Automated
 
-- [ ] 2.1 Lint plików zmiany przechodzi: `npm run lint` (z zastrzeżeniem bazowych błędów spoza S-08)
-- [ ] 2.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build` (po `npx astro preview stop`)
-- [ ] 2.3 Smoke przechodzi, w tym nowe kroki tworzenia z dniami tygodnia: `npm run smoke`
+- [x] 2.1 Lint plików zmiany przechodzi: `npm run lint` (z zastrzeżeniem bazowych błędów spoza S-08)
+- [x] 2.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build` (po `npx astro preview stop`)
+- [x] 2.3 Smoke przechodzi, w tym nowe kroki tworzenia z dniami tygodnia: `npm run smoke`
 
 #### Manual
 
-- [ ] 2.4 Zadanie z dniami utworzone przez API ma na stronie projektu etykietę „śr, pt" (skróty od poniedziałku), nie ma przełącznika statusu, a edycja i usunięcie działają
-- [ ] 2.5 Odpowiedź API na dni razem z interwałem i na pustą tablicę zawiera czytelny komunikat błędu pola
+- [x] 2.4 Zadanie z dniami utworzone przez API ma na stronie projektu etykietę „śr, pt" (skróty od poniedziałku), nie ma przełącznika statusu, a edycja i usunięcie działają
+- [x] 2.5 Odpowiedź API na dni razem z interwałem i na pustą tablicę zawiera czytelny komunikat błędu pola
 
 ### Phase 3: Kontrolka wyboru dni w formularzach
 
