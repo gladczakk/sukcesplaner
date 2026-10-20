@@ -36,6 +36,7 @@ Użytkownik tworzy zadanie z rytmem w obu formularzach; na `/today` rutyna jest 
 - Stan „częściowo zrobione" dla wystąpień (decyzja z PRD v2: tylko zrobione).
 - Własny deadline rutyny, przenoszenie rutyny na jutro i cofanie odhaczenia wystąpienia.
 - Zmiany w CI (pgTAP nadal ręcznie), zdalny `db push` wykonywany przez użytkownika.
+- Ochrona przed odhaczeniem „po północy" ze starej strony Dziś (znane ograniczenie, przegląd F2): trasa odhaczenia liczy datę po stronie serwera, więc rutyna codzienna na stronie wyrenderowanej przed północą może zostać odhaczona na nowy dzień; ryzyko zaakceptowane (aplikacja jednoosobowa, strona `no-store`, okno to minuty po północy).
 
 ## Implementation Approach
 

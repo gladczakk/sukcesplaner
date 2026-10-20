@@ -26,7 +26,7 @@ const CLOSED_MILESTONE_ERROR =
 
 const DONE_DEFERRAL_ERROR = "Zrobionego zadania nie można przenieść na jutro.";
 const RECURRING_STATE_ERROR =
-  "Zadania powtarzalnego nie można oznaczyć jako zrobione ani przenieść. Odhacz jego wystąpienie na liście Dziś.";
+  "Zadanie powtarzalne nie ma własnego terminu i nie można go oznaczyć jako zrobione ani przenieść. Odhacz jego wystąpienie na liście Dziś.";
 const RECURRENCE_START_ERROR = "Termin milestona jest wcześniejszy niż dziś — powtarzanie nie miałoby kiedy się zacząć";
 const RECURRENCE_INTERVAL_ERROR = "Podaj liczbę dni od 2 do 30";
 const OCCURRENCE_ERROR = "To wystąpienie nie jest dziś aktualne. Odśwież stronę.";

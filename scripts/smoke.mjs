@@ -56,10 +56,12 @@ let completedAt = "";
 let taskId = "";
 let recurringTaskId = "";
 let termTaskId = "";
+let pastMilestoneId = "";
 const recurringDueDateError = "Zadanie powtarzalne nie ma własnego terminu";
 const recurrenceDaysError = "Podaj liczbę dni od 2 do 30";
+const recurrenceStartError = "Termin milestona jest wcześniejszy niż dziś — powtarzanie nie miałoby kiedy się zacząć";
 const recurringStateError =
-  "Zadania powtarzalnego nie można oznaczyć jako zrobione ani przenieść. Odhacz jego wystąpienie na liście Dziś.";
+  "Zadanie powtarzalne nie ma własnego terminu i nie można go oznaczyć jako zrobione ani przenieść. Odhacz jego wystąpienie na liście Dziś.";
 const warsawParts = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Europe/Warsaw",
   year: "numeric",
@@ -587,6 +589,33 @@ const steps = [
         json: { title: "Rutyna smoke 2", due_date: null, recurrence_interval_days: 31 },
       }),
     { status: 422, bodyEquals: { "fieldErrors.recurrence_interval_days": recurrenceDaysError } },
+  ],
+  // The past-dated milestone would become the nearest one of the project, so it is deleted right after the check.
+  [
+    "milestone dated in the past is created",
+    async () => {
+      const result = await request(`/api/projects/${projectId}/milestones`, {
+        method: "POST",
+        json: { name: "Przeszły smoke", due_date: "2000-01-01" },
+      });
+      pastMilestoneId = result.body?.milestone?.id ?? "";
+      return result;
+    },
+    { status: 201, bodyField: "milestone.id" },
+  ],
+  [
+    "recurring task create in a past-dated milestone is rejected",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${pastMilestoneId}/tasks`, {
+        method: "POST",
+        json: { title: "Rutyna smoke przeszła", due_date: null, recurrence_interval_days: 2 },
+      }),
+    { status: 422, bodyEquals: { "fieldErrors.recurrence_interval_days": recurrenceStartError } },
+  ],
+  [
+    "milestone dated in the past is deleted",
+    () => request(`/api/projects/${projectId}/milestones/${pastMilestoneId}`, { method: "DELETE" }),
+    { status: 204 },
   ],
   [
     "recurring task status done is rejected",

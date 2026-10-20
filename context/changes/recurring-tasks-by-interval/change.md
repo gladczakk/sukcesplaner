@@ -1,7 +1,7 @@
 ---
 change_id: recurring-tasks-by-interval
 title: Recurring tasks by interval
-status: implemented
+status: impl_reviewed
 created: 2026-10-19
 updated: 2026-10-19
 archived_at: null

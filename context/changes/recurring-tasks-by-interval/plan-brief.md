@@ -56,6 +56,7 @@ Rutyna to zwykłe zadanie z dwiema nowymi kolumnami (rytm, data startu); odhacze
 - Zdalna baza wymaga ręcznego wypchnięcia migracji.
 - Przez zamknięty po dacie milestone rutyna nie wraca; użytkownik może nie zauważyć, że rutyna „skończyła się" po terminie milestona (zgodnie z decyzjami z PRD v2).
 - Dług wysp (powielony szkielet pending/reload) rośnie o jeden wariant; świadomie odłożony.
+- Znane ograniczenie (przegląd F2): „Zrobione" na rutynie codziennej ze strony wyrenderowanej przed północą odhaczy wystąpienie nowego dnia, bo datę liczy serwer; ryzyko zaakceptowane.
 
 ## Success Criteria (Summary)
 

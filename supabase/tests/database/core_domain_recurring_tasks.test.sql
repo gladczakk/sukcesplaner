@@ -8,7 +8,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(59);
+select plan(61);
 
 -- Uzytkownicy: a1 (wlasciciel danych), b1 (test izolacji RLS)
 insert into auth.users (id, aud, role, email)
@@ -223,6 +223,22 @@ select throws_ok(
   '23514',
   'new row for relation "tasks" violates check constraint "tasks_recurrence_shape"',
   'zmiana statusu rutyny na done odrzucona');
+
+-- ---------------------------------------------------------------------------
+-- Data milestona a start rutyny (m3: jedna rutyna t4, start 2026-10-19)
+-- ---------------------------------------------------------------------------
+
+select throws_ok(
+  $$update public.milestones set due_date = '2026-10-18'
+    where id = '20000000-0000-0000-0000-000000000003'$$,
+  '23514',
+  'Nie mozna przesunac daty milestona: zadania z pozniejszym terminem (1)',
+  'data milestona wczesniejsza niz start rutyny odrzucona (rutyna nie znika po cichu)');
+
+select lives_ok(
+  $$update public.milestones set due_date = '2026-10-19'
+    where id = '20000000-0000-0000-0000-000000000003'$$,
+  'data milestona rowna startowi rutyny przechodzi');
 
 -- ---------------------------------------------------------------------------
 -- Zamykanie milestona (m5: sama rutyna; m6: rutyna + zwykle zadanie todo)
