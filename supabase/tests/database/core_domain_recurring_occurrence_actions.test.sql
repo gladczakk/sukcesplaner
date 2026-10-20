@@ -8,7 +8,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(42);
+select plan(44);
 
 insert into auth.users (id, aud, role, email)
 values ('00000000-0000-0000-0000-0000000000a1', 'authenticated', 'authenticated', 'a@example.test');
@@ -40,6 +40,19 @@ values
   ('30000000-0000-0000-0000-000000000008', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000001', 'h-odhaczone', null, null, '{3,5}', '2026-10-21'),
   ('30000000-0000-0000-0000-000000000009', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000002', 'i-zamkniety', null, null, '{3,5}', '2026-10-21'),
   ('30000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000001', 'j-moved-potem-done', null, null, '{3,5}', '2026-10-21');
+
+-- Granica miesiaca i start dzis (projekt 3, milestone m3 do 2026-11-15): zadanie 11 codziennie od 2026-10-25,
+-- zadanie 12 codziennie od 2026-11-01.
+insert into public.projects (id, user_id, name, life_area, due_date)
+values ('10000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-0000000000a1', 'P3 granice', 'dom', '2026-12-31');
+
+insert into public.milestones (id, user_id, project_id, name, due_date)
+values ('20000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-0000000000a1', '10000000-0000-0000-0000-000000000003', 'm3', '2026-11-15');
+
+insert into public.tasks (id, user_id, milestone_id, title, due_date, recurrence_interval_days, recurrence_weekdays, recurrence_start_date)
+values
+  ('30000000-0000-0000-0000-000000000011', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000003', 'k-granica-miesiaca', null, 1, null, '2026-10-25'),
+  ('30000000-0000-0000-0000-000000000012', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000003', 'l-start-dzis', null, 1, null, '2026-11-01');
 
 -- Zamkniecie m2 (same rutyny, wiec dozwolone) jako postgres
 update public.milestones set completed_at = now() where id = '20000000-0000-0000-0000-000000000002';
@@ -124,7 +137,8 @@ select lives_ok(
 select throws_ok(
   $$insert into public.task_occurrences (task_id, occurrence_date, state, moved_to)
     values ('30000000-0000-0000-0000-000000000002', '2026-10-23', 'moved', '2026-10-24')$$,
-  '23505', null,
+  '23505',
+  'duplicate key value violates unique constraint "task_occurrences_moved_to_key"',
   'drugie przeniesienie na ten sam dzien docelowy odrzucone');
 
 select throws_ok(
@@ -156,7 +170,8 @@ select lives_ok(
 select throws_ok(
   $$insert into public.task_occurrences (task_id, occurrence_date, state, moved_to)
     values ('30000000-0000-0000-0000-000000000004', '2026-10-21', 'moved', '2026-10-22')$$,
-  '23505', null,
+  '23505',
+  'duplicate key value violates unique constraint "task_occurrences_pkey"',
   'przeniesienie dnia juz odhaczonego wyklucza sie kluczem glownym (done potem moved)');
 
 select lives_ok(
@@ -167,7 +182,8 @@ select lives_ok(
 select throws_ok(
   $$insert into public.task_occurrences (task_id, occurrence_date)
     values ('30000000-0000-0000-0000-000000000010', '2026-10-21')$$,
-  '23505', null,
+  '23505',
+  'duplicate key value violates unique constraint "task_occurrences_pkey"',
   'odhaczenie dnia juz przeniesionego wyklucza sie kluczem glownym (moved potem done)');
 
 select throws_ok(
@@ -303,6 +319,16 @@ select is(
   (select task_can_move from public.today_list('2026-10-30')
     where task_id = '30000000-0000-0000-0000-000000000007' and kind = 'routine'),
   false, 'task_can_move: dzien daty milestona (jutro po dacie) - falsz');
+
+select is(
+  (select count(*) from public.today_list('2026-11-01')
+    where task_id = '30000000-0000-0000-0000-000000000011' and kind = 'skipped'),
+  1::bigint, 'pominiete: wczoraj to 31 pazdziernika (granica miesiaca)');
+
+select is(
+  (select count(*) from public.today_list('2026-11-01')
+    where task_id = '30000000-0000-0000-0000-000000000012' and kind = 'skipped'),
+  0::bigint, 'pominiete: zadanie wystartowalo dzis, brak pominietego z wczoraj');
 
 reset role;
 

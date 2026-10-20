@@ -34,6 +34,7 @@ const ONE_RHYTHM_ERROR = "Wybierz jeden rytm: co X dni albo dni tygodnia";
 const OCCURRENCE_ERROR = "To wystąpienie nie jest dziś aktualne. Odśwież stronę.";
 const MOVE_ERROR = "Tego wystąpienia nie można przenieść na jutro.";
 const OCCURRENCE_DONE_ERROR = "To wystąpienie jest już zrobione.";
+const OCCURRENCE_MOVED_ERROR = "To wystąpienie zostało już przeniesione na jutro.";
 
 function toTask(row: TaskRow): Task {
   return { ...row, status: row.status as TaskStatus };
@@ -224,7 +225,21 @@ export async function completeOccurrence(
   if (!existing.data) return { status: "not_found" };
 
   const { error } = await supabase.from("task_occurrences").insert({ task_id: taskId, occurrence_date: date });
-  if (error && error.code !== "23505") {
+  if (error?.code === "23505") {
+    // A repeat of the same mark is a success; a day already moved away is not "done".
+    const row = await supabase
+      .from("task_occurrences")
+      .select("state")
+      .eq("task_id", taskId)
+      .eq("occurrence_date", date)
+      .maybeSingle();
+    if (row.error) return translateError(row.error);
+    if (row.data?.state === "moved") {
+      return { status: "validation", error: OCCURRENCE_MOVED_ERROR, fieldErrors: {} };
+    }
+    return { status: "ok", task: toTask(existing.data) };
+  }
+  if (error) {
     if (error.code === "23514" && error.message.includes("Wystapienie")) {
       return { status: "validation", error: OCCURRENCE_ERROR, fieldErrors: {} };
     }

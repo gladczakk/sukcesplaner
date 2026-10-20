@@ -11,8 +11,10 @@ interface TodayTaskActionsProps {
   title: string;
   /** Status of a plain task; a routine has none (it stays `todo`). */
   status?: "todo" | "partial";
-  /** A routine row: the only action marks today's occurrence as done. */
+  /** A routine row: marks today's occurrence as done, or moves it to tomorrow when `canMove`. */
   recurring?: boolean;
+  /** A routine row only: tomorrow is free, so today's occurrence may move there. */
+  canMove?: boolean;
 }
 
 export default function TodayTaskActions({
@@ -22,8 +24,9 @@ export default function TodayTaskActions({
   title,
   status,
   recurring = false,
+  canMove = false,
 }: TodayTaskActionsProps) {
-  const { setTaskStatus, setTaskDeferral, completeOccurrence } = useTaskApi();
+  const { setTaskStatus, setTaskDeferral, completeOccurrence, moveOccurrence } = useTaskApi();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | undefined>();
 
@@ -79,7 +82,23 @@ export default function TodayTaskActions({
         >
           Zrobione
         </Button>
-        {recurring ? null : (
+        {recurring ? (
+          canMove ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className={buttonClassName}
+              aria-disabled={pending}
+              aria-busy={pending}
+              aria-label={`Na jutro: ${title}`}
+              onClick={() => {
+                void run(() => moveOccurrence(projectId, milestoneId, taskId));
+              }}
+            >
+              Na jutro
+            </Button>
+          ) : null
+        ) : (
           <>
             <Button
               variant="secondary"

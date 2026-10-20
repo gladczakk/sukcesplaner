@@ -37,6 +37,19 @@ export interface TodayRoutine {
   title: string;
   interval_days: number | null;
   weekdays: number[] | null;
+  /** Source day (ISO date) when this occurrence was moved here from another day, else null. */
+  moved_from: string | null;
+  /** True when the occurrence may be moved to tomorrow (a rhythm occurrence whose tomorrow is free). */
+  can_move: boolean;
+  project: { id: string; name: string };
+  milestone: { id: string; name: string; due_date: string };
+}
+/** An occurrence of a recurring task that was due yesterday and left undone; informational, no actions. */
+export interface TodaySkipped {
+  id: string;
+  title: string;
+  interval_days: number | null;
+  weekdays: number[] | null;
   project: { id: string; name: string };
   milestone: { id: string; name: string; due_date: string };
 }
@@ -58,6 +71,7 @@ export interface TaskTargetProject {
 }
 export interface TodayView {
   routines: TodayRoutine[];
+  skipped: TodaySkipped[];
   tasks: TodayTask[];
   milestones: TodayMilestone[];
   deferred: TodayDeferredTask[];

@@ -103,6 +103,8 @@ Dodaje stan `moved` z dniem docelowym, jedną definicję dnia rytmu, walidację 
 
 - Przegląd migracji: komunikaty gałęzi `moved` nie zawierają frazy „Wystapienie”, a gałąź `done` zachowała dotychczasowy komunikat
 
+**Adnotacja po przeglądzie (fazy 1–2)**: `task_can_move` ma jeden warunek ponad plan (fałsz, gdy jutro jest już dniem docelowym innego przeniesienia; obronny, nieosiągalny z API). Dodana migracja `supabase/migrations/20261021130000_milestone_date_covers_moves.sql` (+ test `core_domain_recurring_milestone_moves.test.sql`): data milestona obejmuje też `moved_to` (przegląd F2). Do istniejących testów dodano filtry `kind`; nowy plik pgTAP ma teraz `plan(44)`.
+
 **Implementation Note**: Po fazie i zielonych bramkach automatycznych zatrzymaj się na ręczne potwierdzenie przed fazą 2. Bloki faz mają zwykłe wypunktowania; pola wyboru są tylko w `## Progress`.
 
 ---
@@ -159,6 +161,8 @@ Dodaje usługę i trasę „przenieś dzisiejsze wystąpienie na jutro” (serwe
 ### Manual Verification:
 
 - Wywołanie przeniesienia dla rutyny z dzisiejszym dniem w lokalnej aplikacji kończy się odpowiedzią 201, a rutyna znika z `/today` po odświeżeniu
+
+**Adnotacja po przeglądzie (fazy 1–2)**: tłumaczenie 23514 obejmuje też ograniczenia `task_occurrences_moved_to_check` i `task_occurrences_moved_shape`; `completeOccurrence` czyta stan wiersza przy 23505 i dla `moved` zwraca błąd walidacji (przegląd F1); smoke ma krok „marking a moved occurrence as done is rejected” i asercje na dokładne komunikaty 422 (przegląd F4).
 
 **Implementation Note**: Po fazie i zielonych bramkach automatycznych zatrzymaj się na ręczne potwierdzenie przed fazą 3.
 
@@ -294,27 +298,27 @@ Migracja dodaje kolumnę i ograniczenia na pustej w praktyce tabeli `task_occurr
 
 #### Automated
 
-- [x] 2.1 Lint zmienionych plików przechodzi (z zastrzeżeniem bazowych błędów spoza zmiany): `npm run lint`
-- [x] 2.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
-- [x] 2.3 Smoke przechodzi, w tym kroki przeniesienia (201, powtórka 201, znika z listy, codzienne 422, nieznane 404, niepowtarzalne 422): `npm run smoke`
-- [x] 2.4 Test zepsucia: tymczasowy zwrot sukcesu bez zapisu w usłudze przeniesienia zaczerwienia krok „znika z listy”; po wycofaniu smoke jest zielony
+- [x] 2.1 Lint zmienionych plików przechodzi (z zastrzeżeniem bazowych błędów spoza zmiany): `npm run lint` — db388bd
+- [x] 2.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build` — db388bd
+- [x] 2.3 Smoke przechodzi, w tym kroki przeniesienia (201, powtórka 201, znika z listy, codzienne 422, nieznane 404, niepowtarzalne 422): `npm run smoke` — db388bd
+- [x] 2.4 Test zepsucia: tymczasowy zwrot sukcesu bez zapisu w usłudze przeniesienia zaczerwienia krok „znika z listy”; po wycofaniu smoke jest zielony — db388bd
 
 #### Manual
 
-- [x] 2.5 Wywołanie przeniesienia dla rutyny z dzisiejszym dniem w lokalnej aplikacji kończy się odpowiedzią 201, a rutyna znika z `/today` po odświeżeniu
+- [x] 2.5 Wywołanie przeniesienia dla rutyny z dzisiejszym dniem w lokalnej aplikacji kończy się odpowiedzią 201, a rutyna znika z `/today` po odświeżeniu — db388bd
 
 ### Phase 3: Lista na dziś — pominięte, przeniesione, przycisk „Na jutro”
 
 #### Automated
 
-- [ ] 3.1 Lint zmienionych plików przechodzi (z zastrzeżeniem bazowych błędów spoza zmiany): `npm run lint`
-- [ ] 3.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
-- [ ] 3.3 Smoke przechodzi, w tym asercje na treść wyspy (rutyna z jutrem wolnym ma „Na jutro”, codzienna nie ma, zadanie niepowtarzalne ma trzy akcje): `npm run smoke`
-- [ ] 3.4 Test zepsucia: tymczasowy `throw` w `TodayTaskActions` zaczerwienia krok smoke z treścią wyspy rutyny; po wycofaniu jest zielony
-- [ ] 3.5 Testy pgTAP nadal przechodzą: `npx supabase test db`
+- [x] 3.1 Lint zmienionych plików przechodzi (z zastrzeżeniem bazowych błędów spoza zmiany): `npm run lint`
+- [x] 3.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
+- [x] 3.3 Smoke przechodzi, w tym asercje na treść wyspy (rutyna z jutrem wolnym ma „Na jutro”, codzienna nie ma, zadanie niepowtarzalne ma trzy akcje): `npm run smoke`
+- [x] 3.4 Test zepsucia: tymczasowy `throw` w `TodayTaskActions` zaczerwienia krok smoke z treścią wyspy rutyny; po wycofaniu jest zielony
+- [x] 3.5 Testy pgTAP nadal przechodzą: `npx supabase test db`
 
 #### Manual
 
-- [ ] 3.6 Na `/today` rutyna z dzisiejszym dniem ma przycisk „Na jutro”; po kliknięciu znika z listy, a zadanie codzienne nie ma tego przycisku
-- [ ] 3.7 Wiersz „Pominięte wczoraj”: po cofnięciu o 1 dzień daty startu zadania codziennego w lokalnej bazie wiersz pojawia się pod rutynami z odznaką, bez przycisków
-- [ ] 3.8 Treść PRD v2 (FR-011, FR-019, Business Logic) odpowiada decyzjom z planu
+- [x] 3.6 Na `/today` rutyna z dzisiejszym dniem ma przycisk „Na jutro”; po kliknięciu znika z listy, a zadanie codzienne nie ma tego przycisku
+- [x] 3.7 Wiersz „Pominięte wczoraj”: po cofnięciu o 1 dzień daty startu zadania codziennego w lokalnej bazie wiersz pojawia się pod rutynami z odznaką, bez przycisków
+- [x] 3.8 Treść PRD v2 (FR-011, FR-019, Business Logic) odpowiada decyzjom z planu

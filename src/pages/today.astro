@@ -10,6 +10,7 @@ import { logError } from "@/lib/log";
 import { getTaskTargets, getToday } from "@/lib/services/today";
 import { createClient } from "@/lib/supabase";
 import { dueChip, formatTodayHeading, todayInWarsaw } from "@/lib/today";
+import { formatWeekdayFrom } from "@/lib/weekdays";
 import type { TaskTargetProject, TodayView } from "@/types";
 
 export const prerender = false;
@@ -20,7 +21,7 @@ Astro.response.headers.set("Cache-Control", "no-store");
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const today = todayInWarsaw();
 
-let view: TodayView = { routines: [], tasks: [], milestones: [], deferred: [] };
+let view: TodayView = { routines: [], skipped: [], tasks: [], milestones: [], deferred: [] };
 let targets: TaskTargetProject[] = [];
 let unavailable: string | null = null;
 if (!supabase) {
@@ -38,6 +39,8 @@ const rows = view.tasks.map((task) => ({ task, chip: dueChip(task.due_date, toda
 const milestoneRows = view.milestones.map((milestone) => ({ milestone, chip: dueChip(milestone.due_date, today) }));
 // Routines count as items but have no due date, so they are never overdue.
 const itemCount = view.routines.length + view.tasks.length + view.milestones.length;
+// Skipped rows are information, not items to do, but they still keep the list from reading as empty.
+const hasRows = itemCount + view.skipped.length > 0;
 const overdueCount =
   rows.filter((row) => row.chip.tone === "overdue").length +
   milestoneRows.filter((row) => row.chip.tone === "overdue").length;
@@ -67,7 +70,7 @@ const summary = [
     </p>
   ) : (
     <>
-      {itemCount === 0 ? (
+      {!hasRows ? (
         <div class="mt-8 flex flex-col items-start gap-4 rounded-md border border-border bg-card p-6 shadow-card">
           <p class="type-quote text-muted-foreground">Na dziś nic do zrobienia.</p>
           <a href="/projects" class="type-button text-foreground underline">
@@ -90,6 +93,7 @@ const summary = [
                   {" · "}
                   {routine.milestone.name}
                   {` · ${formatRecurrence({ intervalDays: routine.interval_days, weekdays: routine.weekdays })}`}
+                  {routine.moved_from && ` · przeniesione ${formatWeekdayFrom(routine.moved_from)}`}
                 </p>
               </div>
               <div class="flex min-w-0 shrink-0 flex-col items-start gap-2 sm:items-end">
@@ -100,7 +104,44 @@ const summary = [
                   milestoneId={routine.milestone.id}
                   taskId={routine.id}
                   title={routine.title}
+                  canMove={routine.can_move}
                 />
+              </div>
+            </li>
+          ))}
+          {view.skipped.map((skipped) => (
+            <li class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+              <div class="min-w-0">
+                <p class="type-task break-words text-foreground">{skipped.title}</p>
+                <p class="type-meta break-words text-muted-foreground">
+                  <a
+                    href={`/projects/${skipped.project.id}`}
+                    class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    {skipped.project.name}
+                  </a>
+                  {" · "}
+                  {skipped.milestone.name}
+                  {` · ${formatRecurrence({ intervalDays: skipped.interval_days, weekdays: skipped.weekdays })}`}
+                </p>
+              </div>
+              <div class="flex min-w-0 shrink-0 flex-col items-start gap-2 sm:items-end">
+                <span class="type-meta inline-flex shrink-0 items-center gap-1 self-start rounded-pill bg-warning-soft px-2 text-warning-ink">
+                  <svg
+                    class="size-3 shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 6v6l4 2" />
+                  </svg>
+                  Pominięte wczoraj
+                </span>
               </div>
             </li>
           ))}

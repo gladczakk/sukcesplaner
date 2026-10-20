@@ -867,14 +867,15 @@ const steps = [
     { status: 200, bodyIncludes: ["Rutyna smoke 3", "co 3 dni"] },
   ],
   // Occurrence done: only the routine row is a task island here (Beta/Gamma rows carry the close button), so the
-  // routine's island must render just "Zrobione" and none of the plain-task actions.
+  // routine's island must render "Zrobione" and, as tomorrow is no day of its every-3-days rhythm, "Na jutro" (move),
+  // but never the "Częściowo" action of plain tasks.
   [
-    "today page renders the routine island with only the done action",
+    "today page renders the routine island with the done and move actions only",
     () => request("/today"),
     {
       status: 200,
-      bodyIncludes: ['aria-label="Zrobione: Rutyna smoke 3"', "co 3 dni"],
-      bodyExcludes: ['aria-label="Częściowo:', 'aria-label="Na jutro:'],
+      bodyIncludes: ['aria-label="Zrobione: Rutyna smoke 3"', 'aria-label="Na jutro: Rutyna smoke 3"', "co 3 dni"],
+      bodyExcludes: ['aria-label="Częściowo:'],
     },
   ],
   [
@@ -969,6 +970,26 @@ const steps = [
     },
     { status: 201 },
   ],
+  // The islands decide the buttons from can_move: the weekday routine of today (tomorrow free) offers "Na jutro", the
+  // daily one (tomorrow is a rhythm day) does not, and neither offers "Częściowo". The titles sit in island props too,
+  // so only the aria-label markup proves what the island rendered.
+  [
+    "today page renders the move action only on the routine with a free tomorrow",
+    () => request("/today"),
+    {
+      status: 200,
+      bodyIncludes: [
+        `aria-label="Zrobione: ${moveRoutineTitle}"`,
+        `aria-label="Na jutro: ${moveRoutineTitle}"`,
+        'aria-label="Zrobione: Codzienna smoke przeniesienie"',
+      ],
+      bodyExcludes: [
+        `aria-label="Częściowo: ${moveRoutineTitle}"`,
+        'aria-label="Częściowo: Codzienna smoke przeniesienie"',
+        'aria-label="Na jutro: Codzienna smoke przeniesienie"',
+      ],
+    },
+  ],
   [
     "routine occurrence of today is moved to tomorrow",
     () =>
@@ -985,6 +1006,14 @@ const steps = [
       }),
     { status: 201, bodyEquals: { "task.title": moveRoutineTitle } },
   ],
+  [
+    "marking a moved occurrence as done is rejected",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${moveRoutineId}/occurrences`, {
+        method: "POST",
+      }),
+    { status: 422, bodyEquals: { error: "To wystąpienie zostało już przeniesione na jutro." } },
+  ],
   // The title also sits in the island props, so its absence proves the row is gone.
   [
     "today page drops the routine once its occurrence is moved",
@@ -997,7 +1026,7 @@ const steps = [
       request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${moveDailyId}/occurrences/move`, {
         method: "POST",
       }),
-    { status: 422, bodyField: "error" },
+    { status: 422, bodyEquals: { error: "Tego wystąpienia nie można przenieść na jutro." } },
   ],
   [
     "routine occurrence move of an unknown task returns 404",
@@ -1013,7 +1042,7 @@ const steps = [
       request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${movePlainId}/occurrences/move`, {
         method: "POST",
       }),
-    { status: 422, bodyField: "error" },
+    { status: 422, bodyEquals: { error: "To wystąpienie nie jest dziś aktualne. Odśwież stronę." } },
   ],
   [
     "move routines are deleted",
@@ -1055,9 +1084,14 @@ const steps = [
     () => request("/today"),
     {
       status: 200,
-      bodyIncludes: [todayRoutineTitle, todayRoutineLabel, `aria-label="Zrobione: ${todayRoutineTitle}"`],
+      bodyIncludes: [
+        todayRoutineTitle,
+        todayRoutineLabel,
+        `aria-label="Zrobione: ${todayRoutineTitle}"`,
+        `aria-label="Na jutro: ${todayRoutineTitle}"`,
+      ],
       bodyOrder: [todayRoutineTitle, todayRoutineLabel, `aria-label="Zrobione: ${todayRoutineTitle}"`],
-      bodyExcludes: [otherRoutineTitle],
+      bodyExcludes: [otherRoutineTitle, `aria-label="Częściowo: ${todayRoutineTitle}"`],
     },
   ],
   [

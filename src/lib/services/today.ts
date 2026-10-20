@@ -8,6 +8,7 @@ import type {
   TodayDeferredTask,
   TodayMilestone,
   TodayRoutine,
+  TodaySkipped,
   TodayTask,
   TodayView,
 } from "@/types";
@@ -15,7 +16,7 @@ import type {
 type Client = SupabaseClient<Database>;
 
 /**
- * Reads the routines due today, the open tasks of the nearest milestones, the milestones ready to close and the deferred tasks; SQL order is kept.
+ * Reads the routines due today, the routines skipped yesterday, the open tasks of the nearest milestones, the milestones ready to close and the deferred tasks; SQL order is kept.
  * The generated RPC types mark every column non-null, but the task columns are NULL on 'milestone' rows;
  * rows are therefore read by `kind` and the task columns only on 'task', 'routine' and 'deferred' rows.
  */
@@ -23,7 +24,7 @@ export async function getToday(supabase: Client, today: string): Promise<TodayVi
   const { data, error } = await supabase.rpc("today_list", { p_today: today });
   if (error) throw readFailure(error);
 
-  const view: TodayView = { routines: [], tasks: [], milestones: [], deferred: [] };
+  const view: TodayView = { routines: [], skipped: [], tasks: [], milestones: [], deferred: [] };
   for (const row of data) {
     if (row.kind === "routine") {
       const routine: TodayRoutine = {
@@ -32,10 +33,24 @@ export async function getToday(supabase: Client, today: string): Promise<TodayVi
         // The generated types say non-null, but SQL leaves the column of the rhythm the routine does not use NULL.
         interval_days: row.task_recurrence_interval_days,
         weekdays: row.task_recurrence_weekdays,
+        // Same for these two: non-null in the generated types, NULL in SQL (moved_from outside moved occurrences,
+        // can_move outside 'routine' rows), so they are read here only on 'routine' rows.
+        moved_from: row.task_moved_from,
+        can_move: row.task_can_move,
         project: { id: row.project_id, name: row.project_name },
         milestone: { id: row.milestone_id, name: row.milestone_name, due_date: row.milestone_due_date },
       };
       view.routines.push(routine);
+    } else if (row.kind === "skipped") {
+      const skipped: TodaySkipped = {
+        id: row.task_id,
+        title: row.task_title,
+        interval_days: row.task_recurrence_interval_days,
+        weekdays: row.task_recurrence_weekdays,
+        project: { id: row.project_id, name: row.project_name },
+        milestone: { id: row.milestone_id, name: row.milestone_name, due_date: row.milestone_due_date },
+      };
+      view.skipped.push(skipped);
     } else if (row.kind === "task") {
       const task: TodayTask = {
         id: row.task_id,
