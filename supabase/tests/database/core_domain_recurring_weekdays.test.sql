@@ -67,7 +67,7 @@ set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-0000000000a1","r
 -- Zadanie sr+pt: wystapienia w sr 21 i pt 23, sr 28 i pt 30; brak w pozostale dni, przed startem
 -- (sr 14 i wt 20) i po dacie milestona (sr 4.11)
 select results_eq(
-  $$select d, (select count(*) from public.today_list(d) where task_id = '30000000-0000-0000-0000-000000000001')
+  $$select d, (select count(*) from public.today_list(d) where task_id = '30000000-0000-0000-0000-000000000001' and kind = 'routine')
     from (values
       ('2026-10-14'::date), ('2026-10-20'::date), ('2026-10-21'::date), ('2026-10-22'::date),
       ('2026-10-23'::date), ('2026-10-24'::date), ('2026-10-25'::date), ('2026-10-26'::date),
@@ -83,7 +83,7 @@ select results_eq(
 
 -- Jeden dzien: czwartek 22 i 29; w dniu dodania (sr 21) niewybranym brak wystapienia; pt 30 brak
 select results_eq(
-  $$select d, (select count(*) from public.today_list(d) where task_id = '30000000-0000-0000-0000-000000000002')
+  $$select d, (select count(*) from public.today_list(d) where task_id = '30000000-0000-0000-0000-000000000002' and kind = 'routine')
     from (values ('2026-10-21'::date), ('2026-10-22'::date), ('2026-10-23'::date), ('2026-10-29'::date), ('2026-10-30'::date))
       v(d) order by d$$,
   $$values
@@ -95,13 +95,13 @@ select results_eq(
 select is(
   (select count(*) from generate_series('2026-10-21'::date, '2026-10-30'::date, interval '1 day') g(d)
     where (select count(*) from public.today_list(g.d::date)
-            where task_id = '30000000-0000-0000-0000-000000000003') = 1),
+            where task_id = '30000000-0000-0000-0000-000000000003' and kind = 'routine') = 1),
   10::bigint,
   'komplet siedmiu dni daje wystapienie codziennie od startu do daty milestona');
 
 select is(
-  (select count(*) from public.today_list('2026-10-20') where task_id = '30000000-0000-0000-0000-000000000003')
-    + (select count(*) from public.today_list('2026-10-31') where task_id = '30000000-0000-0000-0000-000000000003'),
+  (select count(*) from public.today_list('2026-10-20') where task_id = '30000000-0000-0000-0000-000000000003' and kind = 'routine')
+    + (select count(*) from public.today_list('2026-10-31') where task_id = '30000000-0000-0000-0000-000000000003' and kind = 'routine'),
   0::bigint,
   'komplet siedmiu dni: brak wystapienia przed startem i po dacie milestona');
 
@@ -124,7 +124,7 @@ select is(
 
 -- Regresja interwalu: co 2 dni od 21.10, bez dni w wierszu
 select results_eq(
-  $$select d, (select count(*) from public.today_list(d) where task_id = '30000000-0000-0000-0000-000000000004')
+  $$select d, (select count(*) from public.today_list(d) where task_id = '30000000-0000-0000-0000-000000000004' and kind = 'routine')
     from (values ('2026-10-21'::date), ('2026-10-22'::date), ('2026-10-23'::date), ('2026-10-24'::date))
       v(d) order by d$$,
   $$values ('2026-10-21'::date, 1::bigint), ('2026-10-22'::date, 0::bigint),

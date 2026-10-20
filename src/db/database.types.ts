@@ -114,6 +114,7 @@ export type Database = {
       task_occurrences: {
         Row: {
           created_at: string
+          moved_to: string | null
           occurrence_date: string
           state: string
           task_id: string
@@ -121,6 +122,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          moved_to?: string | null
           occurrence_date: string
           state?: string
           task_id: string
@@ -128,6 +130,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          moved_to?: string | null
           occurrence_date?: string
           state?: string
           task_id?: string
@@ -204,6 +207,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      is_rhythm_day: {
+        Args: {
+          p_day: string
+          p_interval: number
+          p_start: string
+          p_weekdays: number[]
+        }
+        Returns: boolean
+      }
       today_list: {
         Args: { p_today: string }
         Returns: {
@@ -214,9 +226,11 @@ export type Database = {
           milestone_name: string
           project_id: string
           project_name: string
+          task_can_move: boolean
           task_deferred_until: string
           task_due_date: string
           task_id: string
+          task_moved_from: string
           task_recurrence_interval_days: number
           task_recurrence_weekdays: number[]
           task_status: string

@@ -89,13 +89,13 @@ set local request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
 set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}';
 
 select results_eq(
-  $$select d, (select count(*) from public.today_list(d) where task_id = '30000000-0000-0000-0000-000000000001')
+  $$select d, (select count(*) from public.today_list(d) where task_id = '30000000-0000-0000-0000-000000000001' and kind = 'routine')
     from (values ('2026-10-19'::date), ('2026-10-20'::date), ('2026-10-21'::date)) v(d) order by d$$,
   $$values ('2026-10-19'::date, 1::bigint), ('2026-10-20'::date, 1::bigint), ('2026-10-21'::date, 1::bigint)$$,
   'rutyna codzienna: widoczna w dniu 0 i w kolejnych dniach');
 
 select results_eq(
-  $$select d, (select count(*) from public.today_list(d) where task_id = '30000000-0000-0000-0000-000000000002')
+  $$select d, (select count(*) from public.today_list(d) where task_id = '30000000-0000-0000-0000-000000000002' and kind = 'routine')
     from (values ('2026-10-19'::date), ('2026-10-20'::date), ('2026-10-21'::date), ('2026-10-22'::date), ('2026-10-23'::date))
       v(d) order by d$$,
   $$values
@@ -107,7 +107,7 @@ select results_eq(
   'rutyna co 2 dni: widoczna w dniach 0/2/4, niewidoczna w dniach 1/3');
 
 select results_eq(
-  $$select d, (select count(*) from public.today_list(d) where task_id = '30000000-0000-0000-0000-000000000001')
+  $$select d, (select count(*) from public.today_list(d) where task_id = '30000000-0000-0000-0000-000000000001' and kind = 'routine')
     from (values ('2026-10-25'::date), ('2026-10-26'::date)) v(d) order by d$$,
   $$values ('2026-10-25'::date, 1::bigint), ('2026-10-26'::date, 0::bigint)$$,
   'ostatni dzien rowny dacie milestona widoczny, nastepny dzien nie');
@@ -136,13 +136,13 @@ select is(
 
 select results_eq(
   $$select kind, coalesce(task_title, milestone_name) from public.today_list('2026-10-20')
-    where project_id = '10000000-0000-0000-0000-000000000002'$$,
+    where project_id = '10000000-0000-0000-0000-000000000002' and kind <> 'skipped'$$,
   $$values ('routine', 'r-dalszy-milestone'), ('task', 'zwykle')$$,
   'rutyna z dalszego (nie najblizszego) milestona jest widoczna, na szczycie');
 
 select results_eq(
   $$select kind, task_title from public.today_list('2026-10-20')
-    where project_id = '10000000-0000-0000-0000-000000000003'$$,
+    where project_id = '10000000-0000-0000-0000-000000000003' and kind <> 'skipped'$$,
   $$values ('routine', 'r-nad-przeterminowanym'), ('task', 'przeterminowane')$$,
   'rutyna jest nad zadaniem przeterminowanym');
 
@@ -253,7 +253,7 @@ select throws_ok(
 
 select results_eq(
   $$select kind, coalesce(task_title, milestone_name) from public.today_list('2026-10-20')
-    where project_id = '10000000-0000-0000-0000-000000000004'$$,
+    where project_id = '10000000-0000-0000-0000-000000000004' and kind <> 'skipped'$$,
   $$values ('routine', 'r-sama'), ('milestone', 'm5')$$,
   'milestone z samymi rutynami jest wierszem do zamkniecia, rutyna na szczycie');
 
@@ -300,7 +300,7 @@ select lives_ok(
 
 select results_eq(
   $$select kind, coalesce(task_title, milestone_name) from public.today_list('2026-10-20')
-    where project_id = '10000000-0000-0000-0000-000000000004'$$,
+    where project_id = '10000000-0000-0000-0000-000000000004' and kind <> 'skipped'$$,
   $$values ('routine', 'r-sama'), ('milestone', 'm5')$$,
   'ponowne otwarcie milestona przywraca rutyne');
 
