@@ -35,7 +35,8 @@ export interface TodayTask {
 export interface TodayRoutine {
   id: string;
   title: string;
-  interval_days: number;
+  interval_days: number | null;
+  weekdays: number[] | null;
   project: { id: string; name: string };
   milestone: { id: string; name: string; due_date: string };
 }

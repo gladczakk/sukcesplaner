@@ -57,6 +57,8 @@ let taskId = "";
 let recurringTaskId = "";
 let termTaskId = "";
 let weekdaysTaskId = "";
+let weekdaysTodayId = "";
+let weekdaysOtherId = "";
 let pastMilestoneId = "";
 const recurringDueDateError = "Zadanie powtarzalne nie ma własnego terminu";
 const recurrenceDaysError = "Podaj liczbę dni od 2 do 30";
@@ -79,6 +81,31 @@ function warsawToday() {
   const part = (type) => parts.find((p) => p.type === type)?.value ?? "";
   return `${part("year")}-${part("month")}-${part("day")}`;
 }
+// Short day labels indexed by ISO weekday - 1 (Monday first), like `WEEKDAYS` in src/lib/weekdays.ts.
+const weekdayShorts = ["pn", "wt", "śr", "cz", "pt", "so", "nd"];
+
+// ISO weekday (1 = Monday .. 7 = Sunday) of today's Warsaw date.
+function warsawIsoWeekday() {
+  const day = new Date(`${warsawToday()}T00:00:00Z`).getUTCDay();
+  return day === 0 ? 7 : day;
+}
+
+// Rhythm label of a weekday set: the chosen days in Monday-first order, like `formatRecurrence`.
+function weekdaysLabel(days) {
+  return [...days]
+    .sort((a, b) => a - b)
+    .map((day) => weekdayShorts[day - 1])
+    .join(", ");
+}
+
+// Weekday routines for the /today steps: one that includes today (and a day that is never today), one that never does.
+// Both sets are derived from today's weekday, so the steps pass on every day of the week.
+const todayWeekday = warsawIsoWeekday();
+const todayRoutineDays = [todayWeekday, ((todayWeekday + 2) % 7) + 1];
+const otherRoutineDays = [(todayWeekday % 7) + 1, ((todayWeekday + 1) % 7) + 1];
+const todayRoutineTitle = "Dni dziś smoke";
+const otherRoutineTitle = "Dni poza smoke";
+const todayRoutineLabel = weekdaysLabel(todayRoutineDays);
 const closedMilestoneTaskError =
   "Nie można dodać niezrobionego zadania do zamkniętego milestona. Otwórz milestone ponownie.";
 const taskDateError = "Termin zadania nie może być późniejszy niż data milestona";
@@ -908,6 +935,58 @@ const steps = [
   [
     "plain task next to the finished routine is deleted",
     () => request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${termTaskId}`, { method: "DELETE" }),
+    { status: 204 },
+  ],
+  [
+    "weekday routines are created for today and for other days",
+    async () => {
+      const today = await request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: todayRoutineTitle, due_date: null, recurrence_weekdays: todayRoutineDays },
+      });
+      weekdaysTodayId = today.body?.task?.id ?? "";
+      const other = await request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: otherRoutineTitle, due_date: null, recurrence_weekdays: otherRoutineDays },
+      });
+      weekdaysOtherId = other.body?.task?.id ?? "";
+      return { ...today, status: today.status === 201 && other.status === 201 ? 201 : 0 };
+    },
+    { status: 201 },
+  ],
+  // The routine title sits in its row ahead of the label and the island, and again in the island props, so the order
+  // proves the row and the aria-label proves the island rendered; the other routine's title must not occur at all.
+  [
+    "today page lists the weekday routine of today and hides the other one",
+    () => request("/today"),
+    {
+      status: 200,
+      bodyIncludes: [todayRoutineTitle, todayRoutineLabel, `aria-label="Zrobione: ${todayRoutineTitle}"`],
+      bodyOrder: [todayRoutineTitle, todayRoutineLabel, `aria-label="Zrobione: ${todayRoutineTitle}"`],
+      bodyExcludes: [otherRoutineTitle],
+    },
+  ],
+  [
+    "weekday routine occurrence is marked done",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${weekdaysTodayId}/occurrences`, {
+        method: "POST",
+      }),
+    { status: 201, bodyEquals: { "task.title": todayRoutineTitle } },
+  ],
+  [
+    "today page drops the weekday routine once its occurrence is done",
+    () => request("/today"),
+    { status: 200, bodyExcludes: [todayRoutineTitle, otherRoutineTitle] },
+  ],
+  [
+    "weekday routine of today is deleted",
+    () => request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${weekdaysTodayId}`, { method: "DELETE" }),
+    { status: 204 },
+  ],
+  [
+    "weekday routine of other days is deleted",
+    () => request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${weekdaysOtherId}`, { method: "DELETE" }),
     { status: 204 },
   ],
   [

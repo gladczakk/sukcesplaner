@@ -93,7 +93,7 @@ Zadanie powtarzalne pojawia się na liście na dziś w każdy dzień wynikający
 
 Obecna reguła: lista na dziś pokazuje niedokończone zadania z najbliższego niezamkniętego milestona każdego projektu. Zmiana: zadania powtarzalne są wyjątkiem — pojawiają się w wyznaczone dni nawet wtedy, gdy ich milestone nie jest najbliższy; zadania niepowtarzalne podlegają obecnej regule bez zmian.
 
-Rytm to jedno z: codziennie, co X dni (liczone od dnia dodania, pierwsze wystąpienie tego dnia) lub wybrane dni tygodnia. Wystąpienie można odhaczyć, przenieść na inny dzień (tylko na dzień, w którym to zadanie nie ma własnego wystąpienia — codzienne zadanie nie może iść na jutro) albo pominąć; pominięte wystąpienie jest widocznie oznaczone. Zmiana rytmu i wyłączenie powtarzania działają od dziś; historia i dzisiejsze wystąpienie zostają.
+Rytm to jedno z: codziennie, co X dni (liczone od dnia dodania, pierwsze wystąpienie tego dnia) lub wybrane dni tygodnia. Dla dni tygodnia można wybrać od 1 do 7 dni (komplet siedmiu dni jest w etykiecie pokazywany jako „codziennie”), a wystąpienie jest też w dniu dodania zadania, jeśli ten dzień jest wśród wybranych. Wystąpienie można odhaczyć, przenieść na inny dzień (tylko na dzień, w którym to zadanie nie ma własnego wystąpienia — codzienne zadanie nie może iść na jutro) albo pominąć; pominięte wystąpienie jest widocznie oznaczone. Zmiana rytmu i wyłączenie powtarzania działają od dziś; historia i dzisiejsze wystąpienie zostają.
 
 Powtarzanie kończy się w dniu daty milestona albo w chwili jego zamknięcia, co nastąpi wcześniej. Wystąpienie ma termin dzisiejszy, więc na liście trafia przed zadania z późniejszym terminem. Dla wystąpienia istnieją tylko stany „zrobione” i „pominięte”; pominięte wystąpienie jest następnego dnia widoczne jako pominięte, po czym znika z listy.
 
@@ -103,7 +103,7 @@ No access control changes — current model preserved (logowanie, jedno konto wi
 
 ## Non-Goals
 
-- Rytm tygodniowy i miesięczny (co tydzień, co miesiąc) — poza zakresem tej zmiany; dostępne rytmy: codziennie, co X dni, wybrane dni tygodnia.
+- Osobna opcja rytmu „co tydzień” i „co miesiąc” — poza zakresem tej zmiany; dostępne rytmy: codziennie, co X dni, wybrane dni tygodnia. Wybór jednego dnia tygodnia jest dozwolony i daje efekt tygodniowy.
 - Licznik realizacji i statystyki regularności (np. „trening 8/12 w miesiącu”) — statystyki pozostają poza zakresem.
 - Wpływ cyklu na zamknięcie milestona — milestone zamyka się według obecnej reguły, niezależnie od tego, czy cykl jest „spełniony”.
 - Zadania bez milestona (powtarzalne i niepowtarzalne) — każde zadanie musi należeć do milestona.

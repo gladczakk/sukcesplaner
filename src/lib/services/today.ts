@@ -29,7 +29,9 @@ export async function getToday(supabase: Client, today: string): Promise<TodayVi
       const routine: TodayRoutine = {
         id: row.task_id,
         title: row.task_title,
+        // The generated types say non-null, but SQL leaves the column of the rhythm the routine does not use NULL.
         interval_days: row.task_recurrence_interval_days,
+        weekdays: row.task_recurrence_weekdays,
         project: { id: row.project_id, name: row.project_name },
         milestone: { id: row.milestone_id, name: row.milestone_name, due_date: row.milestone_due_date },
       };

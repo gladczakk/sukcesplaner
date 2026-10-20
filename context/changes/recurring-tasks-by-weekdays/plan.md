@@ -365,28 +365,28 @@ Migracja jest addytywna: istniejące zadania mają `recurrence_weekdays` NULL, a
 
 #### Automated
 
-- [x] 3.1 Lint plików zmiany przechodzi: `npm run lint` (z zastrzeżeniem bazowych błędów spoza S-08)
-- [x] 3.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build` (po `npx astro preview stop`)
-- [x] 3.3 Smoke przechodzi (kroki z faz 1–2 i istniejące): `npm run smoke`
+- [x] 3.1 Lint plików zmiany przechodzi: `npm run lint` (z zastrzeżeniem bazowych błędów spoza S-08) — a657ffa
+- [x] 3.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build` (po `npx astro preview stop`) — a657ffa
+- [x] 3.3 Smoke przechodzi (kroki z faz 1–2 i istniejące): `npm run smoke` — a657ffa
 
 #### Manual
 
-- [x] 3.4 W obu formularzach po wyborze „W wybrane dni tygodnia" pojawia się siedem przycisków pn–nd przełączanych myszą i klawiaturą; zapis bez wybranego dnia pokazuje błąd grupy, a pole terminu znika
-- [x] 3.5 Zadanie z dniami utworzone z formularza zapisuje się z poprawnymi dniami, a w edycji pole „Powtarzanie" pokazuje etykietę tylko do odczytu
-- [x] 3.6 Układ przycisków działa na wąskim ekranie (ok. 390 px) i w trybie ciemnym, a stan wciśnięty jest widoczny bez polegania na samym kolorze
+- [x] 3.4 W obu formularzach po wyborze „W wybrane dni tygodnia" pojawia się siedem przycisków pn–nd przełączanych myszą i klawiaturą; zapis bez wybranego dnia pokazuje błąd grupy, a pole terminu znika — a657ffa
+- [x] 3.5 Zadanie z dniami utworzone z formularza zapisuje się z poprawnymi dniami, a w edycji pole „Powtarzanie" pokazuje etykietę tylko do odczytu — a657ffa
+- [x] 3.6 Układ przycisków działa na wąskim ekranie (ok. 390 px) i w trybie ciemnym, a stan wciśnięty jest widoczny bez polegania na samym kolorze — a657ffa
 
 ### Phase 4: Rutyny z dniami tygodnia na liście na dziś
 
 #### Automated
 
-- [ ] 4.1 Lint plików zmiany przechodzi: `npm run lint` (z zastrzeżeniem bazowych błędów spoza S-08)
-- [ ] 4.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build` (po `npx astro preview stop`)
-- [ ] 4.3 Smoke przechodzi, w tym kroki rutyn z dniami tygodnia na `/today` i odhaczenia: `npm run smoke`
-- [ ] 4.4 Test zepsucia (tymczasowy `throw` w `TodayTaskActions`) zaczerwienia krok smoke z treścią wyspy rutyny z dniami; po wycofaniu smoke jest zielony
-- [ ] 4.5 Testy pgTAP przechodzą: `npx supabase test db`
+- [x] 4.1 Lint plików zmiany przechodzi: `npm run lint` (z zastrzeżeniem bazowych błędów spoza S-08)
+- [x] 4.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build` (po `npx astro preview stop`)
+- [x] 4.3 Smoke przechodzi, w tym kroki rutyn z dniami tygodnia na `/today` i odhaczenia: `npm run smoke`
+- [x] 4.4 Test zepsucia (tymczasowy `throw` w `TodayTaskActions`) zaczerwienia krok smoke z treścią wyspy rutyny z dniami; po wycofaniu smoke jest zielony
+- [x] 4.5 Testy pgTAP przechodzą: `npx supabase test db`
 
 #### Manual
 
-- [ ] 4.6 Na `/today` rutyna z dniami zawierającymi dzisiejszy dzień jest na szczycie z etykietą dni, przycisk „Zrobione" odhacza ją i po odświeżeniu znika
-- [ ] 4.7 Rutyna z dniami nie obejmującymi dzisiaj nie jest na liście, a na stronie projektu ma swoją etykietę
-- [ ] 4.8 Treść PRD v2 (Non-Goals i opis dni tygodnia) odpowiada decyzjom z planu
+- [x] 4.6 Na `/today` rutyna z dniami zawierającymi dzisiejszy dzień jest na szczycie z etykietą dni, przycisk „Zrobione" odhacza ją i po odświeżeniu znika
+- [x] 4.7 Rutyna z dniami nie obejmującymi dzisiaj nie jest na liście, a na stronie projektu ma swoją etykietę
+- [x] 4.8 Treść PRD v2 (Non-Goals i opis dni tygodnia) odpowiada decyzjom z planu
