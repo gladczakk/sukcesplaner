@@ -32,6 +32,8 @@ const RECURRENCE_INTERVAL_ERROR = "Podaj liczbę dni od 2 do 30";
 const RECURRENCE_WEEKDAYS_ERROR = "Wybierz co najmniej jeden dzień tygodnia";
 const ONE_RHYTHM_ERROR = "Wybierz jeden rytm: co X dni albo dni tygodnia";
 const OCCURRENCE_ERROR = "To wystąpienie nie jest dziś aktualne. Odśwież stronę.";
+const MOVE_ERROR = "Tego wystąpienia nie można przenieść na jutro.";
+const OCCURRENCE_DONE_ERROR = "To wystąpienie jest już zrobione.";
 
 function toTask(row: TaskRow): Task {
   return { ...row, status: row.status as TaskStatus };
@@ -229,6 +231,63 @@ export async function completeOccurrence(
     return translateError(error);
   }
   return { status: "ok", task: toTask(existing.data) };
+}
+
+/**
+ * Moves today's occurrence of a recurring task to `tomorrow` (one-time, enforced by the database);
+ * a repeated move to the same day (double click) counts as success.
+ */
+export async function moveOccurrenceToTomorrow(
+  supabase: Client,
+  projectId: string,
+  milestoneId: string,
+  taskId: string,
+  today: string,
+  tomorrow: string,
+): Promise<TaskResult> {
+  const milestone = await findMilestone(supabase, projectId, milestoneId);
+  if (milestone.status !== "found") return milestone;
+
+  const existing = await supabase.from("tasks").select().eq("id", taskId).eq("milestone_id", milestoneId).maybeSingle();
+  if (existing.error) return translateError(existing.error);
+  if (!existing.data) return { status: "not_found" };
+
+  const { error } = await supabase
+    .from("task_occurrences")
+    .insert({ task_id: taskId, occurrence_date: today, state: "moved", moved_to: tomorrow });
+  if (!error) return { status: "ok", task: toTask(existing.data) };
+
+  if (error.code === "23505") {
+    const row = await supabase
+      .from("task_occurrences")
+      .select("state, moved_to")
+      .eq("task_id", taskId)
+      .eq("occurrence_date", today)
+      .maybeSingle();
+    if (row.error) return translateError(row.error);
+    if (row.data?.state === "moved" && row.data.moved_to === tomorrow) {
+      return { status: "ok", task: toTask(existing.data) };
+    }
+    if (row.data?.state === "done") {
+      return { status: "validation", error: OCCURRENCE_DONE_ERROR, fieldErrors: {} };
+    }
+    return { status: "validation", error: MOVE_ERROR, fieldErrors: {} };
+  }
+  if (error.code === "23514") {
+    // Move-specific trigger messages and the moved_* constraints have their own wording; the common
+    // rejections keep "Wystapienie" and the existing translation.
+    if (
+      error.message.includes("Przeniesienie wystapienia") ||
+      error.message.includes("task_occurrences_moved_to_check") ||
+      error.message.includes("task_occurrences_moved_shape")
+    ) {
+      return { status: "validation", error: MOVE_ERROR, fieldErrors: {} };
+    }
+    if (error.message.includes("Wystapienie")) {
+      return { status: "validation", error: OCCURRENCE_ERROR, fieldErrors: {} };
+    }
+  }
+  return translateError(error);
 }
 
 export async function deleteTask(

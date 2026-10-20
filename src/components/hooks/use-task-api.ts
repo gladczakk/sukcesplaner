@@ -97,6 +97,12 @@ export function useTaskApi() {
     [],
   );
 
+  const moveOccurrence = useCallback(
+    (projectId: string, milestoneId: string, taskId: string) =>
+      saveTask(`${tasksUrl(projectId, milestoneId, taskId)}/occurrences/move`, "POST", {}),
+    [],
+  );
+
   const deleteTask = useCallback(
     async (projectId: string, milestoneId: string, taskId: string): Promise<TaskApiDeleteResult> => {
       let response: Response;
@@ -117,5 +123,5 @@ export function useTaskApi() {
     [],
   );
 
-  return { createTask, updateTask, setTaskStatus, setTaskDeferral, completeOccurrence, deleteTask };
+  return { createTask, updateTask, setTaskStatus, setTaskDeferral, completeOccurrence, moveOccurrence, deleteTask };
 }

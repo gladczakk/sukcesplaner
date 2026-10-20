@@ -281,27 +281,27 @@ Migracja dodaje kolumnę i ograniczenia na pustej w praktyce tabeli `task_occurr
 
 #### Automated
 
-- [x] 1.1 Migracja stosuje się czysto na lokalnej bazie: `npx supabase db reset`
-- [x] 1.2 Wszystkie testy pgTAP przechodzą, w tym dotychczasowe 263 bez zmian oczekiwań i nowy plik: `npx supabase test db`
-- [x] 1.3 Typy po regeneracji zawierają nowe kolumny, a sprawdzenie typów przechodzi: `npx astro check`
-- [x] 1.4 Test zepsucia: tymczasowe zepsucie warunku wiersza `skipped` w `today_list` zaczerwienia test pgTAP „pominięte”; po wycofaniu test jest zielony
+- [x] 1.1 Migracja stosuje się czysto na lokalnej bazie: `npx supabase db reset` — 45bbde1
+- [x] 1.2 Wszystkie testy pgTAP przechodzą, w tym dotychczasowe 263 bez zmian oczekiwań i nowy plik: `npx supabase test db` — 45bbde1
+- [x] 1.3 Typy po regeneracji zawierają nowe kolumny, a sprawdzenie typów przechodzi: `npx astro check` — 45bbde1
+- [x] 1.4 Test zepsucia: tymczasowe zepsucie warunku wiersza `skipped` w `today_list` zaczerwienia test pgTAP „pominięte”; po wycofaniu test jest zielony — 45bbde1
 
 #### Manual
 
-- [x] 1.5 Przegląd migracji: komunikaty gałęzi `moved` nie zawierają frazy „Wystapienie”, a gałąź `done` zachowała dotychczasowy komunikat
+- [x] 1.5 Przegląd migracji: komunikaty gałęzi `moved` nie zawierają frazy „Wystapienie”, a gałąź `done` zachowała dotychczasowy komunikat — 45bbde1
 
 ### Phase 2: API przeniesienia wystąpienia
 
 #### Automated
 
-- [ ] 2.1 Lint zmienionych plików przechodzi (z zastrzeżeniem bazowych błędów spoza zmiany): `npm run lint`
-- [ ] 2.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
-- [ ] 2.3 Smoke przechodzi, w tym kroki przeniesienia (201, powtórka 201, znika z listy, codzienne 422, nieznane 404, niepowtarzalne 422): `npm run smoke`
-- [ ] 2.4 Test zepsucia: tymczasowy zwrot sukcesu bez zapisu w usłudze przeniesienia zaczerwienia krok „znika z listy”; po wycofaniu smoke jest zielony
+- [x] 2.1 Lint zmienionych plików przechodzi (z zastrzeżeniem bazowych błędów spoza zmiany): `npm run lint`
+- [x] 2.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
+- [x] 2.3 Smoke przechodzi, w tym kroki przeniesienia (201, powtórka 201, znika z listy, codzienne 422, nieznane 404, niepowtarzalne 422): `npm run smoke`
+- [x] 2.4 Test zepsucia: tymczasowy zwrot sukcesu bez zapisu w usłudze przeniesienia zaczerwienia krok „znika z listy”; po wycofaniu smoke jest zielony
 
 #### Manual
 
-- [ ] 2.5 Wywołanie przeniesienia dla rutyny z dzisiejszym dniem w lokalnej aplikacji kończy się odpowiedzią 201, a rutyna znika z `/today` po odświeżeniu
+- [x] 2.5 Wywołanie przeniesienia dla rutyny z dzisiejszym dniem w lokalnej aplikacji kończy się odpowiedzią 201, a rutyna znika z `/today` po odświeżeniu
 
 ### Phase 3: Lista na dziś — pominięte, przeniesione, przycisk „Na jutro”
 

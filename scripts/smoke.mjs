@@ -106,6 +106,10 @@ const otherRoutineDays = [(todayWeekday % 7) + 1, ((todayWeekday + 1) % 7) + 1];
 const todayRoutineTitle = "Dni dziś smoke";
 const otherRoutineTitle = "Dni poza smoke";
 const todayRoutineLabel = weekdaysLabel(todayRoutineDays);
+const moveRoutineTitle = "Przeniesienie dziś smoke";
+let moveRoutineId = "";
+let moveDailyId = "";
+let movePlainId = "";
 const closedMilestoneTaskError =
   "Nie można dodać niezrobionego zadania do zamkniętego milestona. Otwórz milestone ponownie.";
 const taskDateError = "Termin zadania nie może być późniejszy niż data milestona";
@@ -935,6 +939,96 @@ const steps = [
   [
     "plain task next to the finished routine is deleted",
     () => request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${termTaskId}`, { method: "DELETE" }),
+    { status: 204 },
+  ],
+  // Move to tomorrow: the milestone is due in 2099, so tomorrow always fits. The routines are created and deleted here,
+  // with no row-count assertions. A weekday routine of today moves (tomorrow is not one of its days: the days are
+  // today and three days on); a routine of all seven days has a rhythm day tomorrow, so the database refuses.
+  [
+    "move routines are created",
+    async () => {
+      const moving = await request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: moveRoutineTitle, due_date: null, recurrence_weekdays: todayRoutineDays },
+      });
+      moveRoutineId = moving.body?.task?.id ?? "";
+      const daily = await request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Codzienna smoke przeniesienie", due_date: null, recurrence_weekdays: [1, 2, 3, 4, 5, 6, 7] },
+      });
+      moveDailyId = daily.body?.task?.id ?? "";
+      const plain = await request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Zwykłe smoke przeniesienie", due_date: null },
+      });
+      movePlainId = plain.body?.task?.id ?? "";
+      return {
+        ...moving,
+        status: moving.status === 201 && daily.status === 201 && plain.status === 201 ? 201 : 0,
+      };
+    },
+    { status: 201 },
+  ],
+  [
+    "routine occurrence of today is moved to tomorrow",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${moveRoutineId}/occurrences/move`, {
+        method: "POST",
+      }),
+    { status: 201, bodyEquals: { "task.title": moveRoutineTitle } },
+  ],
+  [
+    "routine occurrence moved twice still succeeds",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${moveRoutineId}/occurrences/move`, {
+        method: "POST",
+      }),
+    { status: 201, bodyEquals: { "task.title": moveRoutineTitle } },
+  ],
+  // The title also sits in the island props, so its absence proves the row is gone.
+  [
+    "today page drops the routine once its occurrence is moved",
+    () => request("/today"),
+    { status: 200, bodyExcludes: [moveRoutineTitle] },
+  ],
+  [
+    "daily routine occurrence cannot be moved to tomorrow",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${moveDailyId}/occurrences/move`, {
+        method: "POST",
+      }),
+    { status: 422, bodyField: "error" },
+  ],
+  [
+    "routine occurrence move of an unknown task returns 404",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${otherProjectId}/occurrences/move`, {
+        method: "POST",
+      }),
+    { status: 404 },
+  ],
+  [
+    "occurrence move of a non-recurring task is rejected",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${movePlainId}/occurrences/move`, {
+        method: "POST",
+      }),
+    { status: 422, bodyField: "error" },
+  ],
+  [
+    "move routines are deleted",
+    async () => {
+      const moving = await request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${moveRoutineId}`, {
+        method: "DELETE",
+      });
+      const daily = await request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${moveDailyId}`, {
+        method: "DELETE",
+      });
+      const plain = await request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${movePlainId}`, {
+        method: "DELETE",
+      });
+      return { ...moving, status: moving.status === 204 && daily.status === 204 && plain.status === 204 ? 204 : 0 };
+    },
     { status: 204 },
   ],
   [
