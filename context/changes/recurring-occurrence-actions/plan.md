@@ -311,14 +311,14 @@ Migracja dodaje kolumnę i ograniczenia na pustej w praktyce tabeli `task_occurr
 
 #### Automated
 
-- [x] 3.1 Lint zmienionych plików przechodzi (z zastrzeżeniem bazowych błędów spoza zmiany): `npm run lint`
-- [x] 3.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
-- [x] 3.3 Smoke przechodzi, w tym asercje na treść wyspy (rutyna z jutrem wolnym ma „Na jutro”, codzienna nie ma, zadanie niepowtarzalne ma trzy akcje): `npm run smoke`
-- [x] 3.4 Test zepsucia: tymczasowy `throw` w `TodayTaskActions` zaczerwienia krok smoke z treścią wyspy rutyny; po wycofaniu jest zielony
-- [x] 3.5 Testy pgTAP nadal przechodzą: `npx supabase test db`
+- [x] 3.1 Lint zmienionych plików przechodzi (z zastrzeżeniem bazowych błędów spoza zmiany): `npm run lint` — 064c93c
+- [x] 3.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build` — 064c93c
+- [x] 3.3 Smoke przechodzi, w tym asercje na treść wyspy (rutyna z jutrem wolnym ma „Na jutro”, codzienna nie ma, zadanie niepowtarzalne ma trzy akcje): `npm run smoke` — 064c93c
+- [x] 3.4 Test zepsucia: tymczasowy `throw` w `TodayTaskActions` zaczerwienia krok smoke z treścią wyspy rutyny; po wycofaniu jest zielony — 064c93c
+- [x] 3.5 Testy pgTAP nadal przechodzą: `npx supabase test db` — 064c93c
 
 #### Manual
 
-- [x] 3.6 Na `/today` rutyna z dzisiejszym dniem ma przycisk „Na jutro”; po kliknięciu znika z listy, a zadanie codzienne nie ma tego przycisku
-- [x] 3.7 Wiersz „Pominięte wczoraj”: po cofnięciu o 1 dzień daty startu zadania codziennego w lokalnej bazie wiersz pojawia się pod rutynami z odznaką, bez przycisków
-- [x] 3.8 Treść PRD v2 (FR-011, FR-019, Business Logic) odpowiada decyzjom z planu
+- [x] 3.6 Na `/today` rutyna z dzisiejszym dniem ma przycisk „Na jutro”; po kliknięciu znika z listy, a zadanie codzienne nie ma tego przycisku — 064c93c
+- [x] 3.7 Wiersz „Pominięte wczoraj”: po cofnięciu o 1 dzień daty startu zadania codziennego w lokalnej bazie wiersz pojawia się pod rutynami z odznaką, bez przycisków — 064c93c
+- [x] 3.8 Treść PRD v2 (FR-011, FR-019, Business Logic) odpowiada decyzjom z planu — 064c93c

@@ -1,7 +1,7 @@
 ---
 change_id: recurring-occurrence-actions
 title: Recurring occurrence actions
-status: impl_reviewed
+status: implemented
 created: 2026-10-20
 updated: 2026-10-20
 archived_at: null
