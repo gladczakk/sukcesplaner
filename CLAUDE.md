@@ -639,3 +639,117 @@ domain distillation -> invariant aggregate / anti-corruption layer -> /10x-shape
 - **Odkrywaj domenę; nie zakładaj jej.** Zacznij bez nazw encji, agregatów ani ścieżek i wskaż, skąd pochodzi każdy termin (z dokumentu lub kodu).
 - **Twórz mapę albo plan, nie kod.** Te artefakty nie modyfikują kodu produkcyjnego; zmiana następuje później przez `/10x-plan` -> `/10x-implement`.
 - **Używaj terminów ze słownika.** Gdy istnieje `context/domain/glossary.md`, używaj jego terminów w kodzie, planach i rozmowach oraz unikaj nazw oznaczonych przez niego jako „don't call it”.
+
+## Zestaw narzędzi AI 10xDevs — moduł 5, lekcja 1 (wewnętrzni twórcy AI)
+
+Klasyfikuj powtarzające się tarcia w zespole, zanim cokolwiek dla nich zbudujesz. Domyślną odpowiedzią jest istniejące narzędzie; buduj tylko cienką nakładkę pomocniczą tam, gdzie uzasadnia to lokalny problem obejmujący wiele systemów.
+
+```
+/10x-opportunity-map -> /10x-mom-test -> /10x-shape -> /10x-prd -> /10x-roadmap
+```
+
+### Router zadań — od czego zacząć
+
+| Umiejętność | Użyj jej, gdy |
+| --- | --- |
+| `/10x-opportunity-map` | Zespół stale napotyka to samo tarcie albo ktoś mówi „zbudujmy dashboard / agenta / automatyzację”. Tworzy mapę build / buy / complement / wait z pierwszą użyteczną wersją i zastrzeżeniem dotyczącym ryzyka danych w `context/team/opportunity-map.md`. |
+| `/10x-mom-test` | Masz kandydata i chcesz wiedzieć, czy problem jest realny. Tworzy nienaprowadzającą krytykę, pytania do wywiadu, ankietę oraz kryteria go/no-go; zapisuje do `context/team/mom-test-validation.md`. |
+| `/10x-shape` -> `/10x-prd` -> `/10x-roadmap` | Zweryfikowany kandydat jest wart zbudowania. Kontynuuj zgodnie ze standardowym 10xWorkflow. |
+
+### Twarde zasady
+
+- **Kupuj, zanim zbudujesz.** Najpierw wskaż istniejącą lub domyślną odpowiedź; nakładka pomocnicza ją uzupełnia, a nie zastępuje.
+- **Dowody pochodzą z przeszłych zachowań.** Pytaj, co ludzie zrobili ostatnim razem, a nie czy korzystaliby z narzędzia.
+- **Określ ryzyko danych.** Każdy kandydat wskazuje, jakie dane odczytuje oraz co może wyciec lub pójść nie tak.
+
+## Zestaw narzędzi AI 10xDevs — Moduł 5, Lekcja 2 (Agent zespołowy z SDK)
+
+Zbuduj minimalnego agenta do przeglądu kodu: diff na wejściu, ustrukturyzowany werdykt JSON na wyjściu. Schemat i prompt systemowy są kontraktem, od którego zależy wszystko później (bramka CI, ewaluacje).
+
+```
+review schema + system prompt -> review.ts (ready-made agent SDK or AI SDK ToolLoopAgent) -> git diff | npx tsx review.ts
+```
+
+### Router zadań — od czego zacząć
+
+| Umiejętność / prompt / szablon | Użyj, gdy |
+| --- | --- |
+| `m5l2-review-schema.ts.template` (config templates) | Rozpoczynasz tworzenie recenzenta. Skopiuj go do pakietu recenzenta: sześć ocenianych kryteriów (1–10), werdykt i podsumowanie jako schemat zod oraz prompt systemowy. |
+| `m5l2-agent` (prompts) | Konfigurujesz punkt wejścia AI SDK, a następnie planujesz modułowego recenzenta `ToolLoopAgent` za pomocą `/10x-plan`. |
+| `/10x-plan` -> `/10x-implement` | Przekształcasz jednoplikowego recenzenta w moduły wielokrotnego użytku. |
+
+### Twarde zasady
+
+- **Schemat jest kontraktem.** Najpierw zmień kryteria, wartości werdyktu lub nazwy pól w schemacie, a następnie w promptach, bramkach i ewaluacjach.
+- **Przypinaj główne wersje.** Kod lekcji jest przeznaczony dla AI SDK 7 (`ai@7`, `@openrouter/ai-sdk-provider@3`) oraz Node 22+.
+- **Śledź koszt każdego uruchomienia.** Loguj użycie z każdego przeglądu i ustaw twardy limit budżetu, zanim agent zacznie działać bez nadzoru.
+
+## Zestaw narzędzi AI 10xDevs — Moduł 5, Lekcja 3 (Przegląd kodu w CI)
+
+Przenieś agenta przeglądu do GitHub Actions i zamień jego werdykt w bramkę merge. Oceń zmiany promptów i modeli na stałym zestawie przypadków przed ich wdrożeniem.
+
+```
+m5l3-requirements -> /10x-new -> /10x-research -> /10x-plan -> review.yml + composite action -> promptfoo evals
+```
+
+### Router zadań — od czego zacząć
+
+| Umiejętność / prompt / szablon | Użyj, gdy |
+| --- | --- |
+| `m5l3-requirements` + `m5l3-cicd` (prompty) | Prowadzisz badania i planujesz przepływ pracy przeglądu CI na podstawie pisemnych wymagań. |
+| `m5l3-review.yml.template`, `m5l3-action.yml.template` (szablony konfiguracji) | Podłączasz recenzenta do przepływu PR: akcja kompozytowa z wejściami tytułu, treści i diffu, etykietami `ai-cr:passed` / `ai-cr:failed` oraz nieudaną kontrolą przy werdykcie `fail`. |
+| `m5l3-promptfoo` (prompt) + `m5l3-promptfooconfig.yaml.template` | Porównujesz modele lub zmiany promptów na tych samych diffach za pomocą asercji is-json, llm-rubric i javascript. |
+| `/10x-impl-review-ci` | Przeglądasz PR względem jego `context/changes/<id>/plan.md` w CI za pomocą Claude Code Action; szablon jego workflow znajduje się w katalogu `references/` umiejętności. |
+
+### Twarde zasady
+
+- **Przypinaj akcje zewnętrzne do pełnego SHA commita** z tagiem w komentarzu.
+- **Bramkuj na polu werdyktu**, nigdy na swobodnym tekście wyjściowym.
+- **Przekazuj wielowierszowe wartości (diffy) przez pliki lub ograniczniki heredoc**, a nie przez jednowierszowe zapisy `$GITHUB_OUTPUT`.
+- **Uruchom zestaw ewaluacyjny przed zmianą promptu lub modelu przeglądu.**
+
+## Zestaw narzędzi AI 10xDevs — Moduł 5, Lekcja 4 (Wspólny rejestr AI)
+
+Dystrybuuj umiejętności zespołu, prompty i reguły jako wersjonowany pakiet w rejestrze, który Twoja organizacja już posiada. GitHub Packages to domyślna ścieżka; AWS CodeArtifact z Terraform to opcjonalna ścieżka zarządzanej infrastruktury.
+
+```
+m5l4-shared-* -> m5l4-github-packages-spec-* + config templates -> publish -> npm install in consumer repos
+```
+
+### Router zadań — od czego zacząć
+
+| Umiejętność / prompt / szablon | Użyj, gdy |
+| --- | --- |
+| `m5l4-shared-conventions`, `m5l4-shared-spec-skill` (prompty) | Definiujesz pierwszą wspólną umiejętność zespołu i jej konwencje. |
+| `m5l4-github-packages-spec-pack`, `m5l4-github-packages-spec-cicd` (prompty) + `m5l4-github-packages-*.template` | Tworzysz domyślny pakiet: package.json, instalator i deinstalator, konsumencki `.npmrc`, początkowy `rules/CLAUDE.md` oraz workflow publikowania. |
+| `/pack-init` -> `/tf-registry` -> `/setup-cicd` | Opcjonalna ścieżka CodeArtifact: utwórz szkielet pakietu, skonfiguruj rejestr za pomocą Terraform, a następnie dodaj CI/CD. Odczytują specyfikacje `m5l4-*` z katalogu promptów Twojego narzędzia. |
+
+### Twarde reguły
+
+- **Nigdy nie nadpisuj tego, co napisał konsument.** Instalatory modyfikują tylko pliki, które śledzą w swoim manifeście, i wyłącznie tekst między ich znacznikami sentinelowymi.
+- **Deinstalacja usuwa dokładnie to, co dodała instalacja**, używając manifestu.
+- **Publikuj wyłącznie nową wersję.** Zwiększ wersję przed publikacją; rejestr odrzuca wersję, która już istnieje.
+- **Tokeny pozostają w sekretach CI lub lokalnym env**, nigdy w zatwierdzonym `.npmrc`.
+
+## Zestaw narzędzi AI 10xDevs — moduł 5, lekcja 5 (agenci asynchroniczni i zdalni)
+
+Deleguj ograniczoną, zaplanowaną zmianę i wróć, aby ją przejrzeć. Kontrola nie znika; przenosi się do kontraktu zadania, konfiguracji sandboxa i końcowego przeglądu.
+
+```
+/10x-plan -> /goal + /10x-goal-implement (interactive or claude -p) -> review the commits and the manual checklist
+```
+
+### Router zadań — od czego zacząć
+
+| Umiejętność | Użyj jej, gdy |
+| --- | --- |
+| `/10x-goal-implement <change-id>` | Zatwierdzony `context/changes/<id>/plan.md` powinien zostać wykonany bez nadzoru. Połącz go z `/goal <condition>`; zapisuje commit po każdej zielonej fazie i kończy się oczekującymi ręcznymi kontrolami. |
+| `/10x-implement` | Chcesz samodzielnie kierować każdą fazą. |
+
+### Twarde zasady
+
+- **Deleguj wyłącznie zaplanowaną pracę.** Brak zatwierdzonego `plan.md` oznacza brak działania bez nadzoru.
+- **Ogranicz każde uruchomienie.** Warunek `/goal` określa stan końcowy i limit tur.
+- **Zielone uruchomienie nie oznacza ukończonej zmiany.** Przejrzyj commity i wykonaj ręczną checklistę przed mergowaniem.
+- **Przyznaj sandboxowi tylko te sekrety i dostęp do sieci, których zadanie potrzebuje.**
+- **Monitoruj równoległe i zdalne uruchomienia w jednym miejscu.** Uruchamiaj każdą sesję bez nadzoru w osobnym obszarze roboczym herdr, aby widzieć, którzy agenci pracują, są zablokowani lub skończyli, oraz interweniować z przeglądarki (konfiguracja w M2L6 Deep Dive).
