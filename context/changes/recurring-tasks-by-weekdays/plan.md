@@ -387,6 +387,6 @@ Migracja jest addytywna: istniejące zadania mają `recurrence_weekdays` NULL, a
 
 #### Manual
 
-- [x] 4.6 Na `/today` rutyna z dniami zawierającymi dzisiejszy dzień jest na szczycie z etykietą dni, przycisk „Zrobione" odhacza ją i po odświeżeniu znika
+- [x] 4.6 Na `/today` rutyna z dniami zawierającymi dzisiejszy dzień jest na szczycie z etykietą dni, przycisk „Zrobione" odhacza ją i po odświeżeniu znika — 60574fb
 - [x] 4.7 Rutyna z dniami nie obejmującymi dzisiaj nie jest na liście, a na stronie projektu ma swoją etykietę — 60574fb
 - [x] 4.8 Treść PRD v2 (Non-Goals i opis dni tygodnia) odpowiada decyzjom z planu — 60574fb
