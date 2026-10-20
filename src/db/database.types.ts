@@ -149,9 +149,11 @@ export type Database = {
           deferred_until: string | null
           due_date: string | null
           id: string
+          is_recurring: boolean | null
           milestone_id: string
           recurrence_interval_days: number | null
           recurrence_start_date: string | null
+          recurrence_weekdays: number[] | null
           status: string
           title: string
           updated_at: string
@@ -162,9 +164,11 @@ export type Database = {
           deferred_until?: string | null
           due_date?: string | null
           id?: string
+          is_recurring?: boolean | null
           milestone_id: string
           recurrence_interval_days?: number | null
           recurrence_start_date?: string | null
+          recurrence_weekdays?: number[] | null
           status?: string
           title: string
           updated_at?: string
@@ -175,9 +179,11 @@ export type Database = {
           deferred_until?: string | null
           due_date?: string | null
           id?: string
+          is_recurring?: boolean | null
           milestone_id?: string
           recurrence_interval_days?: number | null
           recurrence_start_date?: string | null
+          recurrence_weekdays?: number[] | null
           status?: string
           title?: string
           updated_at?: string
@@ -212,10 +218,12 @@ export type Database = {
           task_due_date: string
           task_id: string
           task_recurrence_interval_days: number
+          task_recurrence_weekdays: number[]
           task_status: string
           task_title: string
         }[]
       }
+      weekdays_valid: { Args: { w: number[] }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
