@@ -32,9 +32,9 @@ const RECURRENCE_INTERVAL_ERROR = "Podaj liczbę dni od 2 do 30";
 const RECURRENCE_WEEKDAYS_ERROR = "Wybierz co najmniej jeden dzień tygodnia";
 const ONE_RHYTHM_ERROR = "Wybierz jeden rytm: co X dni albo dni tygodnia";
 const OCCURRENCE_ERROR = "To wystąpienie nie jest dziś aktualne. Odśwież stronę.";
-const MOVE_ERROR = "Tego wystąpienia nie można przenieść na jutro.";
-const OCCURRENCE_DONE_ERROR = "To wystąpienie jest już zrobione.";
-const OCCURRENCE_MOVED_ERROR = "To wystąpienie zostało już przeniesione na jutro.";
+const MOVE_ERROR = "Tego wystąpienia nie można przenieść na jutro. Odśwież stronę.";
+const OCCURRENCE_DONE_ERROR = "To wystąpienie jest już zrobione. Odśwież stronę.";
+const OCCURRENCE_MOVED_ERROR = "To wystąpienie zostało już przeniesione na jutro. Odśwież stronę.";
 
 function toTask(row: TaskRow): Task {
   return { ...row, status: row.status as TaskStatus };

@@ -1012,7 +1012,7 @@ const steps = [
       request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${moveRoutineId}/occurrences`, {
         method: "POST",
       }),
-    { status: 422, bodyEquals: { error: "To wystąpienie zostało już przeniesione na jutro." } },
+    { status: 422, bodyEquals: { error: "To wystąpienie zostało już przeniesione na jutro. Odśwież stronę." } },
   ],
   // The title also sits in the island props, so its absence proves the row is gone.
   [
@@ -1026,7 +1026,7 @@ const steps = [
       request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${moveDailyId}/occurrences/move`, {
         method: "POST",
       }),
-    { status: 422, bodyEquals: { error: "Tego wystąpienia nie można przenieść na jutro." } },
+    { status: 422, bodyEquals: { error: "Tego wystąpienia nie można przenieść na jutro. Odśwież stronę." } },
   ],
   [
     "routine occurrence move of an unknown task returns 404",

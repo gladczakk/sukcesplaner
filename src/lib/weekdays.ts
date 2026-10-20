@@ -22,6 +22,8 @@ const WEEKDAY_FROM_PHRASES = [
 /** Genitive phrase for the weekday of an ISO date (`YYYY-MM-DD`), e.g. "ze środy"; computed in UTC so the day never shifts by timezone. */
 export function formatWeekdayFrom(iso: string): string {
   // getUTCDay: 0 = Sunday .. 6 = Saturday; the table starts on Monday.
-  const index = (new Date(iso).getUTCDay() + 6) % 7;
-  return WEEKDAY_FROM_PHRASES[index];
+  const day = new Date(iso).getUTCDay();
+  // Not a date (empty or malformed input): no phrase rather than "undefined" in the view.
+  if (Number.isNaN(day)) return "";
+  return WEEKDAY_FROM_PHRASES[(day + 6) % 7];
 }

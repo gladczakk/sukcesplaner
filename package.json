@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "test:unit": "node --experimental-strip-types --test scripts/weekdays.test.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",

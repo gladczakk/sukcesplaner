@@ -78,139 +78,145 @@ const summary = [
           </a>
         </div>
       ) : (
-        <ul class="mt-8 divide-y divide-border rounded-md border border-border bg-card shadow-card">
-          {view.routines.map((routine) => (
-            <li class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-              <div class="min-w-0">
-                <p class="type-task break-words text-foreground">{routine.title}</p>
-                <p class="type-meta break-words text-muted-foreground">
-                  <a
-                    href={`/projects/${routine.project.id}`}
-                    class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    {routine.project.name}
-                  </a>
-                  {" · "}
-                  {routine.milestone.name}
-                  {` · ${formatRecurrence({ intervalDays: routine.interval_days, weekdays: routine.weekdays })}`}
-                  {routine.moved_from && ` · przeniesione ${formatWeekdayFrom(routine.moved_from)}`}
-                </p>
-              </div>
-              <div class="flex min-w-0 shrink-0 flex-col items-start gap-2 sm:items-end">
-                <TodayTaskActions
-                  client:load
-                  recurring
-                  projectId={routine.project.id}
-                  milestoneId={routine.milestone.id}
-                  taskId={routine.id}
-                  title={routine.title}
-                  canMove={routine.can_move}
-                />
-              </div>
-            </li>
-          ))}
-          {view.skipped.map((skipped) => (
-            <li class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-              <div class="min-w-0">
-                <p class="type-task break-words text-foreground">{skipped.title}</p>
-                <p class="type-meta break-words text-muted-foreground">
-                  <a
-                    href={`/projects/${skipped.project.id}`}
-                    class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    {skipped.project.name}
-                  </a>
-                  {" · "}
-                  {skipped.milestone.name}
-                  {` · ${formatRecurrence({ intervalDays: skipped.interval_days, weekdays: skipped.weekdays })}`}
-                </p>
-              </div>
-              <div class="flex min-w-0 shrink-0 flex-col items-start gap-2 sm:items-end">
-                <span class="type-meta inline-flex shrink-0 items-center gap-1 self-start rounded-pill bg-warning-soft px-2 text-warning-ink">
-                  <svg
-                    class="size-3 shrink-0"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                  >
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M12 6v6l4 2" />
-                  </svg>
-                  Pominięte wczoraj
-                </span>
-              </div>
-            </li>
-          ))}
-          {rows.map(({ task, chip }) => (
-            <li class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-              <div class="min-w-0">
-                <p class="type-task break-words text-foreground">{task.title}</p>
-                <p class="type-meta break-words text-muted-foreground">
-                  <a
-                    href={`/projects/${task.project.id}`}
-                    class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    {task.project.name}
-                  </a>
-                  {" · "}
-                  {task.milestone.name}
-                  {task.status === "partial" && " · częściowo"}
-                </p>
-              </div>
-              <div class="flex min-w-0 shrink-0 flex-col items-start gap-2 sm:items-end">
-                <DueChip chip={chip} />
-                {task.status !== "done" && (
+        <>
+          {/* Only skipped rows: say so, otherwise the list reads as an unexplained leftover. */}
+          {itemCount === 0 && <p class="type-quote mt-8 text-muted-foreground">Na dziś nic do zrobienia.</p>}
+          <ul class="mt-8 divide-y divide-border rounded-md border border-border bg-card shadow-card">
+            {view.routines.map((routine) => (
+              <li class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                <div class="min-w-0">
+                  <p class="type-task break-words text-foreground">{routine.title}</p>
+                  <p class="type-meta break-words text-muted-foreground">
+                    <a
+                      href={`/projects/${routine.project.id}`}
+                      class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    >
+                      {routine.project.name}
+                    </a>
+                    {" · "}
+                    {routine.milestone.name}
+                    {` · ${formatRecurrence({ intervalDays: routine.interval_days, weekdays: routine.weekdays })}`}
+                    {routine.moved_from &&
+                      formatWeekdayFrom(routine.moved_from) &&
+                      ` · przeniesione ${formatWeekdayFrom(routine.moved_from)}`}
+                  </p>
+                </div>
+                <div class="flex min-w-0 shrink-0 flex-col items-start gap-2 sm:items-end">
                   <TodayTaskActions
                     client:load
-                    projectId={task.project.id}
-                    milestoneId={task.milestone.id}
-                    taskId={task.id}
-                    title={task.title}
-                    status={task.status}
+                    recurring
+                    projectId={routine.project.id}
+                    milestoneId={routine.milestone.id}
+                    taskId={routine.id}
+                    title={routine.title}
+                    canMove={routine.can_move}
                   />
-                )}
-              </div>
-            </li>
-          ))}
-          {milestoneRows.map(({ milestone, chip }) => (
-            <li class="flex flex-col gap-2 bg-accent px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-              <div class="min-w-0">
-                <p class="font-serif text-xl font-medium break-words text-foreground">{milestone.name}</p>
-                <p class="type-meta flex flex-wrap items-center gap-x-2 gap-y-1 break-words text-muted-foreground">
+                </div>
+              </li>
+            ))}
+            {view.skipped.map((skipped) => (
+              <li class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                <div class="min-w-0">
+                  <p class="type-task break-words text-foreground">{skipped.title}</p>
+                  <p class="type-meta break-words text-muted-foreground">
+                    <a
+                      href={`/projects/${skipped.project.id}`}
+                      class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    >
+                      {skipped.project.name}
+                    </a>
+                    {" · "}
+                    {skipped.milestone.name}
+                    {` · ${formatRecurrence({ intervalDays: skipped.interval_days, weekdays: skipped.weekdays })}`}
+                  </p>
+                </div>
+                <div class="flex min-w-0 shrink-0 flex-col items-start gap-2 sm:items-end">
+                  <span class="type-meta inline-flex shrink-0 items-center gap-1 self-start rounded-pill bg-warning-soft px-2 text-warning-ink">
+                    <svg
+                      class="size-3 shrink-0"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M12 6v6l4 2" />
+                    </svg>
+                    Pominięte wczoraj
+                  </span>
+                </div>
+              </li>
+            ))}
+            {rows.map(({ task, chip }) => (
+              <li class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                <div class="min-w-0">
+                  <p class="type-task break-words text-foreground">{task.title}</p>
+                  <p class="type-meta break-words text-muted-foreground">
+                    <a
+                      href={`/projects/${task.project.id}`}
+                      class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    >
+                      {task.project.name}
+                    </a>
+                    {" · "}
+                    {task.milestone.name}
+                    {task.status === "partial" && " · częściowo"}
+                  </p>
+                </div>
+                <div class="flex min-w-0 shrink-0 flex-col items-start gap-2 sm:items-end">
+                  <DueChip chip={chip} />
+                  {task.status !== "done" && (
+                    <TodayTaskActions
+                      client:load
+                      projectId={task.project.id}
+                      milestoneId={task.milestone.id}
+                      taskId={task.id}
+                      title={task.title}
+                      status={task.status}
+                    />
+                  )}
+                </div>
+              </li>
+            ))}
+            {milestoneRows.map(({ milestone, chip }) => (
+              <li class="flex flex-col gap-2 bg-accent px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                <div class="min-w-0">
+                  <p class="font-serif text-xl font-medium break-words text-foreground">{milestone.name}</p>
+                  <p class="type-meta flex flex-wrap items-center gap-x-2 gap-y-1 break-words text-muted-foreground">
+                    <a
+                      href={`/projects/${milestone.project.id}`}
+                      class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    >
+                      {milestone.project.name}
+                    </a>
+                    <span aria-hidden="true">·</span>
+                    <span class="tabular-nums">{formatDate(milestone.due_date)}</span>
+                    {chip.tone !== "date" && chip.tone !== "none" && <DueChip chip={chip} />}
+                  </p>
+                  <p class="type-meta text-muted-foreground">Wszystkie zadania zrobione — milestone do zamknięcia</p>
+                </div>
+                <div class="flex shrink-0 flex-wrap items-start gap-2 self-start">
+                  <CloseMilestoneButton
+                    client:load
+                    projectId={milestone.project.id}
+                    milestoneId={milestone.id}
+                    milestoneName={milestone.name}
+                  />
                   <a
                     href={`/projects/${milestone.project.id}`}
-                    class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    aria-label={`Otwórz projekt ${milestone.project.name}`}
+                    class="type-button inline-flex h-8 items-center rounded-pill px-1 text-foreground underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
-                    {milestone.project.name}
+                    Otwórz projekt
                   </a>
-                  <span aria-hidden="true">·</span>
-                  <span class="tabular-nums">{formatDate(milestone.due_date)}</span>
-                  {chip.tone !== "date" && chip.tone !== "none" && <DueChip chip={chip} />}
-                </p>
-                <p class="type-meta text-muted-foreground">Wszystkie zadania zrobione — milestone do zamknięcia</p>
-              </div>
-              <div class="flex shrink-0 flex-wrap items-start gap-2 self-start">
-                <CloseMilestoneButton
-                  client:load
-                  projectId={milestone.project.id}
-                  milestoneId={milestone.id}
-                  milestoneName={milestone.name}
-                />
-                <a
-                  href={`/projects/${milestone.project.id}`}
-                  aria-label={`Otwórz projekt ${milestone.project.name}`}
-                  class="type-button inline-flex h-8 items-center rounded-pill px-1 text-foreground underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  Otwórz projekt
-                </a>
-              </div>
-            </li>
-          ))}
-        </ul>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
       {view.deferred.length > 0 && (
         <details data-deferred-details class="mt-4 rounded-md border border-border bg-card shadow-card">
