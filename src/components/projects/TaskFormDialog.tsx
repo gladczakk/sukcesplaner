@@ -7,11 +7,13 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { WeekdayPicker } from "@/components/ui/weekday-picker";
 import { formatDate, formatRecurrence } from "@/lib/format";
 import {
   flattenTaskErrors,
   isRecurrenceMode,
   readRecurrenceInterval,
+  readRecurrenceWeekdays,
   RECURRENCE_MODE_OPTIONS,
   taskCreateSchema,
   taskInputSchema,
@@ -43,6 +45,8 @@ interface FormValues {
   /** Rhythm choice (create mode only); `recurrence_interval_days` holds the number of days of "Co X dni". */
   repeat: RecurrenceMode;
   recurrence_interval_days: string;
+  /** Selected ISO days (1 = Monday) of "W wybrane dni tygodnia". */
+  recurrence_weekdays: number[];
 }
 
 const FIELD_IDS: Record<(typeof TASK_FIELDS)[number], string> = {
@@ -58,6 +62,7 @@ function initialValues(task?: EditableTask): FormValues {
     due_date: task?.due_date ?? "",
     repeat: "none",
     recurrence_interval_days: "",
+    recurrence_weekdays: [],
   };
 }
 
@@ -88,21 +93,31 @@ export default function TaskFormDialog({ mode, projectId, milestone, task, disab
     setOpen(next);
   }
 
-  function setValue(key: keyof FormValues, value: string) {
+  function setValue(key: "title" | "due_date" | "recurrence_interval_days", value: string) {
     setValues((current) => ({ ...current, [key]: value }));
   }
 
   function changeRepeat(value: string) {
     if (!isRecurrenceMode(value)) return;
     setValues((current) => ({ ...current, repeat: value, due_date: value === "none" ? current.due_date : "" }));
-    setFieldErrors((current) => ({ ...current, due_date: undefined, recurrence_interval_days: undefined }));
+    setFieldErrors((current) => ({
+      ...current,
+      due_date: undefined,
+      recurrence_interval_days: undefined,
+      recurrence_weekdays: undefined,
+    }));
   }
 
   function focusFirstInvalid(errors: TaskFieldErrors) {
     const first = TASK_FIELDS.find((field) => errors[field]);
     if (!first) return;
-    // Without the number input ("Codziennie"), a rhythm error belongs to the select.
-    const target = first === "recurrence_interval_days" && values.repeat !== "every" ? "repeat" : FIELD_IDS[first];
+    // Without the number input ("Codziennie"), a rhythm error belongs to the select; the days group is focused on its first button.
+    const target =
+      first === "recurrence_weekdays"
+        ? `${FIELD_IDS.recurrence_weekdays}-1`
+        : first === "recurrence_interval_days" && values.repeat !== "every"
+          ? "repeat"
+          : FIELD_IDS[first];
     document.getElementById(`${idPrefix}-${target}`)?.focus();
   }
 
@@ -112,13 +127,22 @@ export default function TaskFormDialog({ mode, projectId, milestone, task, disab
     const rhythm: ReturnType<typeof readRecurrenceInterval> = isEdit
       ? { value: null }
       : readRecurrenceInterval(values.repeat, values.recurrence_interval_days);
+    const weekdays: ReturnType<typeof readRecurrenceWeekdays> = isEdit
+      ? { value: null }
+      : readRecurrenceWeekdays(values.repeat, values.recurrence_weekdays);
     const dueDate = repeating ? "" : values.due_date;
     // Edit goes through PUT, which never changes the rhythm, so only the create schema carries it.
     const parsed = isEdit
       ? taskInputSchema.safeParse({ title: values.title, due_date: dueDate })
-      : taskCreateSchema.safeParse({ title: values.title, due_date: dueDate, recurrence_interval_days: rhythm.value });
+      : taskCreateSchema.safeParse({
+          title: values.title,
+          due_date: dueDate,
+          recurrence_interval_days: rhythm.value,
+          recurrence_weekdays: weekdays.value,
+        });
     const errors: TaskFieldErrors = parsed.success ? {} : flattenTaskErrors(parsed.error);
     if (rhythm.error) errors.recurrence_interval_days = rhythm.error;
+    if (weekdays.error) errors.recurrence_weekdays = weekdays.error;
     if (!errors.due_date && dueDate !== "" && dueDate > milestone.due_date) {
       errors.due_date = `Termin zadania nie może być późniejszy niż data milestona (${formatDate(milestone.due_date)})`;
     }
@@ -139,7 +163,7 @@ export default function TaskFormDialog({ mode, projectId, milestone, task, disab
           : await createTask(projectId, milestone.id, {
               ...parsed.data,
               recurrence_interval_days: rhythm.value,
-              recurrence_weekdays: null,
+              recurrence_weekdays: weekdays.value,
             });
       switch (result.status) {
         case "ok":
@@ -224,7 +248,11 @@ export default function TaskFormDialog({ mode, projectId, milestone, task, disab
             <Field
               id={`${idPrefix}-repeat`}
               label="Powtarzanie"
-              error={values.repeat === "every" ? undefined : fieldErrors.recurrence_interval_days}
+              error={
+                values.repeat === "every" || values.repeat === "weekdays"
+                  ? undefined
+                  : fieldErrors.recurrence_interval_days
+              }
             >
               <Select
                 id={`${idPrefix}-repeat`}
@@ -255,6 +283,18 @@ export default function TaskFormDialog({ mode, projectId, milestone, task, disab
                 }}
               />
             </Field>
+          ) : null}
+          {!isEdit && values.repeat === "weekdays" ? (
+            <WeekdayPicker
+              id={`${idPrefix}-${FIELD_IDS.recurrence_weekdays}`}
+              value={values.recurrence_weekdays}
+              error={fieldErrors.recurrence_weekdays}
+              disabled={pending}
+              onChange={(days) => {
+                setValues((current) => ({ ...current, recurrence_weekdays: days }));
+                setFieldErrors((current) => ({ ...current, recurrence_weekdays: undefined }));
+              }}
+            />
           ) : null}
           {repeating ? null : (
             <Field id={`${idPrefix}-due-date`} label="Termin (opcjonalny)" error={fieldErrors.due_date}>

@@ -80,16 +80,8 @@ export const RECURRENCE_MODE_OPTIONS: { value: RecurrenceMode; label: string }[]
   { value: "none", label: "Nie powtarzaj" },
   { value: "daily", label: "Codziennie" },
   { value: "every", label: "Co X dni" },
+  { value: "weekdays", label: "W wybrane dni tygodnia" },
 ];
-
-/**
- * The "W wybrane dni tygodnia" choice. Kept out of `RECURRENCE_MODE_OPTIONS` until the forms have the day picker,
- * so the forms (and `isRecurrenceMode`) do not offer a mode they cannot yet submit; the picker change adds it to the list.
- */
-export const RECURRENCE_WEEKDAYS_OPTION: { value: RecurrenceMode; label: string } = {
-  value: "weekdays",
-  label: "W wybrane dni tygodnia",
-};
 
 export function isRecurrenceMode(value: string): value is RecurrenceMode {
   return RECURRENCE_MODE_OPTIONS.some((option) => option.value === value);

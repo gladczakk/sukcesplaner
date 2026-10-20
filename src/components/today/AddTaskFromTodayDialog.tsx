@@ -7,11 +7,13 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { WeekdayPicker } from "@/components/ui/weekday-picker";
 import { formatDate } from "@/lib/format";
 import {
   flattenTaskErrors,
   isRecurrenceMode,
   readRecurrenceInterval,
+  readRecurrenceWeekdays,
   RECURRENCE_MODE_OPTIONS,
   taskCreateSchema,
   TASK_FIELDS,
@@ -33,6 +35,8 @@ interface FormValues {
   /** Rhythm choice; `recurrence_interval_days` holds the number of days of "Co X dni". */
   repeat: RecurrenceMode;
   recurrence_interval_days: string;
+  /** Selected ISO days (1 = Monday) of "W wybrane dni tygodnia". */
+  recurrence_weekdays: number[];
 }
 
 const ID_PREFIX = "today-add-task";
@@ -56,6 +60,7 @@ function initialValues(targets: TaskTargetProject[]): FormValues {
     due_date: "",
     repeat: "none",
     recurrence_interval_days: "",
+    recurrence_weekdays: [],
   };
 }
 
@@ -86,14 +91,22 @@ export default function AddTaskFromTodayDialog({ targets }: AddTaskFromTodayDial
     setOpen(next);
   }
 
-  function setValue(key: keyof FormValues, value: string) {
+  function setValue(
+    key: "projectId" | "milestoneId" | "title" | "due_date" | "recurrence_interval_days",
+    value: string,
+  ) {
     setValues((current) => ({ ...current, [key]: value }));
   }
 
   function changeRepeat(value: string) {
     if (!isRecurrenceMode(value)) return;
     setValues((current) => ({ ...current, repeat: value, due_date: value === "none" ? current.due_date : "" }));
-    setFieldErrors((current) => ({ ...current, due_date: undefined, recurrence_interval_days: undefined }));
+    setFieldErrors((current) => ({
+      ...current,
+      due_date: undefined,
+      recurrence_interval_days: undefined,
+      recurrence_weekdays: undefined,
+    }));
   }
 
   /** Re-checks the typed date against the newly selected milestone, so a date past its new `max` is flagged at once. */
@@ -115,8 +128,13 @@ export default function AddTaskFromTodayDialog({ targets }: AddTaskFromTodayDial
   function focusFirstInvalid(errors: TaskFieldErrors) {
     const first = TASK_FIELDS.find((field) => errors[field]);
     if (!first) return;
-    // Without the number input ("Codziennie"), a rhythm error belongs to the select.
-    const target = first === "recurrence_interval_days" && values.repeat !== "every" ? REPEAT_ID : FIELD_IDS[first];
+    // Without the number input ("Codziennie"), a rhythm error belongs to the select; the days group is focused on its first button.
+    const target =
+      first === "recurrence_weekdays"
+        ? `${FIELD_IDS.recurrence_weekdays}-1`
+        : first === "recurrence_interval_days" && values.repeat !== "every"
+          ? REPEAT_ID
+          : FIELD_IDS[first];
     document.getElementById(target)?.focus();
   }
 
@@ -128,15 +146,18 @@ export default function AddTaskFromTodayDialog({ targets }: AddTaskFromTodayDial
       return;
     }
     const rhythm = readRecurrenceInterval(values.repeat, values.recurrence_interval_days);
+    const weekdays = readRecurrenceWeekdays(values.repeat, values.recurrence_weekdays);
     // A recurring task has no due date of its own.
     const dueDate = values.repeat === "none" ? values.due_date : "";
     const parsed = taskCreateSchema.safeParse({
       title: values.title,
       due_date: dueDate,
       recurrence_interval_days: rhythm.value,
+      recurrence_weekdays: weekdays.value,
     });
     const errors: TaskFieldErrors = parsed.success ? {} : flattenTaskErrors(parsed.error);
     if (rhythm.error) errors.recurrence_interval_days = rhythm.error;
+    if (weekdays.error) errors.recurrence_weekdays = weekdays.error;
     const dateError = dueDateError(dueDate, milestone);
     if (!errors.due_date && dateError) errors.due_date = dateError;
     if (!parsed.success || Object.keys(errors).length > 0) {
@@ -260,7 +281,11 @@ export default function AddTaskFromTodayDialog({ targets }: AddTaskFromTodayDial
           <Field
             id={REPEAT_ID}
             label="Powtarzanie"
-            error={values.repeat === "every" ? undefined : fieldErrors.recurrence_interval_days}
+            error={
+              values.repeat === "every" || values.repeat === "weekdays"
+                ? undefined
+                : fieldErrors.recurrence_interval_days
+            }
           >
             <Select
               id={REPEAT_ID}
@@ -290,6 +315,18 @@ export default function AddTaskFromTodayDialog({ targets }: AddTaskFromTodayDial
                 }}
               />
             </Field>
+          ) : null}
+          {values.repeat === "weekdays" ? (
+            <WeekdayPicker
+              id={FIELD_IDS.recurrence_weekdays}
+              value={values.recurrence_weekdays}
+              error={fieldErrors.recurrence_weekdays}
+              disabled={pending}
+              onChange={(days) => {
+                setValues((current) => ({ ...current, recurrence_weekdays: days }));
+                setFieldErrors((current) => ({ ...current, recurrence_weekdays: undefined }));
+              }}
+            />
           ) : null}
           {values.repeat === "none" ? (
             <Field id={FIELD_IDS.due_date} label="Termin (opcjonalny)" error={fieldErrors.due_date}>

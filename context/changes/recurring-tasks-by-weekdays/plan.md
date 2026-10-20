@@ -352,28 +352,28 @@ Migracja jest addytywna: istniejące zadania mają `recurrence_weekdays` NULL, a
 
 #### Automated
 
-- [x] 2.1 Lint plików zmiany przechodzi: `npm run lint` (z zastrzeżeniem bazowych błędów spoza S-08)
-- [x] 2.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build` (po `npx astro preview stop`)
-- [x] 2.3 Smoke przechodzi, w tym nowe kroki tworzenia z dniami tygodnia: `npm run smoke`
+- [x] 2.1 Lint plików zmiany przechodzi: `npm run lint` (z zastrzeżeniem bazowych błędów spoza S-08) — 34c398a
+- [x] 2.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build` (po `npx astro preview stop`) — 34c398a
+- [x] 2.3 Smoke przechodzi, w tym nowe kroki tworzenia z dniami tygodnia: `npm run smoke` — 34c398a
 
 #### Manual
 
-- [x] 2.4 Zadanie z dniami utworzone przez API ma na stronie projektu etykietę „śr, pt" (skróty od poniedziałku), nie ma przełącznika statusu, a edycja i usunięcie działają
-- [x] 2.5 Odpowiedź API na dni razem z interwałem i na pustą tablicę zawiera czytelny komunikat błędu pola
+- [x] 2.4 Zadanie z dniami utworzone przez API ma na stronie projektu etykietę „śr, pt" (skróty od poniedziałku), nie ma przełącznika statusu, a edycja i usunięcie działają — 34c398a
+- [x] 2.5 Odpowiedź API na dni razem z interwałem i na pustą tablicę zawiera czytelny komunikat błędu pola — 34c398a
 
 ### Phase 3: Kontrolka wyboru dni w formularzach
 
 #### Automated
 
-- [ ] 3.1 Lint plików zmiany przechodzi: `npm run lint` (z zastrzeżeniem bazowych błędów spoza S-08)
-- [ ] 3.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build` (po `npx astro preview stop`)
-- [ ] 3.3 Smoke przechodzi (kroki z faz 1–2 i istniejące): `npm run smoke`
+- [x] 3.1 Lint plików zmiany przechodzi: `npm run lint` (z zastrzeżeniem bazowych błędów spoza S-08)
+- [x] 3.2 Sprawdzenie typów i build przechodzą: `npx astro check` oraz `npm run build` (po `npx astro preview stop`)
+- [x] 3.3 Smoke przechodzi (kroki z faz 1–2 i istniejące): `npm run smoke`
 
 #### Manual
 
-- [ ] 3.4 W obu formularzach po wyborze „W wybrane dni tygodnia" pojawia się siedem przycisków pn–nd przełączanych myszą i klawiaturą; zapis bez wybranego dnia pokazuje błąd grupy, a pole terminu znika
-- [ ] 3.5 Zadanie z dniami utworzone z formularza zapisuje się z poprawnymi dniami, a w edycji pole „Powtarzanie" pokazuje etykietę tylko do odczytu
-- [ ] 3.6 Układ przycisków działa na wąskim ekranie (ok. 390 px) i w trybie ciemnym, a stan wciśnięty jest widoczny bez polegania na samym kolorze
+- [x] 3.4 W obu formularzach po wyborze „W wybrane dni tygodnia" pojawia się siedem przycisków pn–nd przełączanych myszą i klawiaturą; zapis bez wybranego dnia pokazuje błąd grupy, a pole terminu znika
+- [x] 3.5 Zadanie z dniami utworzone z formularza zapisuje się z poprawnymi dniami, a w edycji pole „Powtarzanie" pokazuje etykietę tylko do odczytu
+- [x] 3.6 Układ przycisków działa na wąskim ekranie (ok. 390 px) i w trybie ciemnym, a stan wciśnięty jest widoczny bez polegania na samym kolorze
 
 ### Phase 4: Rutyny z dniami tygodnia na liście na dziś
 
