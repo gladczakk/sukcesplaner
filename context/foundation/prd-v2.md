@@ -21,7 +21,7 @@ timeline_budget:
 
 ## Current System Overview
 
-SukcesPlaner to aplikacja webowa do zarządzania długimi projektami: projekty z milestonami (z obowiązkowymi datami) i zadaniami. Aplikacja wylicza listę zadań na dziś z najbliższego niezamkniętego milestona każdego projektu. Na liście użytkownik może oznaczyć zadanie jako zrobione lub częściowo zrobione oraz przenieść je na jutro. Każde zadanie należy do milestona. Ręczne dodanie zadania z poziomu listy na dziś jest zaplanowane i jeszcze niezaimplementowane.
+SukcesPlaner to aplikacja webowa do zarządzania długimi projektami: projekty z milestonami (z obowiązkowymi datami) i zadaniami. Aplikacja wylicza listę zadań na dziś z najbliższego niezamkniętego milestona każdego projektu. Na liście użytkownik może oznaczyć zadanie jako zrobione lub częściowo zrobione oraz przenieść je na jutro. Każde zadanie należy do milestona. Ręczne dodanie zadania z poziomu listy na dziś jest zaimplementowane (S-06).
 
 Architektura i stack (stan faktyczny): aplikacja renderowana po stronie serwera (Astro, komponenty React), uwierzytelnianie i dane w Supabase, wdrożenie na Cloudflare Workers. Użytkownicy: pojedyncze osoby, mała skala, każde konto widzi wyłącznie swoje dane.
 

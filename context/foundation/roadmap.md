@@ -41,9 +41,9 @@ Rutynowe zadania (np. pranie codziennie, retinol co drugi dzień, trening w wybr
 
 | ID | Change ID | Outcome (user can …) | Prerequisites | PRD refs | Status |
 | --- | --- | --- | --- | --- | --- |
-| S-07 | recurring-tasks-by-interval | ustawić zadaniu rytm „codziennie" lub „co X dni" i zobaczyć je na liście na dziś w pasujące dni | Zakończony M-1 (zadania w milestonie, lista na dziś, ręczne dodawanie z listy) | FR-016, FR-017, US-02 | ready |
+| S-07 | recurring-tasks-by-interval | ustawić zadaniu rytm „codziennie" lub „co X dni", zobaczyć je na liście na dziś w pasujące dni i odhaczyć wystąpienie | Zakończony M-1 (zadania w milestonie, lista na dziś, ręczne dodawanie z listy) | FR-016, FR-017, US-02 | in-progress |
 | S-08 | recurring-tasks-by-weekdays | ustawić zadaniu rytm „w wybrane dni tygodnia" i zobaczyć je na liście w te dni | S-07 | FR-016, FR-017, US-02 | proposed |
-| S-09 | recurring-occurrence-actions | odhaczyć, pominąć lub przenieść wystąpienie zadania powtarzalnego według reguł (przeniesienie tylko na dzień bez własnego wystąpienia) | S-07 | FR-011, FR-019, US-02 | proposed |
+| S-09 | recurring-occurrence-actions | zobaczyć pominięte wystąpienie zadania powtarzalnego i przenieść wystąpienie na inny dzień (tylko na dzień bez własnego wystąpienia) | S-07 | FR-011, FR-019, US-02 | proposed |
 | S-10 | recurring-task-edit-disable | zmienić rytm albo wyłączyć powtarzanie zadania bez utraty historii | S-07, S-08 | FR-020 | proposed |
 
 ## Baseline
@@ -66,7 +66,7 @@ Brak. Stan bazowy pokrywa wszystkie warstwy potrzebne tej zmiany; model danych r
 
 ### S-07: Zadanie co X dni wraca na listę na dziś
 
-- **Outcome:** user może ustawić zadaniu (przy dodawaniu z listy na dziś i w formularzu zadania pod milestonem) rytm „codziennie" lub „co X dni" (X od 2 do 30), a zadanie pojawia się na liście na dziś w pasujące dni, od dnia dodania do daty milestona albo jego zamknięcia (co nastąpi wcześniej), nawet gdy ten milestone nie jest najbliższy, i trafia na górę listy; zadania powtarzalne nie blokują zamknięcia milestona, a zadania bez rytmu działają bez zmian.
+- **Outcome:** user może ustawić zadaniu (przy dodawaniu z listy na dziś i w formularzu zadania pod milestonem) rytm „codziennie" lub „co X dni" (X od 2 do 30), a zadanie pojawia się na liście na dziś w pasujące dni, od dnia dodania do daty milestona albo jego zamknięcia (co nastąpi wcześniej), nawet gdy ten milestone nie jest najbliższy, i trafia na górę listy, gdzie można odhaczyć dzisiejsze wystąpienie (zadanie wraca wg rytmu); zadania powtarzalne nie blokują zamknięcia milestona, a zadania bez rytmu działają bez zmian.
 - **Change ID:** recurring-tasks-by-interval
 - **PRD refs:** FR-016, FR-017, US-02
 - **Prerequisites:** Zakończony M-1 (zadania w milestonie, lista na dziś, ręczne dodawanie z listy)
@@ -74,7 +74,7 @@ Brak. Stan bazowy pokrywa wszystkie warstwy potrzebne tej zmiany; model danych r
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** To gwiazda przewodnia i pierwszy kontakt z regułą wyjątku od „najbliższego milestona" oraz ze zmianą reguły zamykania milestona, więc błąd tutaj propaguje się na wszystkie kolejne wycinki; sekwencjonowany pierwszy, bo nie dotyka akcji z S-05.
-- **Status:** ready
+- **Status:** in-progress
 
 ### S-08: Rytm w wybrane dni tygodnia
 
@@ -90,7 +90,7 @@ Brak. Stan bazowy pokrywa wszystkie warstwy potrzebne tej zmiany; model danych r
 
 ### S-09: Akcje na wystąpieniu zadania powtarzalnego
 
-- **Outcome:** user może odhaczyć wystąpienie zadania powtarzalnego (zadanie wraca według rytmu), widzi niezrobione wystąpienie następnego dnia jako pominięte (potem znika; stan „częściowo zrobione" nie dotyczy zadań powtarzalnych), i może przenieść wystąpienie na inny dzień tylko wtedy, gdy tego dnia to zadanie nie ma własnego wystąpienia.
+- **Outcome:** user widzi niezrobione wystąpienie następnego dnia jako pominięte (potem znika; stan „częściowo zrobione" nie dotyczy zadań powtarzalnych), i może przenieść wystąpienie na inny dzień tylko wtedy, gdy tego dnia to zadanie nie ma własnego wystąpienia.
 - **Change ID:** recurring-occurrence-actions
 - **PRD refs:** FR-011, FR-019, US-02
 - **Prerequisites:** S-07
@@ -116,9 +116,9 @@ Brak. Stan bazowy pokrywa wszystkie warstwy potrzebne tej zmiany; model danych r
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 | --- | --- | --- | --- | --- |
-| S-07 | recurring-tasks-by-interval | Zadanie z rytmem „codziennie / co X dni" wraca na listę na dziś | yes | Run `/10x-plan recurring-tasks-by-interval` |
+| S-07 | recurring-tasks-by-interval | Zadanie z rytmem „codziennie / co X dni" wraca na listę na dziś | no | Zaplanowane: `/10x-implement recurring-tasks-by-interval phase 1`; zakres obejmuje odhaczenie wystąpienia |
 | S-08 | recurring-tasks-by-weekdays | Rytm w wybrane dni tygodnia | no | Czeka na S-07 |
-| S-09 | recurring-occurrence-actions | Akcje na wystąpieniu zadania powtarzalnego (zrobione / pominięte / przeniesione) | no | Czeka na S-07 |
+| S-09 | recurring-occurrence-actions | Pominięte i przeniesione wystąpienie zadania powtarzalnego | no | Czeka na S-07 |
 | S-10 | recurring-task-edit-disable | Zmiana rytmu i wyłączenie powtarzania | no | Czeka na S-07 i S-08 |
 
 ## Open Roadmap Questions
