@@ -60,6 +60,11 @@ let weekdaysTaskId = "";
 let weekdaysTodayId = "";
 let weekdaysOtherId = "";
 let pastMilestoneId = "";
+let rhythmEditId = "";
+let partialToRhythmId = "";
+let doneToRhythmId = "";
+const disableRecurrenceError = "Aby wyłączyć powtarzanie, usuń zadanie.";
+const doneToRecurringError = "Zrobionego zadania nie można zmienić w powtarzalne.";
 const recurringDueDateError = "Zadanie powtarzalne nie ma własnego terminu";
 const recurrenceDaysError = "Podaj liczbę dni od 2 do 30";
 const recurrenceStartError = "Termin milestona jest wcześniejszy niż dziś — powtarzanie nie miałoby kiedy się zacząć";
@@ -666,7 +671,7 @@ const steps = [
     () =>
       request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${recurringTaskId}`, {
         method: "PUT",
-        json: { title: "Rutyna smoke 3" },
+        json: { title: "Rutyna smoke 3", recurrence_interval_days: 3 },
       }),
     {
       status: 200,
@@ -762,7 +767,7 @@ const steps = [
     () =>
       request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${weekdaysTaskId}`, {
         method: "PUT",
-        json: { title: "Dni smoke 2" },
+        json: { title: "Dni smoke 2", recurrence_weekdays: [3, 5] },
       }),
     {
       status: 200,
@@ -787,6 +792,156 @@ const steps = [
   [
     "weekdays task delete succeeds",
     () => request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${weekdaysTaskId}`, { method: "DELETE" }),
+    { status: 204 },
+  ],
+  // Rhythm edits through PUT: tasks created and deleted by this block; it sits before any /today step like the block above.
+  [
+    "rhythm edit: weekdays task is created",
+    async () => {
+      const result = await request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Zmiana rytmu smoke", due_date: null, recurrence_weekdays: [3, 5] },
+      });
+      rhythmEditId = result.body?.task?.id ?? "";
+      return result;
+    },
+    { status: 201, bodyField: "task.id" },
+  ],
+  [
+    "rhythm edit: weekdays changed to every 3 days starts today",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${rhythmEditId}`, {
+        method: "PUT",
+        json: { title: "Zmiana rytmu smoke", due_date: null, recurrence_interval_days: 3 },
+      }),
+    {
+      status: 200,
+      bodyEquals: {
+        "task.recurrence_interval_days": 3,
+        "task.recurrence_weekdays": null,
+        "task.recurrence_start_date": warsawToday(),
+        "task.is_recurring": true,
+      },
+    },
+  ],
+  [
+    "rhythm edit: every 3 days changed back to weekdays",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${rhythmEditId}`, {
+        method: "PUT",
+        json: { title: "Zmiana rytmu smoke", due_date: null, recurrence_weekdays: [5, 3] },
+      }),
+    {
+      status: 200,
+      bodyEquals: {
+        "task.recurrence_interval_days": null,
+        "task.recurrence_weekdays.0": 3,
+        "task.recurrence_weekdays.1": 5,
+        "task.recurrence_start_date": warsawToday(),
+      },
+    },
+  ],
+  [
+    "rhythm edit: turning the rhythm off through PUT is rejected",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${rhythmEditId}`, {
+        method: "PUT",
+        json: { title: "Zmiana rytmu smoke", due_date: null },
+      }),
+    { status: 422, bodyEquals: { error: disableRecurrenceError } },
+  ],
+  [
+    "rhythm edit: weekdays task delete succeeds",
+    () => request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${rhythmEditId}`, { method: "DELETE" }),
+    { status: 204 },
+  ],
+  [
+    "rhythm edit: ordinary task with a due date is created",
+    async () => {
+      const result = await request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Zwykle na rytm smoke", due_date: "2099-12-30" },
+      });
+      partialToRhythmId = result.body?.task?.id ?? "";
+      return result;
+    },
+    { status: 201, bodyField: "task.id" },
+  ],
+  [
+    "rhythm edit: ordinary task is set to partial",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${partialToRhythmId}`, {
+        method: "PATCH",
+        json: { status: "partial" },
+      }),
+    { status: 200, bodyEquals: { "task.status": "partial" } },
+  ],
+  [
+    "rhythm edit: rhythm together with a due date is rejected",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${partialToRhythmId}`, {
+        method: "PUT",
+        json: { title: "Zwykle na rytm smoke", due_date: "2099-12-30", recurrence_interval_days: 2 },
+      }),
+    { status: 422, bodyEquals: { "fieldErrors.due_date": recurringDueDateError } },
+  ],
+  [
+    "rhythm edit: partial task becomes recurring and loses status and due date",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${partialToRhythmId}`, {
+        method: "PUT",
+        json: { title: "Zwykle na rytm smoke", due_date: null, recurrence_interval_days: 2 },
+      }),
+    {
+      status: 200,
+      bodyEquals: {
+        "task.is_recurring": true,
+        "task.status": "todo",
+        "task.due_date": null,
+        "task.recurrence_interval_days": 2,
+        "task.recurrence_start_date": warsawToday(),
+      },
+    },
+  ],
+  [
+    "rhythm edit: converted task delete succeeds",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${partialToRhythmId}`, { method: "DELETE" }),
+    { status: 204 },
+  ],
+  [
+    "rhythm edit: done ordinary task is created",
+    async () => {
+      const result = await request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks`, {
+        method: "POST",
+        json: { title: "Zrobione na rytm smoke", due_date: null },
+      });
+      doneToRhythmId = result.body?.task?.id ?? "";
+      return result;
+    },
+    { status: 201, bodyField: "task.id" },
+  ],
+  [
+    "rhythm edit: ordinary task is set to done",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${doneToRhythmId}`, {
+        method: "PATCH",
+        json: { status: "done" },
+      }),
+    { status: 200, bodyEquals: { "task.status": "done" } },
+  ],
+  [
+    "rhythm edit: done task cannot become recurring",
+    () =>
+      request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${doneToRhythmId}`, {
+        method: "PUT",
+        json: { title: "Zrobione na rytm smoke", due_date: null, recurrence_interval_days: 2 },
+      }),
+    { status: 422, bodyEquals: { error: doneToRecurringError } },
+  ],
+  [
+    "rhythm edit: done task delete succeeds",
+    () => request(`/api/projects/${projectId}/milestones/${milestoneA}/tasks/${doneToRhythmId}`, { method: "DELETE" }),
     { status: 204 },
   ],
   // Island SSR errors leave the page at 200: the rhythm label is server-rendered, the edit button comes from the island,

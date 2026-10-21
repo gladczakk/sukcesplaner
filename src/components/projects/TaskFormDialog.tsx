@@ -159,7 +159,12 @@ export default function TaskFormDialog({ mode, projectId, milestone, task, disab
     try {
       const result =
         isEdit && task
-          ? await updateTask(projectId, milestone.id, task.id, parsed.data)
+          ? // Until the form edits the rhythm, PUT carries the task's existing one (same rhythm = title-only update).
+            await updateTask(projectId, milestone.id, task.id, {
+              ...parsed.data,
+              recurrence_interval_days: task.recurrence_interval_days,
+              recurrence_weekdays: task.recurrence_weekdays,
+            })
           : await createTask(projectId, milestone.id, {
               ...parsed.data,
               recurrence_interval_days: rhythm.value,

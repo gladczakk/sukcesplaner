@@ -1,13 +1,7 @@
 import { useCallback } from "react";
 import type { Task, TaskStatus } from "@/types";
 import { NETWORK_ERROR, isRecord, readError, readFieldErrors, readJson, redirectToSignin } from "@/lib/api-client";
-import {
-  TASK_FIELDS,
-  taskIdSchema,
-  type TaskCreateInput,
-  type TaskFieldErrors,
-  type TaskInput,
-} from "@/lib/validation/task";
+import { TASK_FIELDS, taskIdSchema, type TaskCreateInput, type TaskFieldErrors } from "@/lib/validation/task";
 
 export type TaskApiSaveResult =
   | { status: "ok"; task: Task }
@@ -19,9 +13,10 @@ export type TaskApiSaveResult =
 export type TaskApiDeleteResult =
   { status: "ok" } | { status: "notFound" } | { status: "unauthorized" } | { status: "unavailable"; error: string };
 
-/** Input of the task form; an empty or null `due_date` clears the due date. */
-export type TaskApiInput = Omit<TaskInput, "due_date"> & { due_date: string | null };
-/** Input of the create form; adds the rhythm (`recurrence_interval_days` or `recurrence_weekdays`, both null = no repeat). */
+/**
+ * Input of the create and edit form: the rhythm is `recurrence_interval_days` or `recurrence_weekdays` (both null = no
+ * repeat); an empty or null `due_date` clears the due date.
+ */
 export type TaskApiCreateInput = Omit<TaskCreateInput, "due_date"> & { due_date: string | null };
 
 function tasksUrl(projectId: string, milestoneId: string, taskId?: string): string {
@@ -74,7 +69,7 @@ export function useTaskApi() {
   );
 
   const updateTask = useCallback(
-    (projectId: string, milestoneId: string, taskId: string, input: TaskApiInput) =>
+    (projectId: string, milestoneId: string, taskId: string, input: TaskApiCreateInput) =>
       saveTask(tasksUrl(projectId, milestoneId, taskId), "PUT", input),
     [],
   );

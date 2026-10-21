@@ -4,7 +4,7 @@ import { logError } from "@/lib/log";
 import { GENERIC_ERROR, SESSION_ERROR, readFailure } from "@/lib/services/postgrest";
 import { todayInWarsaw } from "@/lib/today";
 import type { Task, TaskStatus } from "@/types";
-import type { TaskCreateInput, TaskField, TaskFieldErrors, TaskInput } from "@/lib/validation/task";
+import type { TaskCreateInput, TaskField, TaskFieldErrors } from "@/lib/validation/task";
 
 type Client = SupabaseClient<Database>;
 type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
@@ -31,6 +31,8 @@ const RECURRENCE_START_ERROR = "Termin milestona jest wcześniejszy niż dziś �
 const RECURRENCE_INTERVAL_ERROR = "Podaj liczbę dni od 2 do 30";
 const RECURRENCE_WEEKDAYS_ERROR = "Wybierz co najmniej jeden dzień tygodnia";
 const ONE_RHYTHM_ERROR = "Wybierz jeden rytm: co X dni albo dni tygodnia";
+const DISABLE_RECURRENCE_ERROR = "Aby wyłączyć powtarzanie, usuń zadanie.";
+const DONE_TO_RECURRING_ERROR = "Zrobionego zadania nie można zmienić w powtarzalne.";
 const OCCURRENCE_ERROR = "To wystąpienie nie jest dziś aktualne. Odśwież stronę.";
 const MOVE_ERROR = "Tego wystąpienia nie można przenieść na jutro. Odśwież stronę.";
 const OCCURRENCE_DONE_ERROR = "To wystąpienie jest już zrobione. Odśwież stronę.";
@@ -134,25 +136,89 @@ export async function createTask(
   return row ? { status: "ok", task: toTask(row) } : { status: "not_found" };
 }
 
+function sameRhythm(
+  task: Pick<TaskRow, "recurrence_interval_days" | "recurrence_weekdays">,
+  input: Pick<TaskCreateInput, "recurrence_interval_days" | "recurrence_weekdays">,
+): boolean {
+  const normalise = (days: number[] | null) => (days === null ? null : [...days].sort((a, b) => a - b).join(","));
+  return (
+    task.recurrence_interval_days === input.recurrence_interval_days &&
+    normalise(task.recurrence_weekdays) === normalise(input.recurrence_weekdays)
+  );
+}
+
+/**
+ * Edits a task, including its rhythm. A changed rhythm starts today (Warsaw); switching an ordinary task to a rhythm
+ * clears its due date, deferral and status in the same UPDATE (the table checks validate the final row).
+ * Turning a rhythm off is not an update: the caller deletes the task instead.
+ */
 export async function updateTask(
   supabase: Client,
   projectId: string,
   milestoneId: string,
   taskId: string,
-  input: TaskInput,
+  input: TaskCreateInput,
 ): Promise<TaskResult> {
   const milestone = await findMilestone(supabase, projectId, milestoneId);
   if (milestone.status !== "found") return milestone;
 
-  const { data, error } = await supabase
+  const existing = await supabase.from("tasks").select().eq("id", taskId).eq("milestone_id", milestoneId).maybeSingle();
+  if (existing.error) return translateError(existing.error);
+  if (!existing.data) return { status: "not_found" };
+  const current = existing.data;
+
+  const wasRecurring = current.recurrence_interval_days !== null || current.recurrence_weekdays !== null;
+  const hasWeekdays = input.recurrence_weekdays !== null;
+  const hasRhythm = input.recurrence_interval_days !== null || hasWeekdays;
+  const rhythmField = hasWeekdays ? "recurrence_weekdays" : "recurrence_interval_days";
+  const rhythm = {
+    recurrence_interval_days: input.recurrence_interval_days,
+    // Stored ascending (as the form sends it), whatever order the caller used.
+    recurrence_weekdays:
+      input.recurrence_weekdays === null ? null : [...input.recurrence_weekdays].sort((x, y) => x - y),
+  };
+
+  if (wasRecurring && !hasRhythm) {
+    return { status: "validation", error: DISABLE_RECURRENCE_ERROR, fieldErrors: {} };
+  }
+
+  // One UPDATE per case; `onlyOpen` adds `status <> 'done'` so a done task is never silently reopened.
+  async function write(patch: Partial<TaskRow>, onlyOpen = false): Promise<TaskResult> {
+    const query = supabase.from("tasks").update(patch).eq("id", taskId).eq("milestone_id", milestoneId);
+    const { data, error } = await (onlyOpen ? query.neq("status", "done") : query).select();
+    if (error) return translateError(error, rhythmField);
+    const row = data.at(0);
+    return row ? { status: "ok", task: toTask(row) } : { status: "not_found" };
+  }
+
+  if (wasRecurring && sameRhythm(current, input)) return write({ title: input.title });
+  if (wasRecurring) {
+    return write({ title: input.title, due_date: null, ...rhythm, recurrence_start_date: todayInWarsaw() });
+  }
+  if (!hasRhythm) return write({ title: input.title, due_date: input.due_date });
+
+  const result = await write(
+    {
+      title: input.title,
+      ...rhythm,
+      recurrence_start_date: todayInWarsaw(),
+      due_date: null,
+      deferred_until: null,
+      status: "todo",
+    },
+    true,
+  );
+  // The task was read above, so no updated row means it is done (or deleted in between).
+  if (result.status !== "not_found") return result;
+  const stillThere = await supabase
     .from("tasks")
-    .update(input)
+    .select("id")
     .eq("id", taskId)
     .eq("milestone_id", milestoneId)
-    .select();
-  if (error) return translateError(error);
-  const row = data.at(0);
-  return row ? { status: "ok", task: toTask(row) } : { status: "not_found" };
+    .maybeSingle();
+  if (stillThere.error) return translateError(stillThere.error);
+  if (!stillThere.data) return { status: "not_found" };
+  return { status: "validation", error: DONE_TO_RECURRING_ERROR, fieldErrors: {} };
 }
 
 export async function setTaskStatus(

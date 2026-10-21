@@ -247,22 +247,22 @@ Migracja dodaje funkcję i wyzwalacz bez zmiany danych; istniejące wiersze nie 
 
 #### Automated
 
-- [x] 1.1 Migracja stosuje się czysto na lokalnej bazie: `npx supabase db reset`
-- [x] 1.2 Wszystkie testy pgTAP przechodzą, w tym dotychczasowe 310 bez zmian oczekiwań i nowy plik: `npx supabase test db`
-- [x] 1.3 Test zepsucia: tymczasowe usunięcie warunku `moved_to >= new.recurrence_start_date` z wyzwalacza zaczerwienia test sprzątania przeniesienia; po wycofaniu test jest zielony
+- [x] 1.1 Migracja stosuje się czysto na lokalnej bazie: `npx supabase db reset` — 214d970
+- [x] 1.2 Wszystkie testy pgTAP przechodzą, w tym dotychczasowe 310 bez zmian oczekiwań i nowy plik: `npx supabase test db` — 214d970
+- [x] 1.3 Test zepsucia: tymczasowe usunięcie warunku `moved_to >= new.recurrence_start_date` z wyzwalacza zaczerwienia test sprzątania przeniesienia; po wycofaniu test jest zielony — 214d970
 
 #### Manual
 
-- [x] 1.4 Przegląd migracji: wyzwalacz nie dotyka wierszy `done`, używa daty startu zamiast `current_date` i ma warunek `WHEN` na zmianę samego rytmu
+- [x] 1.4 Przegląd migracji: wyzwalacz nie dotyka wierszy `done`, używa daty startu zamiast `current_date` i ma warunek `WHEN` na zmianę samego rytmu — 214d970
 
 ### Phase 2: API edycji — rytm w PUT
 
 #### Automated
 
-- [ ] 2.1 Lint zmienionych plików przechodzi (z zastrzeżeniem bazowych błędów spoza zmiany): `npm run lint`
-- [ ] 2.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
-- [ ] 2.3 Smoke przechodzi, w tym kroki PUT z rytmem (zmiana rytmu z datą startu = dziś, zmiana typu, wyłączenie odrzucone, włączenie na zwykłym zadaniu, zrobione odrzucone): `npm run smoke`
-- [ ] 2.4 Test zepsucia: tymczasowe pominięcie ustawienia `recurrence_start_date` w usłudze zaczerwienia krok sprawdzający datę startu; po wycofaniu smoke jest zielony
+- [x] 2.1 Lint zmienionych plików przechodzi (z zastrzeżeniem bazowych błędów spoza zmiany): `npm run lint`
+- [x] 2.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
+- [x] 2.3 Smoke przechodzi, w tym kroki PUT z rytmem (zmiana rytmu z datą startu = dziś, zmiana typu, wyłączenie odrzucone, włączenie na zwykłym zadaniu, zrobione odrzucone): `npm run smoke`
+- [x] 2.4 Test zepsucia: tymczasowe pominięcie ustawienia `recurrence_start_date` w usłudze zaczerwienia krok sprawdzający datę startu; po wycofaniu smoke jest zielony
 
 ### Phase 3: Formularz edycji — rytm, wyłączenie z potwierdzeniem, PRD
 

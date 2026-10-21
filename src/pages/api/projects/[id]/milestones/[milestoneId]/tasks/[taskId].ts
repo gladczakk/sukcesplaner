@@ -9,7 +9,7 @@ import {
   flattenTaskErrors,
   taskDeferralSchema,
   taskIdSchema,
-  taskInputSchema,
+  taskCreateSchema,
   taskStatusSchema,
 } from "@/lib/validation/task";
 
@@ -33,7 +33,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
   const parsedBody = await readJsonBody(request);
   if (!parsedBody.ok) return parsedBody.response;
 
-  const parsed = taskInputSchema.safeParse(parsedBody.body);
+  const parsed = taskCreateSchema.safeParse(parsedBody.body);
   if (!parsed.success) {
     return errorResponse(422, "Popraw zaznaczone pola", flattenTaskErrors(parsed.error));
   }

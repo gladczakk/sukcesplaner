@@ -29,7 +29,7 @@ const WEEKDAYS_EMPTY_ERROR = "Wybierz co najmniej jeden dzień tygodnia";
 const WEEKDAYS_INVALID_ERROR = "Podaj dni tygodnia jako liczby od 1 do 7, bez powtórzeń";
 const ONE_RHYTHM_ERROR = "Wybierz jeden rytm: co X dni albo dni tygodnia";
 
-// Creation only: PUT keeps `taskInputSchema`, so zod strips a rhythm sent on edit and the rhythm never changes.
+// Used by POST and PUT: a PUT body without rhythm keys means "no rhythm" (the service rejects that for a recurring task).
 // A missing value, null and an empty string all mean "no rhythm"; 1 = every day, 2..30 = every X days.
 // `recurrence_weekdays` is the other rhythm: 1..7 distinct ISO days (1 = Monday); it excludes the interval.
 export const taskCreateSchema = taskInputSchema
