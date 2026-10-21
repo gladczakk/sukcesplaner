@@ -3,7 +3,7 @@ project: SukcesPlaner
 version: 1
 status: draft
 created: 2026-09-24
-updated: 2026-10-20
+updated: 2026-10-21
 prd_version: 2
 main_goal: low-complexity
 top_blocker: decisions
@@ -44,7 +44,7 @@ Rutynowe zadania (np. pranie codziennie, retinol co drugi dzień, trening w wybr
 | S-07 | recurring-tasks-by-interval | ustawić zadaniu rytm „codziennie" lub „co X dni", zobaczyć je na liście na dziś w pasujące dni i odhaczyć wystąpienie | Zakończony M-1 (zadania w milestonie, lista na dziś, ręczne dodawanie z listy) | FR-016, FR-017, US-02 | done |
 | S-08 | recurring-tasks-by-weekdays | ustawić zadaniu rytm „w wybrane dni tygodnia" i zobaczyć je na liście w te dni | S-07 | FR-016, FR-017, US-02 | done |
 | S-09 | recurring-occurrence-actions | zobaczyć pominięte wystąpienie zadania powtarzalnego i przenieść wystąpienie na inny dzień (tylko na dzień bez własnego wystąpienia) | S-07 | FR-011, FR-019, US-02 | done |
-| S-10 | recurring-task-edit-disable | zmienić rytm albo wyłączyć powtarzanie zadania bez utraty historii | S-07, S-08 | FR-020 | proposed |
+| S-10 | recurring-task-edit-disable | zmienić rytm albo wyłączyć powtarzanie zadania bez utraty historii | S-07, S-08 | FR-020 | in-progress |
 
 ## Baseline
 
@@ -110,7 +110,7 @@ Brak. Stan bazowy pokrywa wszystkie warstwy potrzebne tej zmiany; model danych r
 - **Blockers:** —
 - **Unknowns:** Los zapisanych przeniesień wystąpień (stan 'moved') przy zmianie rytmu — patrz `context/archive/2026-10-20-recurring-occurrence-actions/follow-ups/review-fixes.md` (F3).
 - **Risk:** Edycja po fakcie musi zachować zrobione wystąpienia; sekwencjonowany po obu rytmach, żeby zmiana obejmowała każdy rodzaj rytmu.
-- **Status:** proposed
+- **Status:** in-progress
 
 ## Backlog Handoff
 
