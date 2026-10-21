@@ -268,16 +268,16 @@ Migracja dodaje funkcję i wyzwalacz bez zmiany danych; istniejące wiersze nie 
 
 #### Automated
 
-- [x] 3.1 Lint zmienionych plików przechodzi (z zastrzeżeniem bazowych błędów spoza zmiany): `npm run lint`
-- [x] 3.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
-- [x] 3.3 Smoke przechodzi, w tym asercja na wyspę edycji zadania powtarzalnego: `npm run smoke`
-- [x] 3.4 Test zepsucia: tymczasowy `throw` w `TaskFormDialog` zaczerwienia krok smoke z wyspą edycji; po wycofaniu jest zielony
-- [x] 3.5 Testy pgTAP nadal przechodzą: `npx supabase test db`
-- [x] 3.6 Test jednostkowy helpera dni przechodzi: `npm run test:unit`
+- [x] 3.1 Lint zmienionych plików przechodzi (z zastrzeżeniem bazowych błędów spoza zmiany): `npm run lint` — 3d12a7a
+- [x] 3.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build` — 3d12a7a
+- [x] 3.3 Smoke przechodzi, w tym asercja na wyspę edycji zadania powtarzalnego: `npm run smoke` — 3d12a7a
+- [x] 3.4 Test zepsucia: tymczasowy `throw` w `TaskFormDialog` zaczerwienia krok smoke z wyspą edycji; po wycofaniu jest zielony — 3d12a7a
+- [x] 3.5 Testy pgTAP nadal przechodzą: `npx supabase test db` — 3d12a7a
+- [x] 3.6 Test jednostkowy helpera dni przechodzi: `npm run test:unit` — 3d12a7a
 
 #### Manual
 
-- [x] 3.7 Edycja zadania z dniami tygodnia: zmiana na „Co X dni” zapisuje się, etykieta na stronie projektu i na liście Dziś odpowiada nowemu rytmowi, a opis pod polem mówi, że zmiana działa od dziś
-- [x] 3.8 „Nie powtarzaj” na zadaniu powtarzalnym: pojawia się potwierdzenie usunięcia, po zatwierdzeniu zadanie znika ze strony projektu i z listy Dziś, a anulowanie wraca do formularza
-- [x] 3.9 Zwykłe zadanie ze statusem „Częściowo” i terminem: wybór rytmu pokazuje opis o wyczyszczeniu terminu i statusu, po zapisie zadanie jest powtarzalne bez terminu; zrobione zadanie ma zablokowany select z wyjaśnieniem
-- [x] 3.10 Treść PRD v2 (FR-016, FR-020, kryterium akceptacji US-02, Business Logic) odpowiada decyzjom z planu
+- [x] 3.7 Edycja zadania z dniami tygodnia: zmiana na „Co X dni” zapisuje się, etykieta na stronie projektu i na liście Dziś odpowiada nowemu rytmowi, a opis pod polem mówi, że zmiana działa od dziś — 3d12a7a
+- [x] 3.8 „Nie powtarzaj” na zadaniu powtarzalnym: pojawia się potwierdzenie usunięcia, po zatwierdzeniu zadanie znika ze strony projektu i z listy Dziś, a anulowanie wraca do formularza — 3d12a7a
+- [x] 3.9 Zwykłe zadanie ze statusem „Częściowo” i terminem: wybór rytmu pokazuje opis o wyczyszczeniu terminu i statusu, po zapisie zadanie jest powtarzalne bez terminu; zrobione zadanie ma zablokowany select z wyjaśnieniem — 3d12a7a
+- [x] 3.10 Treść PRD v2 (FR-016, FR-020, kryterium akceptacji US-02, Business Logic) odpowiada decyzjom z planu — 3d12a7a
