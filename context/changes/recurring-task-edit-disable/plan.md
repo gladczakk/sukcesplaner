@@ -259,25 +259,25 @@ Migracja dodaje funkcję i wyzwalacz bez zmiany danych; istniejące wiersze nie 
 
 #### Automated
 
-- [x] 2.1 Lint zmienionych plików przechodzi (z zastrzeżeniem bazowych błędów spoza zmiany): `npm run lint`
-- [x] 2.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
-- [x] 2.3 Smoke przechodzi, w tym kroki PUT z rytmem (zmiana rytmu z datą startu = dziś, zmiana typu, wyłączenie odrzucone, włączenie na zwykłym zadaniu, zrobione odrzucone): `npm run smoke`
-- [x] 2.4 Test zepsucia: tymczasowe pominięcie ustawienia `recurrence_start_date` w usłudze zaczerwienia krok sprawdzający datę startu; po wycofaniu smoke jest zielony
+- [x] 2.1 Lint zmienionych plików przechodzi (z zastrzeżeniem bazowych błędów spoza zmiany): `npm run lint` — 5a7bf66
+- [x] 2.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build` — 5a7bf66
+- [x] 2.3 Smoke przechodzi, w tym kroki PUT z rytmem (zmiana rytmu z datą startu = dziś, zmiana typu, wyłączenie odrzucone, włączenie na zwykłym zadaniu, zrobione odrzucone): `npm run smoke` — 5a7bf66
+- [x] 2.4 Test zepsucia: tymczasowe pominięcie ustawienia `recurrence_start_date` w usłudze zaczerwienia krok sprawdzający datę startu; po wycofaniu smoke jest zielony — 5a7bf66
 
 ### Phase 3: Formularz edycji — rytm, wyłączenie z potwierdzeniem, PRD
 
 #### Automated
 
-- [ ] 3.1 Lint zmienionych plików przechodzi (z zastrzeżeniem bazowych błędów spoza zmiany): `npm run lint`
-- [ ] 3.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
-- [ ] 3.3 Smoke przechodzi, w tym asercja na wyspę edycji zadania powtarzalnego: `npm run smoke`
-- [ ] 3.4 Test zepsucia: tymczasowy `throw` w `TaskFormDialog` zaczerwienia krok smoke z wyspą edycji; po wycofaniu jest zielony
-- [ ] 3.5 Testy pgTAP nadal przechodzą: `npx supabase test db`
-- [ ] 3.6 Test jednostkowy helpera dni przechodzi: `npm run test:unit`
+- [x] 3.1 Lint zmienionych plików przechodzi (z zastrzeżeniem bazowych błędów spoza zmiany): `npm run lint`
+- [x] 3.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
+- [x] 3.3 Smoke przechodzi, w tym asercja na wyspę edycji zadania powtarzalnego: `npm run smoke`
+- [x] 3.4 Test zepsucia: tymczasowy `throw` w `TaskFormDialog` zaczerwienia krok smoke z wyspą edycji; po wycofaniu jest zielony
+- [x] 3.5 Testy pgTAP nadal przechodzą: `npx supabase test db`
+- [x] 3.6 Test jednostkowy helpera dni przechodzi: `npm run test:unit`
 
 #### Manual
 
-- [ ] 3.7 Edycja zadania z dniami tygodnia: zmiana na „Co X dni” zapisuje się, etykieta na stronie projektu i na liście Dziś odpowiada nowemu rytmowi, a opis pod polem mówi, że zmiana działa od dziś
-- [ ] 3.8 „Nie powtarzaj” na zadaniu powtarzalnym: pojawia się potwierdzenie usunięcia, po zatwierdzeniu zadanie znika ze strony projektu i z listy Dziś, a anulowanie wraca do formularza
-- [ ] 3.9 Zwykłe zadanie ze statusem „Częściowo” i terminem: wybór rytmu pokazuje opis o wyczyszczeniu terminu i statusu, po zapisie zadanie jest powtarzalne bez terminu; zrobione zadanie ma zablokowany select z wyjaśnieniem
-- [ ] 3.10 Treść PRD v2 (FR-016, FR-020, kryterium akceptacji US-02, Business Logic) odpowiada decyzjom z planu
+- [x] 3.7 Edycja zadania z dniami tygodnia: zmiana na „Co X dni” zapisuje się, etykieta na stronie projektu i na liście Dziś odpowiada nowemu rytmowi, a opis pod polem mówi, że zmiana działa od dziś
+- [x] 3.8 „Nie powtarzaj” na zadaniu powtarzalnym: pojawia się potwierdzenie usunięcia, po zatwierdzeniu zadanie znika ze strony projektu i z listy Dziś, a anulowanie wraca do formularza
+- [x] 3.9 Zwykłe zadanie ze statusem „Częściowo” i terminem: wybór rytmu pokazuje opis o wyczyszczeniu terminu i statusu, po zapisie zadanie jest powtarzalne bez terminu; zrobione zadanie ma zablokowany select z wyjaśnieniem
+- [x] 3.10 Treść PRD v2 (FR-016, FR-020, kryterium akceptacji US-02, Business Logic) odpowiada decyzjom z planu

@@ -951,7 +951,12 @@ const steps = [
     () => request(`/projects/${projectId}`),
     {
       status: 200,
-      bodyIncludes: ["Rutyna smoke 3", "co 3 dni", "Edytuj zadanie Rutyna smoke 3"],
+      bodyIncludes: [
+        "Rutyna smoke 3",
+        "co 3 dni",
+        'aria-label="Edytuj zadanie Rutyna smoke 3"',
+        'aria-label="Usuń zadanie Rutyna smoke 3"',
+      ],
       bodyExcludes: ["Status zadania Rutyna smoke 3"],
     },
   ],

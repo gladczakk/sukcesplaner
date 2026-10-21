@@ -61,11 +61,11 @@ Wcześniej każde zadanie było jednorazowe i trzeba je było dodawać ręcznie 
 #### Acceptance Criteria
 - Zadanie codzienne pojawia się każdego dnia od dnia dodania do końca milestona i nie można go przenieść na jutro
 - Niezrobione wystąpienie wygasa i jest widocznie oznaczone jako pominięte
-- Wyłączenie powtarzania zachowuje historię i dzisiejsze wystąpienie
+- Wyłączenie powtarzania usuwa zadanie razem z jego odhaczeniami (po potwierdzeniu); zmiana rytmu zachowuje wiersze „zrobione”
 
 ## Scope of Change
 
-- [new] FR-016: Użytkownik może ustawić zadaniu powtarzanie: codziennie, co X dni (X od 2 do 30) albo w wybrane dni tygodnia — przy dodawaniu i edycji zadania, wszędzie gdzie je dodaje (z listy na dziś i w formularzu zadania pod milestonem). Priority: must-have
+- [new] FR-016: Użytkownik może ustawić zadaniu powtarzanie: codziennie, co X dni (X od 2 do 30) albo w wybrane dni tygodnia — przy dodawaniu i edycji zadania, wszędzie gdzie je dodaje (z listy na dziś i w formularzu zadania pod milestonem); w edycji rytm można zmienić, a na niezrobionym zwykłym zadaniu włączyć (termin, przeniesienie i „częściowo” są wtedy zerowane). Priority: must-have
   > Socrates: Kontrargument rozważony: "'co X dni' liczone od czego?". Rozstrzygnięcie: od dnia dodania zadania; pierwsze wystąpienie jest tego dnia.
 - [new] FR-017: Zadanie powtarzalne pojawia się na liście na dziś w dni zgodne z rytmem, od dnia wstawienia do daty milestona albo do jego zamknięcia (co nastąpi wcześniej), niezależnie od tego, czy milestone jest najbliższy; wystąpienie ma termin dzisiejszy i trafia na górę listy. Priority: must-have
   > Socrates: Kontrargument rozważony: rutyna z dalszego milestona nie pojawi się na liście. Rozstrzygnięcie: rutyna niezależnie od daty milestona pojawia się w wyznaczone dni od wstawienia zadania do końca milestona.
@@ -75,8 +75,8 @@ Wcześniej każde zadanie było jednorazowe i trzeba je było dodawać ręcznie 
   > Socrates: Kontrargument rozważony: "co z oryginalnym wystąpieniem po przeniesieniu?". Rozstrzygnięcie: to samo wystąpienie zmienia dzień.
 - [modified] FR-011: Oznaczenie wystąpienia zadania powtarzalnego jako zrobione nie kończy zadania, kolejne wystąpienie wraca według rytmu; niezrobione wystąpienie wygasa, jest wyliczane samoczynnie jako pominięte (bez przycisku „Pomiń”) i widoczne tylko następnego dnia, po czym znika; stan „częściowo zrobione” nie dotyczy wystąpień zadań powtarzalnych — było: zrobione zadanie znika z listy na stałe. Priority: must-have
   > Socrates: Kontrargument rozważony: niezrobione wystąpienie z wczoraj wygasa po cichu. Rozstrzygnięcie: wygasa, ale widocznie oznaczone jako pominięte.
-- [modified] FR-020: Użytkownik może zmienić rytm albo wyłączyć powtarzanie zadania — rozszerza edycję zadań (FR-007). Priority: must-have
-  > Socrates: Kontrargument rozważony: wyłączenie nie może kasować historii zrobionych. Rozstrzygnięcie: historia i dzisiejsze wystąpienie zostają; zmiana działa od dziś (wyłączenie usuwa tylko przyszłe wystąpienia).
+- [modified] FR-020: Użytkownik może zmienić rytm zadania powtarzalnego albo wyłączyć powtarzanie (usuwa to zadanie razem z odhaczeniami, po potwierdzeniu) — wyłącznie w formularzu zadania, nie na liście na dziś; rozszerza edycję zadań (FR-007). Priority: must-have
+  > Socrates: Kontrargument rozważony: wyłączenie nie powinno kasować historii zrobionych. Rozstrzygnięcie: osobnego stanu „nieaktywne” nie ma; wyłączenie to usunięcie zadania razem z odhaczeniami, dlatego wymaga potwierdzenia. Zmiana rytmu działa od dziś: data startu przesuwa się na dziś, przyszłe przeniesienia i liczone „pominięte” znikają, a wiersze „zrobione” zostają.
 - [preserved] FR-009, FR-010: lista na dziś i jej sortowanie dla zadań niepowtarzalnych — bez zmian.
 - [preserved] Zachowanie zadań niepowtarzalnych: odhaczenie, przeniesienie na jutro, każde zadanie należy do milestona.
 
@@ -93,7 +93,7 @@ Zadanie powtarzalne pojawia się na liście na dziś w każdy dzień wynikający
 
 Obecna reguła: lista na dziś pokazuje niedokończone zadania z najbliższego niezamkniętego milestona każdego projektu. Zmiana: zadania powtarzalne są wyjątkiem — pojawiają się w wyznaczone dni nawet wtedy, gdy ich milestone nie jest najbliższy; zadania niepowtarzalne podlegają obecnej regule bez zmian.
 
-Rytm to jedno z: codziennie, co X dni (liczone od dnia dodania, pierwsze wystąpienie tego dnia) lub wybrane dni tygodnia. Dla dni tygodnia można wybrać od 1 do 7 dni (komplet siedmiu dni jest w etykiecie pokazywany jako „codziennie”), a wystąpienie jest też w dniu dodania zadania, jeśli ten dzień jest wśród wybranych. Wystąpienie można odhaczyć albo przenieść na jutro (tylko gdy jutro to zadanie nie ma własnego wystąpienia — codzienne zadanie nie może iść na jutro); przeniesienie jest jednorazowe, a przeniesione wystąpienie zachowuje się jak zwykłe (zrobione albo pominięte następnego dnia). Przycisku „Pomiń” nie ma: niezrobione wystąpienie jest wyliczane samoczynnie jako pominięte i widocznie oznaczone. Zmiana rytmu i wyłączenie powtarzania działają od dziś; historia i dzisiejsze wystąpienie zostają.
+Rytm to jedno z: codziennie, co X dni (liczone od dnia dodania, pierwsze wystąpienie tego dnia) lub wybrane dni tygodnia. Dla dni tygodnia można wybrać od 1 do 7 dni (komplet siedmiu dni jest w etykiecie pokazywany jako „codziennie”), a wystąpienie jest też w dniu dodania zadania, jeśli ten dzień jest wśród wybranych. Wystąpienie można odhaczyć albo przenieść na jutro (tylko gdy jutro to zadanie nie ma własnego wystąpienia — codzienne zadanie nie może iść na jutro); przeniesienie jest jednorazowe, a przeniesione wystąpienie zachowuje się jak zwykłe (zrobione albo pominięte następnego dnia). Przycisku „Pomiń” nie ma: niezrobione wystąpienie jest wyliczane samoczynnie jako pominięte i widocznie oznaczone. Zmiana rytmu działa od dziś: data startu przesuwa się na dziś, przyszłe przeniesienia i liczone „pominięte” znikają, a wiersze „zrobione” zostają. Wyłączenie powtarzania to usunięcie zadania razem z odhaczeniami (po potwierdzeniu); rytm można też włączyć na niezrobionym zwykłym zadaniu. Zmiany robi się wyłącznie w formularzu zadania.
 
 Powtarzanie kończy się w dniu daty milestona albo w chwili jego zamknięcia, co nastąpi wcześniej. Wystąpienie ma termin dzisiejszy, więc na liście trafia przed zadania z późniejszym terminem. Dla wystąpienia istnieją tylko stany „zrobione” i „pominięte”; pominięte wystąpienie jest wyliczane samoczynnie (nie zapisuje się go) i widoczne tylko następnego dnia, po czym znika z listy.
 
