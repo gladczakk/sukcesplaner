@@ -8,7 +8,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(15);
+select plan(19);
 
 insert into auth.users (id, aud, role, email)
 values ('00000000-0000-0000-0000-0000000000a1', 'authenticated', 'authenticated', 'a@example.test');
@@ -27,7 +27,9 @@ values
   ('30000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000001', 'b-cel-po-starcie', null, null, '{3,5}', '2026-10-21'),
   ('30000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000001', 'c-interwal-na-dni', null, 2, null, '2026-10-21'),
   ('30000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000001', 'd-bez-zmiany-rytmu', null, null, '{3,5}', '2026-10-21'),
-  ('30000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000001', 'e-zerowanie', null, null, '{3,5}', '2026-10-21');
+  ('30000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000001', 'e-zerowanie', null, null, '{3,5}', '2026-10-21'),
+  ('30000000-0000-0000-0000-000000000006', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000001', 'f-cel-na-dacie-startu', null, null, '{3}', '2026-10-21'),
+  ('30000000-0000-0000-0000-000000000007', '00000000-0000-0000-0000-0000000000a1', '20000000-0000-0000-0000-000000000001', 'g-rola-authenticated', null, null, '{3,5}', '2026-10-21');
 
 -- Wiersze wystapien (jako postgres):
 -- A: moved sroda 21 -> czwartek 22 (przed startem), done piatek 23, moved sroda 28 -> czwartek 29 (po starcie);
@@ -43,7 +45,9 @@ values
   ('30000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-0000000000a1', '2026-10-21', 'moved', '2026-10-22'),
   ('30000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-0000000000a1', '2026-10-23', 'moved', '2026-10-24'),
   ('30000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-0000000000a1', '2026-10-23', 'moved', '2026-10-24'),
-  ('30000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-0000000000a1', '2026-10-23', 'moved', '2026-10-24');
+  ('30000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-0000000000a1', '2026-10-23', 'moved', '2026-10-24'),
+  ('30000000-0000-0000-0000-000000000006', '00000000-0000-0000-0000-0000000000a1', '2026-10-21', 'moved', '2026-10-23'),
+  ('30000000-0000-0000-0000-000000000007', '00000000-0000-0000-0000-0000000000a1', '2026-10-28', 'moved', '2026-10-29');
 
 select has_trigger('public', 'tasks', 'tasks_rhythm_change_cleanup', 'wyzwalacz tasks_rhythm_change_cleanup istnieje');
 
@@ -138,6 +142,39 @@ select is(
   (select count(*) from public.task_occurrences where task_id = '30000000-0000-0000-0000-000000000005'),
   1::bigint,
   'E: zerowanie rytmu nie sprzata wierszy (data startu NULL)');
+
+-- ---------------------------------------------------------------------------
+-- F: dzien docelowy dokladnie na dacie startu (granica >=)
+-- ---------------------------------------------------------------------------
+-- F: rytm sr, przeniesienie sroda 21 -> piatek 23; nowa data startu 2026-10-23 = dzien docelowy.
+
+select lives_ok(
+  $$update public.tasks set recurrence_weekdays = '{1,3}', recurrence_start_date = '2026-10-23'
+    where id = '30000000-0000-0000-0000-000000000006'$$,
+  'F: zmiana rytmu z data startu rowna dniowi docelowemu przyjeta');
+
+select is_empty(
+  $$select 1 from public.task_occurrences where task_id = '30000000-0000-0000-0000-000000000006'$$,
+  'F: przeniesienie z dniem docelowym rownym dacie startu usuniete (granica >=)');
+
+-- ---------------------------------------------------------------------------
+-- G: sprzatanie dziala pod rola authenticated (RLS, polityka delete)
+-- ---------------------------------------------------------------------------
+
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
+set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}';
+
+select lives_ok(
+  $$update public.tasks set recurrence_weekdays = '{1,5}', recurrence_start_date = '2026-10-23'
+    where id = '30000000-0000-0000-0000-000000000007'$$,
+  'G: wlasciciel zmienia rytm pod rola authenticated');
+
+select is_empty(
+  $$select 1 from public.task_occurrences where task_id = '30000000-0000-0000-0000-000000000007'$$,
+  'G: wyzwalacz usuwa przyszle przeniesienie pod rola authenticated');
+
+reset role;
 
 select * from finish();
 rollback;

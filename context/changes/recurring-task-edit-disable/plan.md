@@ -84,6 +84,8 @@ Dodaje wyzwalacz po zmianie rytmu zadania, który usuwa wiersze `moved` (źród�
 
 - Przegląd migracji: wyzwalacz nie dotyka wierszy `done`, używa daty startu zamiast `current_date` i ma warunek `WHEN` na zmianę samego rytmu
 
+**Adnotacja po przeglądzie**: dodana migracja `20261022130000_recurring_rhythm_change_lock.sql` — funkcja sprzątająca bierze najpierw blokadę `FOR UPDATE` na wierszu zadania, żeby czekać na równoległe wstawienie przeniesienia (F2); plik testowy pgTAP ma teraz 19 asercji (dodane: dzień docelowy równy dacie startu i zmiana rytmu pod rolą `authenticated`, F4).
+
 **Implementation Note**: Po fazie i zielonych bramkach automatycznych zatrzymaj się na ręczne potwierdzenie przed fazą 2. Bloki faz mają zwykłe wypunktowania; pola wyboru są tylko w `## Progress`.
 
 ---
@@ -142,6 +144,8 @@ Błędy bazy tłumaczy `translateError` z argumentem `rhythmField` odpowiadając
 - Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
 - Smoke przechodzi, w tym kroki PUT z rytmem (zmiana rytmu z datą startu = dziś, zmiana typu, wyłączenie odrzucone, włączenie na zwykłym zadaniu, zrobione odrzucone): `npm run smoke`
 - Test zepsucia: tymczasowe pominięcie ustawienia `recurrence_start_date` w usłudze zaczerwienia krok sprawdzający datę startu; po wycofaniu smoke jest zielony
+
+**Adnotacja po przeglądzie**: interwał 1 i wszystkie siedem dni tygodnia traktowane są jako ten sam rytm „codziennie” (zmiana między nimi zapisuje tylko tytuł); nieaktualny zapis zwykłego zadania, które w międzyczasie stało się powtarzalne, zwraca komunikat „To zadanie zostało w międzyczasie zmienione na powtarzalne. Odśwież stronę.” (F6).
 
 **Implementation Note**: Po fazie i zielonych bramkach automatycznych zatrzymaj się na potwierdzenie przed fazą 3 (ta faza nie ma kroków ręcznych).
 
@@ -202,6 +206,8 @@ Formularz edycji dostaje kontrolki rytmu, opisy pod polem i blokadę dla zrobion
 - „Nie powtarzaj” na zadaniu powtarzalnym: pojawia się potwierdzenie usunięcia, po zatwierdzeniu zadanie znika ze strony projektu i z listy Dziś, a anulowanie wraca do formularza
 - Zwykłe zadanie ze statusem „Częściowo” i terminem: wybór rytmu pokazuje opis o wyczyszczeniu terminu i statusu, po zapisie zadanie jest powtarzalne bez terminu; zrobione zadanie ma zablokowany select z wyjaśnieniem
 - Treść PRD v2 (FR-016, FR-020, kryterium akceptacji US-02, Business Logic) odpowiada decyzjom z planu
+
+**Adnotacja po przeglądzie**: wybór rytmu nie zeruje już terminu w stanie formularza (przywracany po powrocie do „Nie powtarzaj”, F1); opis pod polem dla zadania powtarzalnego z wybranym „Nie powtarzaj” brzmi „Zadanie zostanie usunięte razem z odhaczeniami.” (F3). Krok smoke z wyspą edycji pokrywa tylko górę komponentu (etykiety edycji i usuwania w SSR); ConfirmDialog i gałąź usuwania sprawdzają kroki ręczne 3.7–3.10, ponieważ `DialogContent` nie renderuje się przy zamkniętym dialogu (F5).
 
 **Implementation Note**: To ostatnia faza; po zielonych bramkach i ręcznym potwierdzeniu zamknij zmianę według rytuału epilogu.
 

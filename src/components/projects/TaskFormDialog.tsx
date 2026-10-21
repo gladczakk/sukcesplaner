@@ -97,7 +97,9 @@ export default function TaskFormDialog({ mode, projectId, milestone, task, disab
   const repeatHint = isDoneTask
     ? "Zrobionego zadania nie można zmienić w powtarzalne."
     : isRecurringTask
-      ? "Zmiana rytmu działa od dziś i usuwa przyszłe przeniesienia."
+      ? repeating
+        ? "Zmiana rytmu działa od dziś i usuwa przyszłe przeniesienia."
+        : "Zadanie zostanie usunięte razem z odhaczeniami."
       : isEdit && repeating
         ? "Termin i status „Częściowo” zostaną wyczyszczone."
         : undefined;
@@ -119,7 +121,9 @@ export default function TaskFormDialog({ mode, projectId, milestone, task, disab
 
   function changeRepeat(value: string) {
     if (!isRecurrenceMode(value)) return;
-    setValues((current) => ({ ...current, repeat: value, due_date: value === "none" ? current.due_date : "" }));
+    // The due date stays in the form state while a rhythm is selected (the field is hidden and `submit` sends none),
+    // so switching back to "Nie powtarzaj" restores it.
+    setValues((current) => ({ ...current, repeat: value }));
     setFieldErrors((current) => ({
       ...current,
       due_date: undefined,

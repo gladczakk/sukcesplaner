@@ -32,6 +32,7 @@ const RECURRENCE_INTERVAL_ERROR = "Podaj liczbę dni od 2 do 30";
 const RECURRENCE_WEEKDAYS_ERROR = "Wybierz co najmniej jeden dzień tygodnia";
 const ONE_RHYTHM_ERROR = "Wybierz jeden rytm: co X dni albo dni tygodnia";
 const DISABLE_RECURRENCE_ERROR = "Aby wyłączyć powtarzanie, usuń zadanie.";
+const STALE_TASK_ERROR = "To zadanie zostało w międzyczasie zmienione na powtarzalne. Odśwież stronę.";
 const DONE_TO_RECURRING_ERROR = "Zrobionego zadania nie można zmienić w powtarzalne.";
 const OCCURRENCE_ERROR = "To wystąpienie nie jest dziś aktualne. Odśwież stronę.";
 const MOVE_ERROR = "Tego wystąpienia nie można przenieść na jutro. Odśwież stronę.";
@@ -140,10 +141,15 @@ function sameRhythm(
   task: Pick<TaskRow, "recurrence_interval_days" | "recurrence_weekdays">,
   input: Pick<TaskCreateInput, "recurrence_interval_days" | "recurrence_weekdays">,
 ): boolean {
-  const normalise = (days: number[] | null) => (days === null ? null : [...days].sort((a, b) => a - b).join(","));
+  // "Codziennie" is both interval 1 and all seven weekdays (same label, same days), so those count as one rhythm.
+  const key = (interval: number | null, days: number[] | null) => {
+    if (interval === 1 || days?.length === 7) return "daily";
+    if (interval !== null) return `every:${interval}`;
+    return days === null ? "none" : `days:${[...days].sort((a, b) => a - b).join(",")}`;
+  };
   return (
-    task.recurrence_interval_days === input.recurrence_interval_days &&
-    normalise(task.recurrence_weekdays) === normalise(input.recurrence_weekdays)
+    key(task.recurrence_interval_days, task.recurrence_weekdays) ===
+    key(input.recurrence_interval_days, input.recurrence_weekdays)
   );
 }
 
@@ -195,7 +201,14 @@ export async function updateTask(
   if (wasRecurring) {
     return write({ title: input.title, due_date: null, ...rhythm, recurrence_start_date: todayInWarsaw() });
   }
-  if (!hasRhythm) return write({ title: input.title, due_date: input.due_date });
+  if (!hasRhythm) {
+    const plain = await write({ title: input.title, due_date: input.due_date });
+    // The task was read as ordinary; the shape check firing now means another tab made it recurring in between.
+    if (plain.status === "validation" && plain.error === RECURRING_STATE_ERROR) {
+      return { status: "validation", error: STALE_TASK_ERROR, fieldErrors: {} };
+    }
+    return plain;
+  }
 
   const result = await write(
     {
