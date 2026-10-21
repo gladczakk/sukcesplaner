@@ -9,7 +9,7 @@ main_goal: low-complexity
 top_blocker: decisions
 milestone_id: recurring-tasks
 milestone_seq: 2
-milestone_status: open
+milestone_status: done
 ---
 
 # Roadmap: SukcesPlaner
@@ -20,7 +20,7 @@ milestone_status: open
 
 ## Milestone
 
-**M-2: Zadania powtarzalne w milestonie** — Status: open
+**M-2: Zadania powtarzalne w milestonie** — Status: done
 
 - **Intent:** Dostarczyć możliwość nadania zadaniu rytmu (codziennie, co X dni, wybrane dni tygodnia), tak by rutynowe zadania same wracały na listę na dziś, bez psucia istniejących akcji na liście (odhaczenie, przeniesienie na jutro).
 - **Source materials:** `context/foundation/prd-v2.md` (v2) — delta względem PRD v1.
@@ -116,10 +116,10 @@ Brak. Stan bazowy pokrywa wszystkie warstwy potrzebne tej zmiany; model danych r
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for `/10x-plan` | Notes |
 | --- | --- | --- | --- | --- |
-| S-07 | recurring-tasks-by-interval | Zadanie z rytmem „codziennie / co X dni" wraca na listę na dziś | no | Zaplanowane: `/10x-implement recurring-tasks-by-interval phase 1`; zakres obejmuje odhaczenie wystąpienia |
-| S-08 | recurring-tasks-by-weekdays | Rytm w wybrane dni tygodnia | no | Zaplanowane: `/10x-implement recurring-tasks-by-weekdays phase 1` |
-| S-09 | recurring-occurrence-actions | Pominięte i przeniesione wystąpienie zadania powtarzalnego | no | Czeka na S-07 |
-| S-10 | recurring-task-edit-disable | Zmiana rytmu i wyłączenie powtarzania | no | Czeka na S-07 i S-08 |
+| S-07 | recurring-tasks-by-interval | Zadanie z rytmem „codziennie / co X dni" wraca na listę na dziś | no | Zrobione i zarchiwizowane (zmiana nie wymaga już planowania) |
+| S-08 | recurring-tasks-by-weekdays | Rytm w wybrane dni tygodnia | no | Zrobione i zarchiwizowane (zmiana nie wymaga już planowania) |
+| S-09 | recurring-occurrence-actions | Pominięte i przeniesione wystąpienie zadania powtarzalnego | no | Zrobione i zarchiwizowane (zmiana nie wymaga już planowania) |
+| S-10 | recurring-task-edit-disable | Zmiana rytmu i wyłączenie powtarzania | no | Zrobione i zarchiwizowane (zmiana nie wymaga już planowania) |
 
 ## Open Roadmap Questions
 
@@ -144,6 +144,7 @@ Brak — pięć pytań otwartych z PRD v2 rozstrzygnięto 2026-10-19 i wpisano d
 ## Milestone History
 
 - **M-1: Pierwsza działająca pętla — od projektu do listy na dziś** (`first-usable-daily-list`) — closed 2026-10-19. Dostarczona kompletna pętla MVP: projekt z milestonami i zadaniami, lista na dziś z akcjami (zrobione / częściowo / przeniesienie na jutro) oraz ręczne dodawanie zadań z listy.
+- **M-2: Zadania powtarzalne w milestonie** (`recurring-tasks`) — closed 2026-10-21. Dostarczone zadania powtarzalne: rytm (codziennie, co X dni, wybrane dni tygodnia), lista na dziś z rutynami, pominięte wystąpienie i przeniesienie na jutro oraz zmiana rytmu i wyłączenie powtarzania z formularza zadania.
 
 ## Done
 
