@@ -268,32 +268,32 @@ Brak danych do migracji. Jedyna zmiana kontraktu to usunięcie propa `variant` z
 
 #### Automated
 
-- [x] 2.1 Skan literałów jest zielony dla `Banner.astro` i `Layout.astro`: `npm run check:values`
-- [x] 2.2 Typy i build przechodzą: `npx astro check` oraz `npm run build`
-- [x] 2.3 Lint przechodzi: `npm run lint`
-- [x] 2.4 Smoke przechodzi: `npm run smoke`
-- [x] 2.5 Test zepsucia: wycofanie jednej klasy tokenu w `Banner.astro` na literał (np. `bg-red-100`) zaczerwienia `npm run check:values`; po wycofaniu zielone
+- [x] 2.1 Skan literałów jest zielony dla `Banner.astro` i `Layout.astro`: `npm run check:values` — d52960f
+- [x] 2.2 Typy i build przechodzą: `npx astro check` oraz `npm run build` — d52960f
+- [x] 2.3 Lint przechodzi: `npm run lint` — d52960f
+- [x] 2.4 Smoke przechodzi: `npm run smoke` — d52960f
+- [x] 2.5 Test zepsucia: wycofanie jednej klasy tokenu w `Banner.astro` na literał (np. `bg-red-100`) zaczerwienia `npm run check:values`; po wycofaniu zielone — d52960f
 
 #### Manual
 
-- [x] 2.6 Przy braku konfiguracji Supabase komunikat jest czytelny w trybie jasnym i ciemnym, z ikoną i słowem „Uwaga:”
-- [x] 2.7 Link „Zobacz instrukcję konfiguracji” w bannerze ma widoczny fokus z klawiatury
+- [x] 2.6 Przy braku konfiguracji Supabase komunikat jest czytelny w trybie jasnym i ciemnym, z ikoną i słowem „Uwaga:” — d52960f
+- [x] 2.7 Link „Zobacz instrukcję konfiguracji” w bannerze ma widoczny fokus z klawiatury — d52960f
 
 ### Phase 3: Nawigacja główna
 
 #### Automated
 
-- [ ] 3.1 Skan literałów zielony dla `AppLayout.astro` i `NavLink.astro`: `npm run check:values`
-- [ ] 3.2 Typy i build przechodzą: `npx astro check` oraz `npm run build`
-- [ ] 3.3 Lint przechodzi: `npm run lint`
-- [ ] 3.4 Smoke przechodzi, w tym `/today` i `/projects` zwracają nawigację z `aria-current="page"` na właściwej pozycji: `npm run smoke`
-- [ ] 3.5 Test zepsucia: tymczasowe usunięcie `aria-current` z `NavLink` zaczerwienia asercję smoke; po wycofaniu zielone
+- [x] 3.1 Skan literałów zielony dla `AppLayout.astro` i `NavLink.astro`: `npm run check:values`
+- [x] 3.2 Typy i build przechodzą: `npx astro check` oraz `npm run build`
+- [x] 3.3 Lint przechodzi: `npm run lint`
+- [x] 3.4 Smoke przechodzi, w tym `/today` i `/projects` zwracają nawigację z `aria-current="page"` na właściwej pozycji: `npm run smoke`
+- [x] 3.5 Test zepsucia: tymczasowe usunięcie `aria-current` z `NavLink` zaczerwienia asercję smoke; po wycofaniu zielone
 
 #### Manual
 
-- [ ] 3.6 Klawiatura: Tab przechodzi logo → Dziś → Projekty → Wyloguj, każdy element ma widoczny pierścień fokusu w obu motywach
-- [ ] 3.7 Aktywna pozycja jest czytelnie wyróżniona (pigułka) na `/today` i `/projects`
-- [ ] 3.8 Przy 390 px brak poziomego scrolla, cele dotykowe nawigacji ≥40 px, e-mail nie rozpycha belki
+- [x] 3.6 Klawiatura: Tab przechodzi logo → Dziś → Projekty → Wyloguj, każdy element ma widoczny pierścień fokusu w obu motywach
+- [x] 3.7 Aktywna pozycja jest czytelnie wyróżniona (pigułka) na `/today` i `/projects`
+- [x] 3.8 Przy 390 px brak poziomego scrolla, cele dotykowe nawigacji ≥40 px, e-mail nie rozpycha belki
 
 ### Phase 4: Stany, bramka wizualna i reguła
 

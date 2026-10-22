@@ -121,6 +121,22 @@ const taskDateError = "Termin zadania nie może być późniejszy niż data mile
 const milestoneBeforeTaskError = "Nie można ustawić tej daty: późniejszy termin ma 1 zadanie";
 const milestoneDateError = "Data milestona nie może być późniejsza niż termin projektu";
 
+// Whether some <a> with this href carries aria-current="page" (the logo shares the /today href but has none).
+function navLinkCurrent(html, href) {
+  const anchors = [...html.matchAll(/<a\b[^>]*>/g)].map((m) => m[0]);
+  const own = anchors.filter((tag) => new RegExp(`\\shref=["']?${href}["']?[\\s>]`).test(tag));
+  return { present: own.length > 0, current: own.some((tag) => /\saria-current=["']?page["']?[\s>]/.test(tag)) };
+}
+
+// Fetches a page and reports the aria-current state of its /today and /projects navigation links.
+async function requestNavState(path) {
+  const result = await request(path);
+  return {
+    ...result,
+    body: { today: navLinkCurrent(result.text, "/today"), projects: navLinkCurrent(result.text, "/projects") },
+  };
+}
+
 const steps = [
   ["home renders", () => request("/"), { status: 200 }],
   // Astro swallows SSR errors of React islands (page stays 200, island missing), so assert the island's form is there.
@@ -165,6 +181,33 @@ const steps = [
       // The second text is rendered only by the add-task island in its disabled state.
       bodyIncludes: ["Na dziś nic do zrobienia.", "Najpierw dodaj projekt z otwartym milestonem"],
       bodyExcludes: "pozycj",
+    },
+  ],
+  // Static navigation (not an island): the active link carries aria-current="page", the other one does not.
+  [
+    "today page marks Dziś as the current navigation item",
+    () => requestNavState("/today"),
+    {
+      status: 200,
+      bodyEquals: {
+        "today.present": true,
+        "today.current": true,
+        "projects.present": true,
+        "projects.current": false,
+      },
+    },
+  ],
+  [
+    "projects page marks Projekty as the current navigation item",
+    () => requestNavState("/projects"),
+    {
+      status: 200,
+      bodyEquals: {
+        "today.present": true,
+        "today.current": false,
+        "projects.present": true,
+        "projects.current": true,
+      },
     },
   ],
   [
