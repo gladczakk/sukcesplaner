@@ -1,0 +1,21 @@
+---
+interface Props {
+  href: string;
+  /** A link that is its own action (not inline in text): gets the button type and a ≥40 px target. */
+  standalone?: boolean;
+  "aria-label"?: string;
+}
+
+const { href, standalone = false, ...rest } = Astro.props;
+---
+
+<a
+  href={href}
+  {...rest}
+  class:list={[
+    "rounded-sm underline outline-hidden hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    standalone && "type-button inline-flex min-h-10 items-center",
+  ]}
+>
+  <slot />
+</a>

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { CircleAlert } from "lucide-react";
 
 import { useMilestoneApi } from "@/components/hooks/use-milestone-api";
 import { Button } from "@/components/ui/button";
+import { InlineError } from "@/components/ui/inline-error";
 
 interface CloseMilestoneButtonProps {
   projectId: string;
@@ -59,12 +59,7 @@ export default function CloseMilestoneButton({ projectId, milestoneId, milestone
       >
         Zamknij milestone
       </Button>
-      {error ? (
-        <p role="alert" className="type-meta text-destructive-ink flex items-center gap-1">
-          <CircleAlert className="size-4 shrink-0" aria-hidden="true" />
-          <span>{error}</span>
-        </p>
-      ) : null}
+      {error ? <InlineError>{error}</InlineError> : null}
     </div>
   );
 }

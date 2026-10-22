@@ -270,31 +270,31 @@ Usunięcie `src/components/today/DueChip.astro` (jedyny importer to `today.astro
 
 #### Automated
 
-- [x] 1.1 Skan zielony dla istniejących plików z listy: `npm run check:values`
-- [x] 1.2 Test zepsucia: `bg-purple-300` dopisane tymczasowo do `today.astro` zaczerwienia `npm run check:values` z numerem linii; po wycofaniu zielone
-- [x] 1.3 Typy i build przechodzą: `npx astro check` oraz `npm run build`
-- [x] 1.4 Lint przechodzi: `npm run lint`
-- [x] 1.5 Smoke przechodzi: `npm run smoke`
+- [x] 1.1 Skan zielony dla istniejących plików z listy: `npm run check:values` — 0fa138d
+- [x] 1.2 Test zepsucia: `bg-purple-300` dopisane tymczasowo do `today.astro` zaczerwienia `npm run check:values` z numerem linii; po wycofaniu zielone — 0fa138d
+- [x] 1.3 Typy i build przechodzą: `npx astro check` oraz `npm run build` — 0fa138d
+- [x] 1.4 Lint przechodzi: `npm run lint` — 0fa138d
+- [x] 1.5 Smoke przechodzi: `npm run smoke` — 0fa138d
 
 #### Manual
 
-- [x] 1.6 W trybie wysokiego kontrastu Windows fokus z klawiatury na przycisku „Zrobione” w wierszu `/today` jest widoczny
-- [x] 1.7 Wygląd przycisków w trybie zwykłym bez zmian na `/today`, `/projects` i w dialogach
+- [x] 1.6 W trybie wysokiego kontrastu Windows fokus z klawiatury na przycisku „Zrobione” w wierszu `/today` jest widoczny — 0fa138d
+- [x] 1.7 Wygląd przycisków w trybie zwykłym bez zmian na `/today`, `/projects` i w dialogach — 0fa138d
 
 ### Phase 2: Komponenty współdzielone
 
 #### Automated
 
-- [ ] 2.1 Skan zielony dla `TextLink.astro`, `Chip.astro`, `inline-error.tsx` i czterech komponentów `today/*`: `npm run check:values`
-- [ ] 2.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
-- [ ] 2.3 Lint przechodzi: `npm run lint`
-- [ ] 2.4 Smoke przechodzi (wyspy `/today` nadal renderują przyciski akcji w HTML): `npm run smoke`
-- [ ] 2.5 Test zepsucia: tymczasowy `throw` na poziomie modułu w `inline-error.tsx` zaczerwienia kroki smoke dla `/today` z akcjami; po wycofaniu zielone
+- [x] 2.1 Skan zielony dla `TextLink.astro`, `Chip.astro`, `inline-error.tsx` i czterech komponentów `today/*`: `npm run check:values`
+- [x] 2.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
+- [x] 2.3 Lint przechodzi: `npm run lint`
+- [x] 2.4 Smoke przechodzi (wyspy `/today` nadal renderują przyciski akcji w HTML): `npm run smoke`
+- [x] 2.5 Test zepsucia: tymczasowy `throw` na poziomie modułu w `inline-error.tsx` zaczerwienia kroki smoke dla `/today` z akcjami; po wycofaniu zielone
 
 #### Manual
 
-- [ ] 2.6 Wywołany błąd akcji pokazuje komunikat z ikoną i słowem „Błąd:” w wierszu, w obu motywach
-- [ ] 2.7 Wygląd `/today` bez zmian poza błędami akcji
+- [x] 2.6 Wywołany błąd akcji pokazuje komunikat z ikoną i słowem „Błąd:” w wierszu, w obu motywach
+- [x] 2.7 Wygląd `/today` bez zmian poza błędami akcji
 
 ### Phase 3: TaskRow i today.astro
 

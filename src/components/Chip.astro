@@ -1,0 +1,36 @@
+---
+import { ArrowRight, Clock, Sun, TriangleAlert } from "lucide-react";
+
+import type { DueTone } from "@/lib/today";
+
+interface Props {
+  tone: DueTone | "skipped";
+  label: string;
+}
+
+const { tone, label } = Astro.props;
+
+const chipClasses: Record<Props["tone"], string> = {
+  overdue: "bg-destructive-soft text-destructive-ink",
+  today: "bg-warning-soft text-warning-ink",
+  skipped: "bg-warning-soft text-warning-ink",
+  tomorrow: "bg-info-soft text-info-ink",
+  soon: "bg-muted text-muted-foreground",
+  date: "bg-muted text-muted-foreground",
+  none: "bg-muted text-muted-foreground",
+};
+---
+
+<span
+  class:list={[
+    "type-meta inline-flex shrink-0 items-center gap-1 self-start rounded-pill px-2 tabular-nums",
+    chipClasses[tone],
+  ]}
+>
+  {tone === "overdue" && <TriangleAlert className="size-3 shrink-0" aria-hidden="true" />}
+  {tone === "today" && <Sun className="size-3 shrink-0" aria-hidden="true" />}
+  {tone === "tomorrow" && <ArrowRight className="size-3 shrink-0" aria-hidden="true" />}
+  {tone === "skipped" && <Clock className="size-3 shrink-0" aria-hidden="true" />}
+  {tone !== "skipped" && <span class="sr-only">Termin: </span>}
+  {label}
+</span>

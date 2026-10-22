@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { CircleAlert } from "lucide-react";
 
 import { useTaskApi } from "@/components/hooks/use-task-api";
 import { Button } from "@/components/ui/button";
+import { InlineError } from "@/components/ui/inline-error";
 
 interface RestoreDeferredButtonProps {
   projectId: string;
@@ -60,12 +60,7 @@ export default function RestoreDeferredButton({ projectId, milestoneId, taskId, 
       >
         Przywróć na dziś
       </Button>
-      {error ? (
-        <p role="alert" className="type-meta text-destructive-ink flex items-center gap-1">
-          <CircleAlert className="size-4 shrink-0" aria-hidden="true" />
-          <span>{error}</span>
-        </p>
-      ) : null}
+      {error ? <InlineError>{error}</InlineError> : null}
     </div>
   );
 }

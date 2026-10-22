@@ -1,10 +1,10 @@
 import { useState, type SubmitEvent } from "react";
-import { CircleAlert } from "lucide-react";
 
 import { useTaskApi } from "@/components/hooks/use-task-api";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
+import { InlineError } from "@/components/ui/inline-error";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { WeekdayPicker } from "@/components/ui/weekday-picker";
@@ -342,14 +342,7 @@ export default function AddTaskFromTodayDialog({ targets }: AddTaskFromTodayDial
               />
             </Field>
           ) : null}
-          {generalError ? (
-            <p role="alert" className="type-meta text-destructive-ink flex items-center gap-1">
-              <CircleAlert className="size-4 shrink-0" aria-hidden="true" />
-              <span>
-                <span className="font-semibold">Błąd:</span> {generalError}
-              </span>
-            </p>
-          ) : null}
+          {generalError ? <InlineError>{generalError}</InlineError> : null}
           <DialogFooter>
             <Button
               type="button"
