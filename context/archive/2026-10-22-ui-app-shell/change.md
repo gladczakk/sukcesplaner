@@ -1,10 +1,10 @@
 ---
 change_id: ui-app-shell
 title: Szkielet aplikacji — przegląd UI (layout, topbar, banner)
-status: impl_reviewed
+status: archived
 created: 2026-10-22
 updated: 2026-10-22
-archived_at: null
+archived_at: 2026-10-22T16:51:29Z
 ---
 
 ## Notes
