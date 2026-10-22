@@ -11,6 +11,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "smoke": "node scripts/smoke.mjs",
+    "check:values": "node scripts/check-hardcoded-values.mjs",
     "test:unit": "node --experimental-strip-types --test scripts/weekdays.test.mjs"
   },
   "dependencies": {
@@ -62,6 +63,9 @@
     ],
     "*.{json,css,md}": [
       "prettier --write"
+    ],
+    "src/{layouts/AppLayout.astro,layouts/Layout.astro,components/Banner.astro,components/NavLink.astro}": [
+      "node scripts/check-hardcoded-values.mjs"
     ]
   },
   "overrides": {
