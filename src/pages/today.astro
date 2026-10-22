@@ -70,7 +70,9 @@ const summary = [
   </div>
 
   {unavailable ? (
-    <InlineError className="mt-8">{unavailable}</InlineError>
+    <InlineError role="status" className="mt-8">
+      {unavailable}
+    </InlineError>
   ) : (
     <>
       {!hasRows ? (

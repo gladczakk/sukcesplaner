@@ -17,6 +17,7 @@ const isMilestone = variant === "milestone";
     <p class:list={[isMilestone ? "type-section" : "type-task", "break-words text-foreground"]}>
       <slot name="title" />
     </p>
+    {/* The meta slot renders inside a <p>: pass inline content only (span, a, svg), never block elements. */}
     <p class="type-meta break-words text-muted-foreground">
       <slot name="meta" />
     </p>

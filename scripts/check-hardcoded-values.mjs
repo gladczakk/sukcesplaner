@@ -28,8 +28,8 @@ const LITERAL = new RegExp(
 
 const args = process.argv.slice(2);
 const explicit = args.length > 0;
-// Default-list files that do not exist yet are skipped; explicit arguments must exist.
-const files = explicit ? args : DEFAULT_FILES.filter((file) => existsSync(file));
+// Every listed file must exist (a renamed or moved view must not silently drop out of the scan).
+const files = explicit ? args : DEFAULT_FILES;
 
 let hits = 0;
 for (const file of files) {

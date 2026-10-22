@@ -31,6 +31,6 @@ const chipClasses: Record<Props["tone"], string> = {
   {tone === "today" && <Sun className="size-3 shrink-0" aria-hidden="true" />}
   {tone === "tomorrow" && <ArrowRight className="size-3 shrink-0" aria-hidden="true" />}
   {tone === "skipped" && <Clock className="size-3 shrink-0" aria-hidden="true" />}
-  {tone !== "skipped" && <span class="sr-only">Termin: </span>}
+  {tone !== "skipped" && tone !== "none" && <span class="sr-only">Termin: </span>}
   {label}
 </span>

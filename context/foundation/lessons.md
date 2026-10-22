@@ -15,3 +15,10 @@
 - **Problem**: `alert-dialog` deklaruje w rejestrze zależność `button`, więc CLI proponuje nadpisanie dostosowanego `button.tsx` wersją stockową; wygenerowany kod łamie konwencje repo (`"use client"`, wartości arbitralne, literały kolorów) i potrafi dodać błędny pakiet `cn`.
 - **Rule**: Przed `shadcn add` uruchom `npx shadcn@latest view <komponent>` i sprawdź `registryDependencies`; dodawaj komponenty zanim dostosujesz współdzielone pliki, odmawiaj nadpisania istniejących i potwierdź `git diff` na nich po komendzie, a wygenerowane pliki doprowadź do konwencji repo (bez `"use client"`, tokeny zamiast literałów, `cn` z `@/lib/utils`).
 - **Applies to**: plan, plan-review, implement
+
+## Kryterium „zero X w katalogu” wymaga wypisania wszystkich plików z trafieniem w Changes Required
+
+- **Context**: Plan zmiany wizualnej `ui-today-view`: kryterium 3.3 mówiło „brak `outline-none` w `today.astro` i `components/today/*`”, a „Changes Required” nie wymieniał `AddTaskFromTodayDialog.tsx` (trafienie w linii 220).
+- **Problem**: Kryterium obejmowało plik, którego plan nie nazywał, więc poprawka wyszła jako niezaplanowana jedna klasa dopiero przy implementacji, zgłoszona przez podagenta; bez tego bramka 3.3 zaczerwieniłaby się po fazie.
+- **Rule**: Gdy kryterium sukcesu brzmi „zero X w katalogu lub wzorcu”, przy planowaniu uruchom grep X na tym zakresie i wymień każdy plik z trafieniem w „Changes Required” (albo zawęź kryterium do wymienionych plików).
+- **Applies to**: plan, plan-review, implement

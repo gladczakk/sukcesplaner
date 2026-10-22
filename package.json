@@ -12,7 +12,7 @@
     "format": "prettier --write .",
     "smoke": "node scripts/smoke.mjs",
     "check:values": "node scripts/check-hardcoded-values.mjs",
-    "test:unit": "node --experimental-strip-types --test scripts/weekdays.test.mjs"
+    "test:unit": "node --experimental-strip-types --test scripts/weekdays.test.mjs scripts/check-hardcoded-values.test.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
