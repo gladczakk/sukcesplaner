@@ -175,6 +175,8 @@ Trzy komponenty zastępują powielony markup: link z fokusem, chip terminu (z wa
 
 **Implementation Note**: Po zakończeniu fazy i automatycznych kontrolach zatrzymaj się na ręczne potwierdzenie przed fazą 4.
 
+**Uwaga po implementacji (przegląd, F3)**: kryterium 3.3 („brak `outline-none` w `components/today/*`”) obejmowało też `AddTaskFromTodayDialog.tsx:220` (link w dialogu), którego „Changes Required” tej fazy nie wymieniało; poprawiono tam jedną klasę (`outline-none` → `outline-hidden`) w ramach fazy 3.
+
 ---
 
 ## Faza 4: Stany, bramka wizualna i reguła
