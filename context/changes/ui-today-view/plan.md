@@ -300,31 +300,31 @@ Usunięcie `src/components/today/DueChip.astro` (jedyny importer to `today.astro
 
 #### Automated
 
-- [x] 3.1 Skan zielony dla `today.astro`, `TaskRow.astro` i pozostałych plików z listy: `npm run check:values`
-- [x] 3.2 Brak skopiowanych bloków wiersza w widoku: `grep -c "sm:items-start sm:justify-between" src/pages/today.astro` zwraca 0
-- [x] 3.3 Brak `outline-none` w `today.astro` i `components/today/*`: `grep -c "outline-none"` zwraca same 0
-- [x] 3.4 Typy i build przechodzą: `npx astro check` oraz `npm run build`
-- [x] 3.5 Lint przechodzi: `npm run lint`
-- [x] 3.6 Smoke przechodzi bez zmian oczekiwań na `/today`: `npm run smoke`
-- [x] 3.7 Test zepsucia: tymczasowe pominięcie `<slot name="end" />` w `TaskRow.astro` zaczerwieni kroki smoke z akcjami; po wycofaniu zielone
+- [x] 3.1 Skan zielony dla `today.astro`, `TaskRow.astro` i pozostałych plików z listy: `npm run check:values` — 9dff77d
+- [x] 3.2 Brak skopiowanych bloków wiersza w widoku: `grep -c "sm:items-start sm:justify-between" src/pages/today.astro` zwraca 0 — 9dff77d
+- [x] 3.3 Brak `outline-none` w `today.astro` i `components/today/*`: `grep -c "outline-none"` zwraca same 0 — 9dff77d
+- [x] 3.4 Typy i build przechodzą: `npx astro check` oraz `npm run build` — 9dff77d
+- [x] 3.5 Lint przechodzi: `npm run lint` — 9dff77d
+- [x] 3.6 Smoke przechodzi bez zmian oczekiwań na `/today`: `npm run smoke` — 9dff77d
+- [x] 3.7 Test zepsucia: tymczasowe pominięcie `<slot name="end" />` w `TaskRow.astro` zaczerwieni kroki smoke z akcjami; po wycofaniu zielone — 9dff77d
 
 #### Manual
 
-- [x] 3.8 `/today` z danymi wygląda tak jak dotąd poza zamierzonymi zmianami (ikona rytmu przy rutynie, „Pominięte wczoraj” z ikoną zegara, nagłówek milestona w `type-section`)
-- [x] 3.9 Tab przechodzi po linkach do projektu, „Otwórz projekt” i „Projekty” w stanie pustym, każdy ma widoczny pierścień fokusu w obu motywach
-- [x] 3.10 Przy 390 px brak poziomego scrolla; „Otwórz projekt” i „Projekty” mają cel dotykowy ≥40 px
-- [x] 3.11 Błąd ładowania listy (Supabase zatrzymany) pokazuje komunikat z ikoną i słowem „Błąd:”
+- [x] 3.8 `/today` z danymi wygląda tak jak dotąd poza zamierzonymi zmianami (ikona rytmu przy rutynie, „Pominięte wczoraj” z ikoną zegara, nagłówek milestona w `type-section`) — 9dff77d
+- [x] 3.9 Tab przechodzi po linkach do projektu, „Otwórz projekt” i „Projekty” w stanie pustym, każdy ma widoczny pierścień fokusu w obu motywach — 9dff77d
+- [x] 3.10 Przy 390 px brak poziomego scrolla; „Otwórz projekt” i „Projekty” mają cel dotykowy ≥40 px — 9dff77d
+- [x] 3.11 Błąd ładowania listy (Supabase zatrzymany) pokazuje komunikat z ikoną i słowem „Błąd:” — 9dff77d
 
 ### Phase 4: Stany, bramka wizualna i reguła
 
 #### Automated
 
-- [ ] 4.1 Skan zielony dla wszystkich plików z listy: `npm run check:values`
-- [ ] 4.2 Build przechodzi, a `/dev/kitchen-sink` nie jest dostępny w buildzie produkcyjnym (404 w `npm run preview`): `npm run build`
-- [ ] 4.3 Lint i smoke przechodzą: `npm run lint` oraz `npm run smoke`
+- [x] 4.1 Skan zielony dla wszystkich plików z listy: `npm run check:values`
+- [x] 4.2 Build przechodzi, a `/dev/kitchen-sink` nie jest dostępny w buildzie produkcyjnym (404 w `npm run preview`): `npm run build`
+- [x] 4.3 Lint i smoke przechodzą: `npm run lint` oraz `npm run smoke`
 
 #### Manual
 
-- [ ] 4.4 Zrzuty kitchen-sink desktop (1280 px) i mobile (390 px), jasny i ciemny, zapisane w `context/changes/ui-today-view/screenshots/` i porównane z `reference/screenshots/day-view-*.png`
-- [ ] 4.5 Każda komórka macierzy 7 stanów jest pokazana albo oznaczona N/A z powodem
-- [ ] 4.6 `CLAUDE.md` ma zaktualizowany punkt „Hard-coded value check” poza blokiem CLI
+- [x] 4.4 Zrzuty kitchen-sink desktop (1280 px) i mobile (390 px), jasny i ciemny, zapisane w `context/changes/ui-today-view/screenshots/` i porównane z `reference/screenshots/day-view-*.png`
+- [x] 4.5 Każda komórka macierzy 7 stanów jest pokazana albo oznaczona N/A z powodem
+- [x] 4.6 `CLAUDE.md` ma zaktualizowany punkt „Hard-coded value check” poza blokiem CLI

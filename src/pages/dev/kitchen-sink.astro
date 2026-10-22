@@ -2,6 +2,12 @@
 import AppLayout from "@/layouts/AppLayout.astro";
 import NavLink from "@/components/NavLink.astro";
 import Banner from "@/components/Banner.astro";
+import Chip from "@/components/Chip.astro";
+import TaskRow from "@/components/TaskRow.astro";
+import TextLink from "@/components/TextLink.astro";
+import { Button } from "@/components/ui/button";
+import { InlineError } from "@/components/ui/inline-error";
+import { Repeat } from "lucide-react";
 
 export const prerender = false;
 
@@ -85,8 +91,134 @@ const bannerFocusSim = "[&_a]:ring-2 [&_a]:ring-ring"; // symuluje focus-visible
             </div>
           </section>
 
+          <section class="mb-8">
+            <h2 class="type-section mb-3">TaskRow</h2>
+            <ul class="divide-y divide-border rounded-md border border-border bg-card shadow-card">
+              <TaskRow>
+                <Fragment slot="title">Zadanie z terminem</Fragment>
+                <Fragment slot="meta">
+                  <TextLink href="/dev/kitchen-sink">Projekt</TextLink>
+                  {" · Milestone"}
+                </Fragment>
+                <Fragment slot="end">
+                  <Chip tone="tomorrow" label="jutro" />
+                  <Button variant="secondary" size="sm">
+                    Zrobione
+                  </Button>
+                </Fragment>
+              </TaskRow>
+              <TaskRow>
+                <Fragment slot="title">Rutyna</Fragment>
+                <Fragment slot="meta">
+                  <TextLink href="/dev/kitchen-sink">Projekt</TextLink>
+                  {" · Milestone · "}
+                  <Repeat className="inline size-3.5 shrink-0 align-text-bottom" aria-hidden="true" />
+                  {" Co 2 dni"}
+                </Fragment>
+                <Fragment slot="end">
+                  <Button variant="secondary" size="sm">
+                    Zrobione
+                  </Button>
+                  <Button variant="ghost" size="sm">
+                    Na jutro
+                  </Button>
+                </Fragment>
+              </TaskRow>
+              <TaskRow>
+                <Fragment slot="title">Pominięte zadanie</Fragment>
+                <Fragment slot="meta">
+                  <TextLink href="/dev/kitchen-sink">Projekt</TextLink>
+                  {" · Milestone · Co 2 dni"}
+                </Fragment>
+                <Fragment slot="end">
+                  <Chip tone="skipped" label="Pominięte wczoraj" />
+                </Fragment>
+              </TaskRow>
+              <TaskRow variant="milestone">
+                <Fragment slot="title">Milestone do zamknięcia</Fragment>
+                <Fragment slot="meta">
+                  <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <TextLink href="/dev/kitchen-sink">Projekt</TextLink>
+                    <span aria-hidden="true">·</span>
+                    <span class="tabular-nums">12 paź</span>
+                    <Chip tone="overdue" label="wczoraj" />
+                  </span>
+                  <span class="block">Wszystkie zadania zrobione — milestone do zamknięcia</span>
+                </Fragment>
+                <Fragment slot="end">
+                  <Button variant="secondary" size="sm">
+                    Zamknij milestone
+                  </Button>
+                  <TextLink href="/dev/kitchen-sink" standalone>
+                    Otwórz projekt
+                  </TextLink>
+                </Fragment>
+              </TaskRow>
+            </ul>
+          </section>
+
+          <section class="mb-8">
+            <h2 class="type-section mb-3">Chip</h2>
+            <div class="flex flex-wrap gap-2">
+              <Chip tone="overdue" label="2 dni po terminie" />
+              <Chip tone="today" label="dziś" />
+              <Chip tone="tomorrow" label="jutro" />
+              <Chip tone="soon" label="za 3 dni" />
+              <Chip tone="date" label="12 paź" />
+              <Chip tone="none" label="bez terminu" />
+              <Chip tone="skipped" label="Pominięte wczoraj" />
+            </div>
+          </section>
+
+          <section class="mb-8">
+            <h2 class="type-section mb-3">TextLink</h2>
+            <div class="flex flex-col gap-3">
+              <div>
+                <p class="type-eyebrow mb-1 text-muted-foreground">default</p>
+                <p class="type-meta text-muted-foreground">
+                  Projekt tekstowy: <TextLink href="/dev/kitchen-sink">Projekt</TextLink>
+                </p>
+              </div>
+              <div>
+                <p class="type-eyebrow mb-1 text-muted-foreground">hover</p>
+                <p class="type-meta text-muted-foreground [&_a]:text-foreground">
+                  Projekt tekstowy: <TextLink href="/dev/kitchen-sink">Projekt</TextLink>
+                </p>
+              </div>
+              <div>
+                <p class="type-eyebrow mb-1 text-muted-foreground">focus-visible</p>
+                <p class:list={["type-meta text-muted-foreground", focusSim]}>
+                  Projekt tekstowy: <TextLink href="/dev/kitchen-sink">Projekt</TextLink>
+                </p>
+              </div>
+              <div>
+                <p class="type-eyebrow mb-1 text-muted-foreground">standalone</p>
+                <TextLink href="/dev/kitchen-sink" standalone>
+                  Otwórz projekt
+                </TextLink>
+              </div>
+              <div>
+                <p class="type-eyebrow mb-1 text-muted-foreground">standalone, focus-visible</p>
+                <div class:list={focusSim}>
+                  <TextLink href="/dev/kitchen-sink" standalone>
+                    Otwórz projekt
+                  </TextLink>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="mb-8">
+            <h2 class="type-section mb-3">InlineError</h2>
+            <div>
+              <p class="type-eyebrow mb-1 text-muted-foreground">error</p>
+              <InlineError>Nie udało się zapisać zmian. Spróbuj ponownie.</InlineError>
+            </div>
+          </section>
+
           <p class="type-meta text-muted-foreground">
-            N/A: disabled, empty, loading — nawigacja i banner nie mają tych stanów
+            N/A: disabled, empty, loading — komponenty widoku nie mają tych stanów; hover i focus-visible dotyczą tylko
+            linków i przycisków (symulowane klasami)
           </p>
         </div>
       ))}
