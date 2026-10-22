@@ -37,7 +37,7 @@ const { title = "10x Astro Starter" } = Astro.props;
   </head>
   <body>
     {missingConfigs.map((cfg) => (
-      <Banner variant="error">
+      <Banner>
         <strong>Uwaga:</strong> {cfg.message}
         {cfg.docsUrl && (
           <>

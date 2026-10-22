@@ -255,29 +255,29 @@ Brak danych do migracji. Jedyna zmiana kontraktu to usunięcie propa `variant` z
 
 #### Automated
 
-- [x] 1.1 Skan wskazuje wyłącznie `Banner.astro` (liczba trafień równa 9 przed fazą 2) i kończy się kodem 1: `npm run check:values`
-- [x] 1.2 Skan czystego pliku (`src/layouts/AppLayout.astro`) kończy się kodem 0: `node scripts/check-hardcoded-values.mjs src/layouts/AppLayout.astro`
-- [x] 1.3 Test zepsucia: tymczasowe dodanie `bg-purple-300` do `AppLayout.astro` zaczerwienia skan z numerem linii; po wycofaniu skan jest zielony dla tego pliku
-- [x] 1.4 Lint przechodzi dla zmienionych plików: `npm run lint`
+- [x] 1.1 Skan wskazuje wyłącznie `Banner.astro` (liczba trafień równa 9 przed fazą 2) i kończy się kodem 1: `npm run check:values` — 50bbaf3
+- [x] 1.2 Skan czystego pliku (`src/layouts/AppLayout.astro`) kończy się kodem 0: `node scripts/check-hardcoded-values.mjs src/layouts/AppLayout.astro` — 50bbaf3
+- [x] 1.3 Test zepsucia: tymczasowe dodanie `bg-purple-300` do `AppLayout.astro` zaczerwienia skan z numerem linii; po wycofaniu skan jest zielony dla tego pliku — 50bbaf3
+- [x] 1.4 Lint przechodzi dla zmienionych plików: `npm run lint` — 50bbaf3
 
 #### Manual
 
-- [x] 1.5 Zatwierdzenie commita ze zmienionym `Banner.astro` (przed fazą 2) jest blokowane przez pre-commit z czytelnym komunikatem (sprawdzić na kopii zmiany, nie na właściwym commicie fazy)
+- [x] 1.5 Zatwierdzenie commita ze zmienionym `Banner.astro` (przed fazą 2) jest blokowane przez pre-commit z czytelnym komunikatem (sprawdzić na kopii zmiany, nie na właściwym commicie fazy) — 50bbaf3
 
 ### Phase 2: Banner na tokenach
 
 #### Automated
 
-- [ ] 2.1 Skan literałów jest zielony dla `Banner.astro` i `Layout.astro`: `npm run check:values`
-- [ ] 2.2 Typy i build przechodzą: `npx astro check` oraz `npm run build`
-- [ ] 2.3 Lint przechodzi: `npm run lint`
-- [ ] 2.4 Smoke przechodzi: `npm run smoke`
-- [ ] 2.5 Test zepsucia: wycofanie jednej klasy tokenu w `Banner.astro` na literał (np. `bg-red-100`) zaczerwienia `npm run check:values`; po wycofaniu zielone
+- [x] 2.1 Skan literałów jest zielony dla `Banner.astro` i `Layout.astro`: `npm run check:values`
+- [x] 2.2 Typy i build przechodzą: `npx astro check` oraz `npm run build`
+- [x] 2.3 Lint przechodzi: `npm run lint`
+- [x] 2.4 Smoke przechodzi: `npm run smoke`
+- [x] 2.5 Test zepsucia: wycofanie jednej klasy tokenu w `Banner.astro` na literał (np. `bg-red-100`) zaczerwienia `npm run check:values`; po wycofaniu zielone
 
 #### Manual
 
-- [ ] 2.6 Przy braku konfiguracji Supabase komunikat jest czytelny w trybie jasnym i ciemnym, z ikoną i słowem „Uwaga:”
-- [ ] 2.7 Link „Zobacz instrukcję konfiguracji” w bannerze ma widoczny fokus z klawiatury
+- [x] 2.6 Przy braku konfiguracji Supabase komunikat jest czytelny w trybie jasnym i ciemnym, z ikoną i słowem „Uwaga:”
+- [x] 2.7 Link „Zobacz instrukcję konfiguracji” w bannerze ma widoczny fokus z klawiatury
 
 ### Phase 3: Nawigacja główna
 
