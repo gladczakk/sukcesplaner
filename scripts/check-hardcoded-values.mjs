@@ -13,7 +13,8 @@ const DEFAULT_FILES = [
 const PALETTE =
   "slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|white|black";
 const LITERAL = new RegExp(
-  `#[0-9a-fA-F]{3,8}\\b|rgba?\\(|hsla?\\(|oklch\\(|-\\[[0-9.]+(px|rem)\\]|\\b(bg|text|border|ring|outline|from|via|to|fill|stroke|shadow|divide)-(${PALETTE})\\b`,
+  // Hex skips anchors (href="#add") and entities (&#123;); hsl(var(--x)) is allowed; palette classes may carry a side/offset segment.
+  String.raw`(?<![\w&])(?<!href=["'])#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\((?!var\()|oklch\(|-\[[^\]]*\d(px|rem|em|%|vh|vw)[^\]]*\]|\b(bg|text|border|ring|outline|from|via|to|fill|stroke|shadow|divide|decoration|accent|caret|placeholder)(-(t|b|l|r|x|y|s|e|offset))?-(${PALETTE})\b`,
 );
 
 const args = process.argv.slice(2);
