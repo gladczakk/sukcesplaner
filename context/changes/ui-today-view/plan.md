@@ -319,12 +319,12 @@ Usunięcie `src/components/today/DueChip.astro` (jedyny importer to `today.astro
 
 #### Automated
 
-- [x] 4.1 Skan zielony dla wszystkich plików z listy: `npm run check:values`
-- [x] 4.2 Build przechodzi, a `/dev/kitchen-sink` nie jest dostępny w buildzie produkcyjnym (404 w `npm run preview`): `npm run build`
-- [x] 4.3 Lint i smoke przechodzą: `npm run lint` oraz `npm run smoke`
+- [x] 4.1 Skan zielony dla wszystkich plików z listy: `npm run check:values` — 3d38927
+- [x] 4.2 Build przechodzi, a `/dev/kitchen-sink` nie jest dostępny w buildzie produkcyjnym (404 w `npm run preview`): `npm run build` — 3d38927
+- [x] 4.3 Lint i smoke przechodzą: `npm run lint` oraz `npm run smoke` — 3d38927
 
 #### Manual
 
-- [x] 4.4 Zrzuty kitchen-sink desktop (1280 px) i mobile (390 px), jasny i ciemny, zapisane w `context/changes/ui-today-view/screenshots/` i porównane z `reference/screenshots/day-view-*.png`
-- [x] 4.5 Każda komórka macierzy 7 stanów jest pokazana albo oznaczona N/A z powodem
-- [x] 4.6 `CLAUDE.md` ma zaktualizowany punkt „Hard-coded value check” poza blokiem CLI
+- [x] 4.4 Zrzuty kitchen-sink desktop (1280 px) i mobile (390 px), jasny i ciemny, zapisane w `context/changes/ui-today-view/screenshots/` i porównane z `reference/screenshots/day-view-*.png` — 3d38927
+- [x] 4.5 Każda komórka macierzy 7 stanów jest pokazana albo oznaczona N/A z powodem — 3d38927
+- [x] 4.6 `CLAUDE.md` ma zaktualizowany punkt „Hard-coded value check” poza blokiem CLI — 3d38927
