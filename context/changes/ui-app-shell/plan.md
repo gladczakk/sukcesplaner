@@ -299,12 +299,12 @@ Brak danych do migracji. Jedyna zmiana kontraktu to usunięcie propa `variant` z
 
 #### Automated
 
-- [x] 4.1 Skan literałów zielony dla wszystkich plików szkieletu: `npm run check:values`
-- [x] 4.2 Build przechodzi, a `/dev/kitchen-sink` nie jest dostępny w buildzie produkcyjnym (404 w `npm run preview`): `npm run build`
-- [x] 4.3 Lint i smoke przechodzą: `npm run lint` oraz `npm run smoke`
+- [x] 4.1 Skan literałów zielony dla wszystkich plików szkieletu: `npm run check:values` — 5887220
+- [x] 4.2 Build przechodzi, a `/dev/kitchen-sink` nie jest dostępny w buildzie produkcyjnym (404 w `npm run preview`): `npm run build` — 5887220
+- [x] 4.3 Lint i smoke przechodzą: `npm run lint` oraz `npm run smoke` — 5887220
 
 #### Manual
 
-- [x] 4.4 Zrzuty kitchen-sink desktop (1280 px) i mobile (390 px), jasny i ciemny, zapisane w `context/changes/ui-app-shell/screenshots/` i porównane z `reference/screenshots/*.png`
-- [x] 4.5 Każda komórka macierzy 7 stanów jest pokazana albo oznaczona N/A z powodem
-- [x] 4.6 `CLAUDE.md` zawiera dwie nowe linie poza blokiem CLI
+- [x] 4.4 Zrzuty kitchen-sink desktop (1280 px) i mobile (390 px), jasny i ciemny, zapisane w `context/changes/ui-app-shell/screenshots/` i porównane z `reference/screenshots/*.png` — 5887220
+- [x] 4.5 Każda komórka macierzy 7 stanów jest pokazana albo oznaczona N/A z powodem — 5887220
+- [x] 4.6 `CLAUDE.md` zawiera dwie nowe linie poza blokiem CLI — 5887220
