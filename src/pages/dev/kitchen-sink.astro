@@ -1,0 +1,95 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro";
+import NavLink from "@/components/NavLink.astro";
+import Banner from "@/components/Banner.astro";
+
+export const prerender = false;
+
+// Tylko DEV: poza trybem deweloperskim strona nie istnieje.
+const blocked = !import.meta.env.DEV;
+if (blocked) {
+  Astro.response.status = 404;
+}
+
+// Tokeny rozwiązują się per element, więc wrapper z klasą `dark` pokazuje ciemne wartości.
+const themes = [
+  { label: "Jasny", class: "" },
+  { label: "Ciemny", class: "dark bg-background text-foreground rounded-md border border-border p-4" },
+];
+
+// Wymuszone klasami warianty interakcji (symulują stan, nie wywołują go).
+const hoverSim = "[&_a]:bg-accent"; // symuluje hover
+const focusSim = "[&_a]:ring-2 [&_a]:ring-ring [&_a]:ring-offset-2 [&_a]:ring-offset-background"; // symuluje focus-visible
+const bannerFocusSim = "[&_a]:ring-2 [&_a]:ring-ring"; // symuluje focus-visible linku w banerze
+---
+
+{!blocked && (
+  <AppLayout title="Kitchen sink" current="today">
+    {/* Strona porównawcza: kolumna "Jasny" ma być jasna niezależnie od motywu systemu, "Ciemny" wymusza własny wrapper. */}
+    <script is:inline>
+      document.documentElement.classList.remove("dark");
+    </script>
+    <h1 class="type-section mb-6">Kitchen sink</h1>
+    <div class="grid gap-6 md:grid-cols-2">
+      {themes.map((theme) => (
+        <div class:list={theme.class}>
+          <p class="type-eyebrow mb-4 text-muted-foreground">{theme.label}</p>
+
+          <section class="mb-8">
+            <h2 class="type-section mb-3">NavLink</h2>
+            <div class="flex flex-col gap-3">
+              <div>
+                <p class="type-eyebrow mb-1 text-muted-foreground">default</p>
+                <NavLink href="/today">Dziś</NavLink>
+              </div>
+              <div>
+                <p class="type-eyebrow mb-1 text-muted-foreground">aktywna</p>
+                <NavLink href="/today" current>
+                  Dziś
+                </NavLink>
+              </div>
+              <div>
+                <p class="type-eyebrow mb-1 text-muted-foreground">hover</p>
+                <div class:list={hoverSim}>
+                  <NavLink href="/today">Dziś</NavLink>
+                </div>
+              </div>
+              <div>
+                <p class="type-eyebrow mb-1 text-muted-foreground">focus-visible</p>
+                <div class:list={focusSim}>
+                  <NavLink href="/today">Dziś</NavLink>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="mb-8">
+            <h2 class="type-section mb-3">Banner</h2>
+            <div class="flex flex-col gap-3">
+              <div>
+                <p class="type-eyebrow mb-1 text-muted-foreground">error</p>
+                <Banner>
+                  <strong>Uwaga:</strong> Supabase nie jest skonfigurowany — funkcje uwierzytelniania są wyłączone.{" "}
+                  <a href="/dev/kitchen-sink">Zobacz instrukcję konfiguracji</a>.
+                </Banner>
+              </div>
+              <div>
+                <p class="type-eyebrow mb-1 text-muted-foreground">focus-visible (link)</p>
+                <div class:list={bannerFocusSim}>
+                  <Banner>
+                    <strong>Uwaga:</strong> Supabase nie jest skonfigurowany — funkcje uwierzytelniania są wyłączone.{" "}
+                    <a href="/dev/kitchen-sink">Zobacz instrukcję konfiguracji</a>.
+                  </Banner>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <p class="type-meta text-muted-foreground">
+            N/A: disabled, empty, loading — nawigacja i banner nie mają tych stanów
+          </p>
+        </div>
+      ))}
+    </div>
+  </AppLayout>
+)}

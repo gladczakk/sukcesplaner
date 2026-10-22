@@ -283,28 +283,28 @@ Brak danych do migracji. Jedyna zmiana kontraktu to usunięcie propa `variant` z
 
 #### Automated
 
-- [x] 3.1 Skan literałów zielony dla `AppLayout.astro` i `NavLink.astro`: `npm run check:values`
-- [x] 3.2 Typy i build przechodzą: `npx astro check` oraz `npm run build`
-- [x] 3.3 Lint przechodzi: `npm run lint`
-- [x] 3.4 Smoke przechodzi, w tym `/today` i `/projects` zwracają nawigację z `aria-current="page"` na właściwej pozycji: `npm run smoke`
-- [x] 3.5 Test zepsucia: tymczasowe usunięcie `aria-current` z `NavLink` zaczerwienia asercję smoke; po wycofaniu zielone
+- [x] 3.1 Skan literałów zielony dla `AppLayout.astro` i `NavLink.astro`: `npm run check:values` — 595648b
+- [x] 3.2 Typy i build przechodzą: `npx astro check` oraz `npm run build` — 595648b
+- [x] 3.3 Lint przechodzi: `npm run lint` — 595648b
+- [x] 3.4 Smoke przechodzi, w tym `/today` i `/projects` zwracają nawigację z `aria-current="page"` na właściwej pozycji: `npm run smoke` — 595648b
+- [x] 3.5 Test zepsucia: tymczasowe usunięcie `aria-current` z `NavLink` zaczerwienia asercję smoke; po wycofaniu zielone — 595648b
 
 #### Manual
 
-- [x] 3.6 Klawiatura: Tab przechodzi logo → Dziś → Projekty → Wyloguj, każdy element ma widoczny pierścień fokusu w obu motywach
-- [x] 3.7 Aktywna pozycja jest czytelnie wyróżniona (pigułka) na `/today` i `/projects`
-- [x] 3.8 Przy 390 px brak poziomego scrolla, cele dotykowe nawigacji ≥40 px, e-mail nie rozpycha belki
+- [x] 3.6 Klawiatura: Tab przechodzi logo → Dziś → Projekty → Wyloguj, każdy element ma widoczny pierścień fokusu w obu motywach — 595648b
+- [x] 3.7 Aktywna pozycja jest czytelnie wyróżniona (pigułka) na `/today` i `/projects` — 595648b
+- [x] 3.8 Przy 390 px brak poziomego scrolla, cele dotykowe nawigacji ≥40 px, e-mail nie rozpycha belki — 595648b
 
 ### Phase 4: Stany, bramka wizualna i reguła
 
 #### Automated
 
-- [ ] 4.1 Skan literałów zielony dla wszystkich plików szkieletu: `npm run check:values`
-- [ ] 4.2 Build przechodzi, a `/dev/kitchen-sink` nie jest dostępny w buildzie produkcyjnym (404 w `npm run preview`): `npm run build`
-- [ ] 4.3 Lint i smoke przechodzą: `npm run lint` oraz `npm run smoke`
+- [x] 4.1 Skan literałów zielony dla wszystkich plików szkieletu: `npm run check:values`
+- [x] 4.2 Build przechodzi, a `/dev/kitchen-sink` nie jest dostępny w buildzie produkcyjnym (404 w `npm run preview`): `npm run build`
+- [x] 4.3 Lint i smoke przechodzą: `npm run lint` oraz `npm run smoke`
 
 #### Manual
 
-- [ ] 4.4 Zrzuty kitchen-sink desktop (1280 px) i mobile (390 px), jasny i ciemny, zapisane w `context/changes/ui-app-shell/screenshots/` i porównane z `reference/screenshots/*.png`
-- [ ] 4.5 Każda komórka macierzy 7 stanów jest pokazana albo oznaczona N/A z powodem
-- [ ] 4.6 `CLAUDE.md` zawiera dwie nowe linie poza blokiem CLI
+- [x] 4.4 Zrzuty kitchen-sink desktop (1280 px) i mobile (390 px), jasny i ciemny, zapisane w `context/changes/ui-app-shell/screenshots/` i porównane z `reference/screenshots/*.png`
+- [x] 4.5 Każda komórka macierzy 7 stanów jest pokazana albo oznaczona N/A z powodem
+- [x] 4.6 `CLAUDE.md` zawiera dwie nowe linie poza blokiem CLI

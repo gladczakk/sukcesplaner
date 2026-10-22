@@ -62,6 +62,8 @@ GitHub Actions workflow (`.github/workflows/ci.yml`) runs lint + build on every 
 - **No literals in views**: no hex/rgb/oklch colours, Tailwind palette classes (`bg-green-700`) or arbitrary values (`p-[13px]`). Use token classes (`bg-card`, `text-muted-foreground`, `rounded-pill`, `type-display`).
 - **Dark mode** is the `.dark` class on `<html>` (set in `src/layouts/Layout.astro`). Change it at the token layer only, not in component classes.
 - **Visual changes** go through `/10x-ui` (one view plus global tokens per change).
+- **Hard-coded value check**: `npm run check:values` scans the app-shell files (`AppLayout`, `Layout`, `Banner`, `NavLink`) for hex/palette/arbitrary values and runs in pre-commit via lint-staged; fix the view, do not widen the check.
+- **Kitchen sink**: `/dev/kitchen-sink` (DEV only, 404 in production) renders the app shell in light and dark with every state; use it for screenshots.
 
 <!-- BEGIN @przeprogramowani/10x-cli -->
 
