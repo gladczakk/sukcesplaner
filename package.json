@@ -64,7 +64,7 @@
     "*.{json,css,md}": [
       "prettier --write"
     ],
-    "src/{layouts/AppLayout.astro,layouts/Layout.astro,components/Banner.astro,components/NavLink.astro}": [
+    "src/{layouts/AppLayout.astro,layouts/Layout.astro,components/Banner.astro,components/NavLink.astro,pages/today.astro,components/TextLink.astro,components/Chip.astro,components/TaskRow.astro,components/ui/inline-error.tsx,components/today/TodayTaskActions.tsx,components/today/CloseMilestoneButton.tsx,components/today/RestoreDeferredButton.tsx,components/today/AddTaskFromTodayDialog.tsx}": [
       "node scripts/check-hardcoded-values.mjs"
     ]
   },

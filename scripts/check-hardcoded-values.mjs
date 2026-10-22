@@ -8,6 +8,15 @@ const DEFAULT_FILES = [
   "src/layouts/Layout.astro",
   "src/components/Banner.astro",
   "src/components/NavLink.astro",
+  "src/pages/today.astro",
+  "src/components/TextLink.astro",
+  "src/components/Chip.astro",
+  "src/components/TaskRow.astro",
+  "src/components/ui/inline-error.tsx",
+  "src/components/today/TodayTaskActions.tsx",
+  "src/components/today/CloseMilestoneButton.tsx",
+  "src/components/today/RestoreDeferredButton.tsx",
+  "src/components/today/AddTaskFromTodayDialog.tsx",
 ];
 
 const PALETTE =
