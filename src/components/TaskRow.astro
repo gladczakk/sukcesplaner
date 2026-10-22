@@ -1,0 +1,35 @@
+---
+interface Props {
+  variant?: "default" | "milestone";
+}
+
+const { variant = "default" } = Astro.props;
+const isMilestone = variant === "milestone";
+---
+
+<li
+  class:list={[
+    "flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4",
+    isMilestone && "bg-accent",
+  ]}
+>
+  <div class="min-w-0">
+    <p class:list={[isMilestone ? "type-section" : "type-task", "break-words text-foreground"]}>
+      <slot name="title" />
+    </p>
+    <p class="type-meta break-words text-muted-foreground">
+      <slot name="meta" />
+    </p>
+  </div>
+  {Astro.slots.has("end") && (
+    <div
+      class:list={
+        isMilestone
+          ? "flex shrink-0 flex-wrap items-start gap-2 self-start"
+          : "flex min-w-0 shrink-0 flex-col items-start gap-2 sm:items-end"
+      }
+    >
+      <slot name="end" />
+    </div>
+  )}
+</li>

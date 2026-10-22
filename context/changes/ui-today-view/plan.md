@@ -285,35 +285,35 @@ Usunięcie `src/components/today/DueChip.astro` (jedyny importer to `today.astro
 
 #### Automated
 
-- [x] 2.1 Skan zielony dla `TextLink.astro`, `Chip.astro`, `inline-error.tsx` i czterech komponentów `today/*`: `npm run check:values`
-- [x] 2.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
-- [x] 2.3 Lint przechodzi: `npm run lint`
-- [x] 2.4 Smoke przechodzi (wyspy `/today` nadal renderują przyciski akcji w HTML): `npm run smoke`
-- [x] 2.5 Test zepsucia: tymczasowy `throw` na poziomie modułu w `inline-error.tsx` zaczerwienia kroki smoke dla `/today` z akcjami; po wycofaniu zielone
+- [x] 2.1 Skan zielony dla `TextLink.astro`, `Chip.astro`, `inline-error.tsx` i czterech komponentów `today/*`: `npm run check:values` — 1d90085
+- [x] 2.2 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build` — 1d90085
+- [x] 2.3 Lint przechodzi: `npm run lint` — 1d90085
+- [x] 2.4 Smoke przechodzi (wyspy `/today` nadal renderują przyciski akcji w HTML): `npm run smoke` — 1d90085
+- [x] 2.5 Test zepsucia: tymczasowy `throw` na poziomie modułu w `inline-error.tsx` zaczerwienia kroki smoke dla `/today` z akcjami; po wycofaniu zielone — 1d90085
 
 #### Manual
 
-- [x] 2.6 Wywołany błąd akcji pokazuje komunikat z ikoną i słowem „Błąd:” w wierszu, w obu motywach
-- [x] 2.7 Wygląd `/today` bez zmian poza błędami akcji
+- [x] 2.6 Wywołany błąd akcji pokazuje komunikat z ikoną i słowem „Błąd:” w wierszu, w obu motywach — 1d90085
+- [x] 2.7 Wygląd `/today` bez zmian poza błędami akcji — 1d90085
 
 ### Phase 3: TaskRow i today.astro
 
 #### Automated
 
-- [ ] 3.1 Skan zielony dla `today.astro`, `TaskRow.astro` i pozostałych plików z listy: `npm run check:values`
-- [ ] 3.2 Brak skopiowanych bloków wiersza w widoku: `grep -c "sm:items-start sm:justify-between" src/pages/today.astro` zwraca 0
-- [ ] 3.3 Brak `outline-none` w `today.astro` i `components/today/*`: `grep -c "outline-none"` zwraca same 0
-- [ ] 3.4 Typy i build przechodzą: `npx astro check` oraz `npm run build`
-- [ ] 3.5 Lint przechodzi: `npm run lint`
-- [ ] 3.6 Smoke przechodzi bez zmian oczekiwań na `/today`: `npm run smoke`
-- [ ] 3.7 Test zepsucia: tymczasowe pominięcie `<slot name="end" />` w `TaskRow.astro` zaczerwieni kroki smoke z akcjami; po wycofaniu zielone
+- [x] 3.1 Skan zielony dla `today.astro`, `TaskRow.astro` i pozostałych plików z listy: `npm run check:values`
+- [x] 3.2 Brak skopiowanych bloków wiersza w widoku: `grep -c "sm:items-start sm:justify-between" src/pages/today.astro` zwraca 0
+- [x] 3.3 Brak `outline-none` w `today.astro` i `components/today/*`: `grep -c "outline-none"` zwraca same 0
+- [x] 3.4 Typy i build przechodzą: `npx astro check` oraz `npm run build`
+- [x] 3.5 Lint przechodzi: `npm run lint`
+- [x] 3.6 Smoke przechodzi bez zmian oczekiwań na `/today`: `npm run smoke`
+- [x] 3.7 Test zepsucia: tymczasowe pominięcie `<slot name="end" />` w `TaskRow.astro` zaczerwieni kroki smoke z akcjami; po wycofaniu zielone
 
 #### Manual
 
-- [ ] 3.8 `/today` z danymi wygląda tak jak dotąd poza zamierzonymi zmianami (ikona rytmu przy rutynie, „Pominięte wczoraj” z ikoną zegara, nagłówek milestona w `type-section`)
-- [ ] 3.9 Tab przechodzi po linkach do projektu, „Otwórz projekt” i „Projekty” w stanie pustym, każdy ma widoczny pierścień fokusu w obu motywach
-- [ ] 3.10 Przy 390 px brak poziomego scrolla; „Otwórz projekt” i „Projekty” mają cel dotykowy ≥40 px
-- [ ] 3.11 Błąd ładowania listy (Supabase zatrzymany) pokazuje komunikat z ikoną i słowem „Błąd:”
+- [x] 3.8 `/today` z danymi wygląda tak jak dotąd poza zamierzonymi zmianami (ikona rytmu przy rutynie, „Pominięte wczoraj” z ikoną zegara, nagłówek milestona w `type-section`)
+- [x] 3.9 Tab przechodzi po linkach do projektu, „Otwórz projekt” i „Projekty” w stanie pustym, każdy ma widoczny pierścień fokusu w obu motywach
+- [x] 3.10 Przy 390 px brak poziomego scrolla; „Otwórz projekt” i „Projekty” mają cel dotykowy ≥40 px
+- [x] 3.11 Błąd ładowania listy (Supabase zatrzymany) pokazuje komunikat z ikoną i słowem „Błąd:”
 
 ### Phase 4: Stany, bramka wizualna i reguła
 

@@ -217,7 +217,7 @@ export default function AddTaskFromTodayDialog({ targets }: AddTaskFromTodayDial
           </Button>
           <a
             href="/projects"
-            className="type-button text-foreground focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm underline outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+            className="type-button text-foreground focus-visible:ring-ring focus-visible:ring-offset-background rounded-sm underline outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2"
           >
             Projekty
           </a>

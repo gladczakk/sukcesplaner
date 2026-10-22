@@ -1,9 +1,14 @@
 ---
+import { Repeat } from "lucide-react";
+
+import Chip from "@/components/Chip.astro";
+import TaskRow from "@/components/TaskRow.astro";
+import TextLink from "@/components/TextLink.astro";
 import AddTaskFromTodayDialog from "@/components/today/AddTaskFromTodayDialog";
 import CloseMilestoneButton from "@/components/today/CloseMilestoneButton";
-import DueChip from "@/components/today/DueChip.astro";
 import RestoreDeferredButton from "@/components/today/RestoreDeferredButton";
 import TodayTaskActions from "@/components/today/TodayTaskActions";
+import { InlineError } from "@/components/ui/inline-error";
 import AppLayout from "@/layouts/AppLayout.astro";
 import { formatDate, formatRecurrence, plural } from "@/lib/format";
 import { logError } from "@/lib/log";
@@ -65,17 +70,15 @@ const summary = [
   </div>
 
   {unavailable ? (
-    <p role="alert" class="type-quote mt-8 text-destructive-ink">
-      {unavailable}
-    </p>
+    <InlineError className="mt-8">{unavailable}</InlineError>
   ) : (
     <>
       {!hasRows ? (
         <div class="mt-8 flex flex-col items-start gap-4 rounded-md border border-border bg-card p-6 shadow-card">
           <p class="type-quote text-muted-foreground">Na dziś nic do zrobienia.</p>
-          <a href="/projects" class="type-button text-foreground underline">
+          <TextLink href="/projects" standalone>
             Projekty
-          </a>
+          </TextLink>
         </div>
       ) : (
         <>
@@ -83,25 +86,20 @@ const summary = [
           {itemCount === 0 && <p class="type-quote mt-8 text-muted-foreground">Na dziś nic do zrobienia.</p>}
           <ul class="mt-8 divide-y divide-border rounded-md border border-border bg-card shadow-card">
             {view.routines.map((routine) => (
-              <li class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                <div class="min-w-0">
-                  <p class="type-task break-words text-foreground">{routine.title}</p>
-                  <p class="type-meta break-words text-muted-foreground">
-                    <a
-                      href={`/projects/${routine.project.id}`}
-                      class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                    >
-                      {routine.project.name}
-                    </a>
-                    {" · "}
-                    {routine.milestone.name}
-                    {` · ${formatRecurrence({ intervalDays: routine.interval_days, weekdays: routine.weekdays })}`}
-                    {routine.moved_from &&
-                      formatWeekdayFrom(routine.moved_from) &&
-                      ` · przeniesione ${formatWeekdayFrom(routine.moved_from)}`}
-                  </p>
-                </div>
-                <div class="flex min-w-0 shrink-0 flex-col items-start gap-2 sm:items-end">
+              <TaskRow>
+                <Fragment slot="title">{routine.title}</Fragment>
+                <Fragment slot="meta">
+                  <TextLink href={`/projects/${routine.project.id}`}>{routine.project.name}</TextLink>
+                  {" · "}
+                  {routine.milestone.name}
+                  {" · "}
+                  <Repeat className="inline size-3.5 shrink-0 align-text-bottom" aria-hidden="true" />
+                  {formatRecurrence({ intervalDays: routine.interval_days, weekdays: routine.weekdays })}
+                  {routine.moved_from &&
+                    formatWeekdayFrom(routine.moved_from) &&
+                    ` · przeniesione ${formatWeekdayFrom(routine.moved_from)}`}
+                </Fragment>
+                <Fragment slot="end">
                   <TodayTaskActions
                     client:load
                     recurring
@@ -111,63 +109,34 @@ const summary = [
                     title={routine.title}
                     canMove={routine.can_move}
                   />
-                </div>
-              </li>
+                </Fragment>
+              </TaskRow>
             ))}
             {view.skipped.map((skipped) => (
-              <li class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                <div class="min-w-0">
-                  <p class="type-task break-words text-foreground">{skipped.title}</p>
-                  <p class="type-meta break-words text-muted-foreground">
-                    <a
-                      href={`/projects/${skipped.project.id}`}
-                      class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                    >
-                      {skipped.project.name}
-                    </a>
-                    {" · "}
-                    {skipped.milestone.name}
-                    {` · ${formatRecurrence({ intervalDays: skipped.interval_days, weekdays: skipped.weekdays })}`}
-                  </p>
-                </div>
-                <div class="flex min-w-0 shrink-0 flex-col items-start gap-2 sm:items-end">
-                  <span class="type-meta inline-flex shrink-0 items-center gap-1 self-start rounded-pill bg-warning-soft px-2 text-warning-ink">
-                    <svg
-                      class="size-3 shrink-0"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      aria-hidden="true"
-                    >
-                      <circle cx="12" cy="12" r="10" />
-                      <path d="M12 6v6l4 2" />
-                    </svg>
-                    Pominięte wczoraj
-                  </span>
-                </div>
-              </li>
+              <TaskRow>
+                <Fragment slot="title">{skipped.title}</Fragment>
+                <Fragment slot="meta">
+                  <TextLink href={`/projects/${skipped.project.id}`}>{skipped.project.name}</TextLink>
+                  {" · "}
+                  {skipped.milestone.name}
+                  {` · ${formatRecurrence({ intervalDays: skipped.interval_days, weekdays: skipped.weekdays })}`}
+                </Fragment>
+                <Fragment slot="end">
+                  <Chip tone="skipped" label="Pominięte wczoraj" />
+                </Fragment>
+              </TaskRow>
             ))}
             {rows.map(({ task, chip }) => (
-              <li class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                <div class="min-w-0">
-                  <p class="type-task break-words text-foreground">{task.title}</p>
-                  <p class="type-meta break-words text-muted-foreground">
-                    <a
-                      href={`/projects/${task.project.id}`}
-                      class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                    >
-                      {task.project.name}
-                    </a>
-                    {" · "}
-                    {task.milestone.name}
-                    {task.status === "partial" && " · częściowo"}
-                  </p>
-                </div>
-                <div class="flex min-w-0 shrink-0 flex-col items-start gap-2 sm:items-end">
-                  <DueChip chip={chip} />
+              <TaskRow>
+                <Fragment slot="title">{task.title}</Fragment>
+                <Fragment slot="meta">
+                  <TextLink href={`/projects/${task.project.id}`}>{task.project.name}</TextLink>
+                  {" · "}
+                  {task.milestone.name}
+                  {task.status === "partial" && " · częściowo"}
+                </Fragment>
+                <Fragment slot="end">
+                  <Chip tone={chip.tone} label={chip.label} />
                   {task.status !== "done" && (
                     <TodayTaskActions
                       client:load
@@ -178,74 +147,64 @@ const summary = [
                       status={task.status}
                     />
                   )}
-                </div>
-              </li>
+                </Fragment>
+              </TaskRow>
             ))}
             {milestoneRows.map(({ milestone, chip }) => (
-              <li class="flex flex-col gap-2 bg-accent px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                <div class="min-w-0">
-                  <p class="font-serif text-xl font-medium break-words text-foreground">{milestone.name}</p>
-                  <p class="type-meta flex flex-wrap items-center gap-x-2 gap-y-1 break-words text-muted-foreground">
-                    <a
-                      href={`/projects/${milestone.project.id}`}
-                      class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                    >
-                      {milestone.project.name}
-                    </a>
+              <TaskRow variant="milestone">
+                <Fragment slot="title">{milestone.name}</Fragment>
+                <Fragment slot="meta">
+                  <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <TextLink href={`/projects/${milestone.project.id}`}>{milestone.project.name}</TextLink>
                     <span aria-hidden="true">·</span>
                     <span class="tabular-nums">{formatDate(milestone.due_date)}</span>
-                    {chip.tone !== "date" && chip.tone !== "none" && <DueChip chip={chip} />}
-                  </p>
-                  <p class="type-meta text-muted-foreground">Wszystkie zadania zrobione — milestone do zamknięcia</p>
-                </div>
-                <div class="flex shrink-0 flex-wrap items-start gap-2 self-start">
+                    {chip.tone !== "date" && chip.tone !== "none" && <Chip tone={chip.tone} label={chip.label} />}
+                  </span>
+                  <span class="block">Wszystkie zadania zrobione — milestone do zamknięcia</span>
+                </Fragment>
+                <Fragment slot="end">
                   <CloseMilestoneButton
                     client:load
                     projectId={milestone.project.id}
                     milestoneId={milestone.id}
                     milestoneName={milestone.name}
                   />
-                  <a
+                  <TextLink
                     href={`/projects/${milestone.project.id}`}
+                    standalone
                     aria-label={`Otwórz projekt ${milestone.project.name}`}
-                    class="type-button inline-flex h-8 items-center rounded-pill px-1 text-foreground underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
                     Otwórz projekt
-                  </a>
-                </div>
-              </li>
+                  </TextLink>
+                </Fragment>
+              </TaskRow>
             ))}
           </ul>
         </>
       )}
       {view.deferred.length > 0 && (
         <details data-deferred-details class="mt-4 rounded-md border border-border bg-card shadow-card">
-          <summary class="type-meta cursor-pointer rounded-md px-4 py-3 text-muted-foreground tabular-nums outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+          <summary class="type-meta cursor-pointer rounded-md px-4 py-3 text-muted-foreground tabular-nums outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
             {`Przeniesione na później: ${view.deferred.length}`}
           </summary>
           <ul class="divide-y divide-border border-t border-border">
             {view.deferred.map((task) => (
-              <li class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                <div class="min-w-0">
-                  <p class="type-task break-words text-foreground">{task.title}</p>
-                  <p class="type-meta break-words text-muted-foreground">
-                    <a
-                      href={`/projects/${task.project.id}`}
-                      class="rounded-sm underline outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                    >
-                      {task.project.name}
-                    </a>
-                    {` · ${task.milestone.name} · wróci ${formatDate(task.deferred_until)}`}
-                  </p>
-                </div>
-                <RestoreDeferredButton
-                  client:load
-                  projectId={task.project.id}
-                  milestoneId={task.milestone.id}
-                  taskId={task.id}
-                  title={task.title}
-                />
-              </li>
+              <TaskRow>
+                <Fragment slot="title">{task.title}</Fragment>
+                <Fragment slot="meta">
+                  <TextLink href={`/projects/${task.project.id}`}>{task.project.name}</TextLink>
+                  {` · ${task.milestone.name} · wróci ${formatDate(task.deferred_until)}`}
+                </Fragment>
+                <Fragment slot="end">
+                  <RestoreDeferredButton
+                    client:load
+                    projectId={task.project.id}
+                    milestoneId={task.milestone.id}
+                    taskId={task.id}
+                    title={task.title}
+                  />
+                </Fragment>
+              </TaskRow>
             ))}
           </ul>
         </details>
