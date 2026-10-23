@@ -354,15 +354,15 @@ Adresy `?error=<tekst>` zapisane w zakładkach przestaną pokazywać tekst (poka
 
 #### Automated
 
-- [x] 4.1 `npm run check:values` — 0 trafień
-- [x] 4.2 `npm run test:unit` przechodzi (lista = glob)
-- [x] 4.3 `npm run lint` przechodzi
-- [x] 4.4 `npm run build` przechodzi
-- [x] 4.5 `npm run smoke` przechodzi
-- [x] 4.6 Test zepsucia wyspy czerwieni krok smoke, po cofnięciu zielony
+- [x] 4.1 `npm run check:values` — 0 trafień — 0b33162
+- [x] 4.2 `npm run test:unit` przechodzi (lista = glob) — 0b33162
+- [x] 4.3 `npm run lint` przechodzi — 0b33162
+- [x] 4.4 `npm run build` przechodzi — 0b33162
+- [x] 4.5 `npm run smoke` przechodzi — 0b33162
+- [x] 4.6 Test zepsucia wyspy czerwieni krok smoke, po cofnięciu zielony — 0b33162
 
 #### Manual
 
-- [x] 4.7 Kitchen-sink pokazuje sekcję Auth w obu motywach ze stanami z macierzy (reszta N/A z powodem)
-- [ ] 4.8 Zrzuty desktop i mobile (jasny i ciemny) zapisane w folderze zmiany
-- [x] 4.9 Przepływ end-to-end: rejestracja, logowanie poprawne i błędne
+- [x] 4.7 Kitchen-sink pokazuje sekcję Auth w obu motywach ze stanami z macierzy (reszta N/A z powodem) — 0b33162
+- [x] 4.8 Zrzuty desktop i mobile (jasny i ciemny) zapisane w folderze zmiany
+- [x] 4.9 Przepływ end-to-end: rejestracja, logowanie poprawne i błędne — 0b33162
