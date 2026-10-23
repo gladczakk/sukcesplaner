@@ -1,4 +1,7 @@
 ---
+import Chip from "@/components/Chip.astro";
+import TaskRow from "@/components/TaskRow.astro";
+import TextLink from "@/components/TextLink.astro";
 import AppLayout from "@/layouts/AppLayout.astro";
 import DeleteProjectDialog from "@/components/projects/DeleteProjectDialog";
 import MilestoneFormDialog from "@/components/projects/MilestoneFormDialog";
@@ -6,6 +9,7 @@ import MilestoneRowActions from "@/components/projects/MilestoneRowActions";
 import ProjectFormDialog from "@/components/projects/ProjectFormDialog";
 import TaskFormDialog from "@/components/projects/TaskFormDialog";
 import TaskRowActions from "@/components/projects/TaskRowActions";
+import { InlineError } from "@/components/ui/inline-error";
 import { formatDate, formatRecurrence, formatTimestamp, plural } from "@/lib/format";
 import { LIFE_AREA_LABELS } from "@/lib/life-areas";
 import { logError } from "@/lib/log";
@@ -52,21 +56,16 @@ if (notFound) Astro.response.status = 404;
 <AppLayout title={project ? project.name : notFound ? "Nie znaleziono projektu" : "Projekt"} current="projects">
   {unavailable ? (
     <div class="flex flex-col items-start gap-4">
-      <p role="alert" class="type-quote text-destructive-ink">
-        {unavailable}
-      </p>
-      <a href="/projects" class="type-button text-foreground underline">
+      <InlineError role="status">{unavailable}</InlineError>
+      <TextLink href="/projects" standalone>
         Projekty
-      </a>
+      </TextLink>
     </div>
   ) : project ? (
     <>
-      <a
-        href="/projects"
-        class="type-button -ml-1 inline-flex h-8 items-center rounded-pill px-1 text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-      >
+      <TextLink href="/projects" standalone>
         Projekty
-      </a>
+      </TextLink>
       <div class="mt-2 grid gap-8 lg:grid-cols-3">
         <div class="min-w-0 lg:col-span-2">
           <div class="flex flex-wrap items-start justify-between gap-4">
@@ -100,9 +99,9 @@ if (notFound) Astro.response.status = 404;
               <MilestoneFormDialog mode="create" projectId={project.id} projectDueDate={project.due_date} client:load />
             </div>
             {milestonesError ? (
-              <p role="alert" class="type-quote mt-3 text-destructive-ink">
+              <InlineError role="status" className="mt-3">
                 {milestonesError}
-              </p>
+              </InlineError>
             ) : milestones.length === 0 ? (
               <p class="type-quote mt-3 rounded-md border border-dashed border-border p-4 text-muted-foreground">
                 Ten projekt nie ma jeszcze milestonów.
@@ -135,21 +134,7 @@ if (notFound) Astro.response.status = 404;
                               {milestone.task_count} {plural(milestone.task_count, ["zadanie", "zadania", "zadań"])}
                             </span>
                             {milestone.completed_at && (
-                              <span class="inline-flex items-center gap-1 rounded-pill bg-success-soft px-2 text-success-ink">
-                                <svg
-                                  class="size-3 shrink-0"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  stroke-width="2"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  aria-hidden="true"
-                                >
-                                  <path d="M20 6 9 17l-5-5" />
-                                </svg>
-                                zamknięty {formatTimestamp(milestone.completed_at)}
-                              </span>
+                              <Chip tone="done" label={`zamknięty ${formatTimestamp(milestone.completed_at)}`} />
                             )}
                           </p>
                         </div>
@@ -173,17 +158,10 @@ if (notFound) Astro.response.status = 404;
                       ) : (
                         <ul class="flex flex-col gap-2" aria-label={`Zadania milestona ${milestone.name}`}>
                           {milestone.tasks.map((task) => (
-                            <li class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                              <div class="min-w-0">
-                                <p
-                                  class:list={[
-                                    "type-body break-words",
-                                    task.status === "done" ? "text-muted-foreground line-through" : "text-foreground",
-                                  ]}
-                                >
-                                  {task.title}
-                                </p>
-                                <p class="type-meta text-muted-foreground tabular-nums">
+                            <TaskRow variant="compact" done={task.status === "done"}>
+                              <Fragment slot="title">{task.title}</Fragment>
+                              <Fragment slot="meta">
+                                <span class="tabular-nums">
                                   {task.is_recurring === true
                                     ? formatRecurrence({
                                         intervalDays: task.recurrence_interval_days,
@@ -192,23 +170,25 @@ if (notFound) Astro.response.status = 404;
                                     : task.due_date
                                       ? formatDate(task.due_date)
                                       : "bez terminu"}
-                                </p>
-                              </div>
-                              <TaskRowActions
-                                projectId={project.id}
-                                milestone={{ id: milestone.id, name: milestone.name, due_date: milestone.due_date }}
-                                task={{
-                                  id: task.id,
-                                  title: task.title,
-                                  due_date: task.due_date,
-                                  status: task.status,
-                                  recurrence_interval_days: task.recurrence_interval_days,
-                                  recurrence_weekdays: task.recurrence_weekdays,
-                                  is_recurring: task.is_recurring,
-                                }}
-                                client:load
-                              />
-                            </li>
+                                </span>
+                              </Fragment>
+                              <Fragment slot="end">
+                                <TaskRowActions
+                                  projectId={project.id}
+                                  milestone={{ id: milestone.id, name: milestone.name, due_date: milestone.due_date }}
+                                  task={{
+                                    id: task.id,
+                                    title: task.title,
+                                    due_date: task.due_date,
+                                    status: task.status,
+                                    recurrence_interval_days: task.recurrence_interval_days,
+                                    recurrence_weekdays: task.recurrence_weekdays,
+                                    is_recurring: task.is_recurring,
+                                  }}
+                                  client:load
+                                />
+                              </Fragment>
+                            </TaskRow>
                           ))}
                         </ul>
                       )}
@@ -258,9 +238,9 @@ if (notFound) Astro.response.status = 404;
   ) : (
     <div class="flex flex-col items-start gap-4">
       <h1 class="type-display text-foreground">Nie znaleziono projektu</h1>
-      <a href="/projects" class="type-button text-foreground underline">
+      <TextLink href="/projects" standalone>
         Wróć do projektów
-      </a>
+      </TextLink>
     </div>
   )}
 </AppLayout>

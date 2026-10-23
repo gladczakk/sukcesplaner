@@ -316,38 +316,38 @@ Brak danych do migracji. Zmiany we wspólnych plikach: `Chip` i `TaskRow` zyskuj
 
 #### Automated
 
-- [x] 2.1 Skan zielony dla `ui/confirm-dialog.tsx`, `ui/inline-error.tsx`, sześciu komponentów `projects/*`, `Chip.astro` i `TaskRow.astro`: `npm run check:values`
-- [x] 2.2 Brak skopiowanego bloku błędu: `grep -rn "<CircleAlert" src/components/projects src/components/ui/confirm-dialog.tsx` zwraca 0 trafień
-- [x] 2.3 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
-- [x] 2.4 Lint przechodzi: `npm run lint`
-- [x] 2.5 Smoke przechodzi (wyspy projektów i `/today` nadal renderują się w HTML): `npm run smoke`
-- [x] 2.6 Test zepsucia: tymczasowy `throw` na poziomie modułu w `ui/inline-error.tsx` zaczerwienia kroki smoke dla stron projektów i `/today`; po wycofaniu zielone
+- [x] 2.1 Skan zielony dla `ui/confirm-dialog.tsx`, `ui/inline-error.tsx`, sześciu komponentów `projects/*`, `Chip.astro` i `TaskRow.astro`: `npm run check:values` — 585e251
+- [x] 2.2 Brak skopiowanego bloku błędu: `grep -rn "<CircleAlert" src/components/projects src/components/ui/confirm-dialog.tsx` zwraca 0 trafień — 585e251
+- [x] 2.3 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build` — 585e251
+- [x] 2.4 Lint przechodzi: `npm run lint` — 585e251
+- [x] 2.5 Smoke przechodzi (wyspy projektów i `/today` nadal renderują się w HTML): `npm run smoke` — 585e251
+- [x] 2.6 Test zepsucia: tymczasowy `throw` na poziomie modułu w `ui/inline-error.tsx` zaczerwienia kroki smoke dla stron projektów i `/today`; po wycofaniu zielone — 585e251
 
 #### Manual
 
-- [x] 2.7 Błąd akcji wiersza (Offline, klik „Zamknij milestone” lub zmiana statusu zadania) pokazuje komunikat z ikoną i słowem „Błąd:”, w obu motywach
-- [x] 2.8 Błąd potwierdzenia usunięcia (Offline w dialogu „Usuń projekt”) pokazuje „Błąd:” wewnątrz dialogu
-- [x] 2.9 Poza komunikatami błędów `/projects/[id]` wygląda tak jak wcześniej
+- [x] 2.7 Błąd akcji wiersza (Offline, klik „Zamknij milestone” lub zmiana statusu zadania) pokazuje komunikat z ikoną i słowem „Błąd:”, w obu motywach — 585e251
+- [x] 2.8 Błąd potwierdzenia usunięcia (Offline w dialogu „Usuń projekt”) pokazuje „Błąd:” wewnątrz dialogu — 585e251
+- [x] 2.9 Poza komunikatami błędów `/projects/[id]` wygląda tak jak wcześniej — 585e251
 
 ### Phase 3: Strony projektów
 
 #### Automated
 
-- [ ] 3.1 Skan zielony dla obu stron i pozostałych plików z listy: `npm run check:values`
-- [ ] 3.2 Brak `outline-none` w stronach projektów: `grep -c "outline-none" src/pages/projects/index.astro "src/pages/projects/[id].astro"` zwraca 0 dla obu plików
-- [ ] 3.3 Brak ręcznego chipa i inline SVG w widoku projektu: `grep -c "bg-success-soft\|<svg" "src/pages/projects/[id].astro"` zwraca 0
-- [ ] 3.4 Brak surowej typografii nazwy projektu: `grep -c "font-serif" src/pages/projects/index.astro` zwraca 0
-- [ ] 3.5 Typy i build przechodzą: `npx astro check` oraz `npm run build`
-- [ ] 3.6 Lint przechodzi: `npm run lint`
-- [ ] 3.7 Smoke przechodzi bez zmian oczekiwań dla stron projektów: `npm run smoke`
-- [ ] 3.8 Test zepsucia: tymczasowe pominięcie `<slot name="end" />` w `TaskRow.astro` zaczerwieni kroki smoke z „Edytuj zadanie …”; po wycofaniu zielone
+- [x] 3.1 Skan zielony dla obu stron i pozostałych plików z listy: `npm run check:values`
+- [x] 3.2 Brak `outline-none` w stronach projektów: `grep -c "outline-none" src/pages/projects/index.astro "src/pages/projects/[id].astro"` zwraca 0 dla obu plików
+- [x] 3.3 Brak ręcznego chipa i inline SVG w widoku projektu: `grep -c "bg-success-soft\|<svg" "src/pages/projects/[id].astro"` zwraca 0
+- [x] 3.4 Brak surowej typografii nazwy projektu: `grep -c "font-serif" src/pages/projects/index.astro` zwraca 0
+- [x] 3.5 Typy i build przechodzą: `npx astro check` oraz `npm run build`
+- [x] 3.6 Lint przechodzi: `npm run lint`
+- [x] 3.7 Smoke przechodzi bez zmian oczekiwań dla stron projektów: `npm run smoke`
+- [x] 3.8 Test zepsucia: tymczasowe pominięcie `<slot name="end" />` w `TaskRow.astro` zaczerwieni kroki smoke z „Edytuj zadanie …”; po wycofaniu zielone
 
 #### Manual
 
-- [ ] 3.9 `/projects/[id]` z danymi wygląda tak jak dotąd poza zamierzonymi zmianami (zadanie zrobione przekreślone i wyszarzone, chip „zamknięty” z ikoną ptaszka, podkreślony link „Projekty” w nagłówku, nazwy projektów na liście w `type-section`)
-- [ ] 3.10 Tab przechodzi po linkach (w tym „Projekty”) i akcjach w wierszach, każdy ma widoczny pierścień fokusu w obu motywach
-- [ ] 3.11 Przy 390 px brak poziomego scrolla; link „Projekty” w nagłówku ma cel dotykowy ≥40 px
-- [ ] 3.12 Błąd ładowania (Supabase zatrzymany) na `/projects` i `/projects/[id]` pokazuje komunikat z ikoną i słowem „Błąd:”
+- [x] 3.9 `/projects/[id]` z danymi wygląda tak jak dotąd poza zamierzonymi zmianami (zadanie zrobione przekreślone i wyszarzone, chip „zamknięty” z ikoną ptaszka, podkreślony link „Projekty” w nagłówku, nazwy projektów na liście w `type-section`)
+- [x] 3.10 Tab przechodzi po linkach (w tym „Projekty”) i akcjach w wierszach, każdy ma widoczny pierścień fokusu w obu motywach
+- [x] 3.11 Przy 390 px brak poziomego scrolla; link „Projekty” w nagłówku ma cel dotykowy ≥40 px
+- [x] 3.12 Błąd ładowania (Supabase zatrzymany) na `/projects` i `/projects/[id]` pokazuje komunikat z ikoną i słowem „Błąd:”
 
 ### Phase 4: Stany, bramka wizualna i reguła
 

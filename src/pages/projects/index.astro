@@ -1,6 +1,7 @@
 ---
 import AppLayout from "@/layouts/AppLayout.astro";
 import ProjectFormDialog from "@/components/projects/ProjectFormDialog";
+import { InlineError } from "@/components/ui/inline-error";
 import { formatDate } from "@/lib/format";
 import { LIFE_AREA_LABELS } from "@/lib/life-areas";
 import { logError } from "@/lib/log";
@@ -36,9 +37,9 @@ if (!supabase) {
   </div>
 
   {unavailable ? (
-    <p role="alert" class="type-quote mt-8 text-destructive-ink">
+    <InlineError role="status" className="mt-8">
       {unavailable}
-    </p>
+    </InlineError>
   ) : projects.length === 0 ? (
     <div class="mt-8 flex flex-col items-start gap-4 rounded-md border border-border bg-card p-6 shadow-card">
       <p class="type-quote text-muted-foreground">Nie masz jeszcze projektów.</p>
@@ -50,9 +51,9 @@ if (!supabase) {
         <li>
           <a
             href={`/projects/${project.id}`}
-            class="flex flex-col gap-1 rounded-md px-4 py-3 outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
+            class="flex flex-col gap-1 rounded-md px-4 py-3 outline-hidden hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
           >
-            <span class="min-w-0 font-serif text-xl font-medium break-words text-foreground">{project.name}</span>
+            <span class="type-section min-w-0 break-words text-foreground">{project.name}</span>
             <span class="type-meta shrink-0 text-muted-foreground tabular-nums">
               {LIFE_AREA_LABELS[project.life_area]} · Termin: {formatDate(project.due_date)}
             </span>
