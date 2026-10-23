@@ -333,32 +333,32 @@ Brak danych do migracji. Zmiany we wspólnych plikach: `Chip` i `TaskRow` zyskuj
 
 #### Automated
 
-- [x] 3.1 Skan zielony dla obu stron i pozostałych plików z listy: `npm run check:values`
-- [x] 3.2 Brak `outline-none` w stronach projektów: `grep -c "outline-none" src/pages/projects/index.astro "src/pages/projects/[id].astro"` zwraca 0 dla obu plików
-- [x] 3.3 Brak ręcznego chipa i inline SVG w widoku projektu: `grep -c "bg-success-soft\|<svg" "src/pages/projects/[id].astro"` zwraca 0
-- [x] 3.4 Brak surowej typografii nazwy projektu: `grep -c "font-serif" src/pages/projects/index.astro` zwraca 0
-- [x] 3.5 Typy i build przechodzą: `npx astro check` oraz `npm run build`
-- [x] 3.6 Lint przechodzi: `npm run lint`
-- [x] 3.7 Smoke przechodzi bez zmian oczekiwań dla stron projektów: `npm run smoke`
-- [x] 3.8 Test zepsucia: tymczasowe pominięcie `<slot name="end" />` w `TaskRow.astro` zaczerwieni kroki smoke z „Edytuj zadanie …”; po wycofaniu zielone
+- [x] 3.1 Skan zielony dla obu stron i pozostałych plików z listy: `npm run check:values` — 07f38a6
+- [x] 3.2 Brak `outline-none` w stronach projektów: `grep -c "outline-none" src/pages/projects/index.astro "src/pages/projects/[id].astro"` zwraca 0 dla obu plików — 07f38a6
+- [x] 3.3 Brak ręcznego chipa i inline SVG w widoku projektu: `grep -c "bg-success-soft\|<svg" "src/pages/projects/[id].astro"` zwraca 0 — 07f38a6
+- [x] 3.4 Brak surowej typografii nazwy projektu: `grep -c "font-serif" src/pages/projects/index.astro` zwraca 0 — 07f38a6
+- [x] 3.5 Typy i build przechodzą: `npx astro check` oraz `npm run build` — 07f38a6
+- [x] 3.6 Lint przechodzi: `npm run lint` — 07f38a6
+- [x] 3.7 Smoke przechodzi bez zmian oczekiwań dla stron projektów: `npm run smoke` — 07f38a6
+- [x] 3.8 Test zepsucia: tymczasowe pominięcie `<slot name="end" />` w `TaskRow.astro` zaczerwieni kroki smoke z „Edytuj zadanie …”; po wycofaniu zielone — 07f38a6
 
 #### Manual
 
-- [x] 3.9 `/projects/[id]` z danymi wygląda tak jak dotąd poza zamierzonymi zmianami (zadanie zrobione przekreślone i wyszarzone, chip „zamknięty” z ikoną ptaszka, podkreślony link „Projekty” w nagłówku, nazwy projektów na liście w `type-section`)
-- [x] 3.10 Tab przechodzi po linkach (w tym „Projekty”) i akcjach w wierszach, każdy ma widoczny pierścień fokusu w obu motywach
-- [x] 3.11 Przy 390 px brak poziomego scrolla; link „Projekty” w nagłówku ma cel dotykowy ≥40 px
-- [x] 3.12 Błąd ładowania (Supabase zatrzymany) na `/projects` i `/projects/[id]` pokazuje komunikat z ikoną i słowem „Błąd:”
+- [x] 3.9 `/projects/[id]` z danymi wygląda tak jak dotąd poza zamierzonymi zmianami (zadanie zrobione przekreślone i wyszarzone, chip „zamknięty” z ikoną ptaszka, podkreślony link „Projekty” w nagłówku, nazwy projektów na liście w `type-section`) — 07f38a6
+- [x] 3.10 Tab przechodzi po linkach (w tym „Projekty”) i akcjach w wierszach, każdy ma widoczny pierścień fokusu w obu motywach — 07f38a6
+- [x] 3.11 Przy 390 px brak poziomego scrolla; link „Projekty” w nagłówku ma cel dotykowy ≥40 px — 07f38a6
+- [x] 3.12 Błąd ładowania (Supabase zatrzymany) na `/projects` i `/projects/[id]` pokazuje komunikat z ikoną i słowem „Błąd:” — 07f38a6
 
 ### Phase 4: Stany, bramka wizualna i reguła
 
 #### Automated
 
-- [ ] 4.1 Skan zielony dla wszystkich plików z listy: `npm run check:values`
-- [ ] 4.2 Build przechodzi, a `/dev/kitchen-sink` nie jest dostępny w buildzie produkcyjnym (404 w `npm run preview`): `npm run build`
-- [ ] 4.3 Lint, test jednostkowy i smoke przechodzą: `npm run lint`, `npm run test:unit` oraz `npm run smoke`
+- [x] 4.1 Skan zielony dla wszystkich plików z listy: `npm run check:values`
+- [x] 4.2 Build przechodzi, a `/dev/kitchen-sink` nie jest dostępny w buildzie produkcyjnym (404 w `npm run preview`): `npm run build`
+- [x] 4.3 Lint, test jednostkowy i smoke przechodzą: `npm run lint`, `npm run test:unit` oraz `npm run smoke`
 
 #### Manual
 
-- [ ] 4.4 Zrzuty kitchen-sink desktop (1280 px) i mobile (390 px), jasny i ciemny, zapisane w `context/changes/ui-projects-views/screenshots/` i porównane z `reference/screenshots/project-view-*.png`
-- [ ] 4.5 Każda komórka macierzy 7 stanów jest pokazana albo oznaczona N/A z powodem
-- [ ] 4.6 `CLAUDE.md` ma zaktualizowany punkt „Hard-coded value check” poza blokiem CLI
+- [x] 4.4 Zrzuty kitchen-sink desktop (1280 px) i mobile (390 px), jasny i ciemny, zapisane w `context/changes/ui-projects-views/screenshots/` i porównane z `reference/screenshots/project-view-*.png`
+- [x] 4.5 Każda komórka macierzy 7 stanów jest pokazana albo oznaczona N/A z powodem
+- [x] 4.6 `CLAUDE.md` ma zaktualizowany punkt „Hard-coded value check” poza blokiem CLI
