@@ -67,7 +67,7 @@ export default function TaskRowActions({ projectId, milestone, task }: TaskRowAc
         {/* A recurring task is ticked off per occurrence on the Dziś list, so it has no status switch. */}
         {task.is_recurring !== true ? (
           <Select
-            className="w-auto aria-disabled:opacity-50"
+            className="w-auto aria-disabled:pointer-events-none aria-disabled:opacity-50"
             aria-label={`Status zadania ${task.title}`}
             options={STATUS_OPTIONS}
             value={task.status}
