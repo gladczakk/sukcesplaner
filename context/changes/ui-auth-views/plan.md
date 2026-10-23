@@ -304,34 +304,34 @@ Adresy `?error=<tekst>` zapisane w zakładkach przestaną pokazywać tekst (poka
 
 #### Automated
 
-- [x] 1.1 Testy jednostkowe przechodzą: `npm run test:unit`
-- [x] 1.2 Lint przechodzi: `npm run lint`
-- [x] 1.3 Typecheck przechodzi: `npx astro check`
-- [x] 1.4 Żadna trasa auth nie przekazuje `error.message` do URL (grep bez trafień)
+- [x] 1.1 Testy jednostkowe przechodzą: `npm run test:unit` — 3272ae7
+- [x] 1.2 Lint przechodzi: `npm run lint` — 3272ae7
+- [x] 1.3 Typecheck przechodzi: `npx astro check` — 3272ae7
+- [x] 1.4 Żadna trasa auth nie przekazuje `error.message` do URL (grep bez trafień) — 3272ae7
 
 #### Manual
 
-- [x] 1.5 Błędne hasło przekierowuje na `/auth/signin?error=invalid_credentials`
-- [x] 1.6 Poprawne logowanie nadal kończy na `/today`
+- [x] 1.5 Błędne hasło przekierowuje na `/auth/signin?error=invalid_credentials` — 3272ae7
+- [x] 1.6 Poprawne logowanie nadal kończy na `/today` — 3272ae7
 
 ### Phase 2: Formularze React
 
 #### Automated
 
-- [ ] 2.1 Lint przechodzi: `npm run lint`
-- [ ] 2.2 Typecheck przechodzi: `npx astro check`
-- [ ] 2.3 Testy jednostkowe przechodzą: `npm run test:unit`
-- [ ] 2.4 Skan literałów na komponentach formularzy ma 0 trafień
-- [ ] 2.5 Brak `outline-none` w `src/components/auth/`
-- [ ] 2.6 Brak importów `FormField`/`ServerError`/`PasswordToggle` w `src`
-- [ ] 2.7 Build przechodzi: `npm run build`
+- [x] 2.1 Lint przechodzi: `npm run lint`
+- [x] 2.2 Typecheck przechodzi: `npx astro check`
+- [x] 2.3 Testy jednostkowe przechodzą: `npm run test:unit`
+- [x] 2.4 Skan literałów na komponentach formularzy ma 0 trafień
+- [x] 2.5 Brak `outline-none` w `src/components/auth/`
+- [x] 2.6 Brak importów `FormField`/`ServerError`/`PasswordToggle` w `src`
+- [x] 2.7 Build przechodzi: `npm run build`
 
 #### Manual
 
-- [ ] 2.8 Pusty formularz pokazuje „Błąd: …” przy polach, fokus klawiatury widoczny na każdej kontrolce
-- [ ] 2.9 „Pokaż/Ukryj hasło” działa, `aria-label` zmienia się ze stanem
-- [ ] 2.10 Walidacja rejestracji (krótkie hasło, różne hasła) pokazuje właściwe komunikaty
-- [ ] 2.11 `?error=invalid_credentials` daje polski komunikat, `?error=cokolwiek` komunikat ogólny bez echa
+- [x] 2.8 Pusty formularz pokazuje „Błąd: …” przy polach, fokus klawiatury widoczny na każdej kontrolce
+- [x] 2.9 „Pokaż/Ukryj hasło” działa, `aria-label` zmienia się ze stanem
+- [x] 2.10 Walidacja rejestracji (krótkie hasło, różne hasła) pokazuje właściwe komunikaty
+- [x] 2.11 `?error=invalid_credentials` daje polski komunikat, `?error=cokolwiek` komunikat ogólny bez echa
 
 ### Phase 3: Strony auth
 
