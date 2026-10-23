@@ -138,7 +138,7 @@ async function requestNavState(path) {
 }
 
 const steps = [
-  ["home renders", () => request("/"), { status: 200 }],
+  ["home redirects anonymous user", () => request("/"), { status: 302, location: "/auth/signin" }],
   // Astro swallows SSR errors of React islands (page stays 200, island missing), so assert the island's form is there.
   ["signin page renders", () => request("/auth/signin"), { status: 200, bodyIncludes: 'action="/api/auth/signin"' }],
   ["signup page renders", () => request("/auth/signup"), { status: 200, bodyIncludes: 'action="/api/auth/signup"' }],
@@ -191,6 +191,7 @@ const steps = [
     () => request("/api/auth/signin", { method: "POST", form: { email, password } }),
     { status: 302, location: "/today" },
   ],
+  ["home redirects signed-in user", () => request("/"), { status: 302, location: "/today" }],
   ["dashboard renders for signed-in user", () => request("/dashboard"), { status: 200 }],
   // Island SSR errors leave the page at 200, so assert the empty state and the island's trigger button.
   [
@@ -1419,7 +1420,11 @@ const steps = [
     () => request(`/api/projects/${projectId}`, { method: "DELETE" }),
     { status: 404 },
   ],
-  ["signout clears session", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  [
+    "signout clears session",
+    () => request("/api/auth/signout", { method: "POST" }),
+    { status: 302, location: "/auth/signin" },
+  ],
   ["dashboard redirects after signout", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
 ];
 

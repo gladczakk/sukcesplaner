@@ -22,6 +22,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const { pathname } = context.url;
 
+  // The root has no page: it only sends people on to the app (or to sign-in).
+  if (pathname === "/") {
+    return context.redirect(context.locals.user ? "/today" : "/auth/signin");
+  }
+
   if (!context.locals.user) {
     if (PROTECTED_API_ROUTES.some((route) => matchesRoute(pathname, route))) {
       return new Response(JSON.stringify({ error: "Wymagane logowanie" }), {
