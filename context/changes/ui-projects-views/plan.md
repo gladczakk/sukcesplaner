@@ -353,12 +353,12 @@ Brak danych do migracji. Zmiany we wspólnych plikach: `Chip` i `TaskRow` zyskuj
 
 #### Automated
 
-- [x] 4.1 Skan zielony dla wszystkich plików z listy: `npm run check:values`
-- [x] 4.2 Build przechodzi, a `/dev/kitchen-sink` nie jest dostępny w buildzie produkcyjnym (404 w `npm run preview`): `npm run build`
-- [x] 4.3 Lint, test jednostkowy i smoke przechodzą: `npm run lint`, `npm run test:unit` oraz `npm run smoke`
+- [x] 4.1 Skan zielony dla wszystkich plików z listy: `npm run check:values` — b1ded83
+- [x] 4.2 Build przechodzi, a `/dev/kitchen-sink` nie jest dostępny w buildzie produkcyjnym (404 w `npm run preview`): `npm run build` — b1ded83
+- [x] 4.3 Lint, test jednostkowy i smoke przechodzą: `npm run lint`, `npm run test:unit` oraz `npm run smoke` — b1ded83
 
 #### Manual
 
-- [x] 4.4 Zrzuty kitchen-sink desktop (1280 px) i mobile (390 px), jasny i ciemny, zapisane w `context/changes/ui-projects-views/screenshots/` i porównane z `reference/screenshots/project-view-*.png`
-- [x] 4.5 Każda komórka macierzy 7 stanów jest pokazana albo oznaczona N/A z powodem
-- [x] 4.6 `CLAUDE.md` ma zaktualizowany punkt „Hard-coded value check” poza blokiem CLI
+- [x] 4.4 Zrzuty kitchen-sink desktop (1280 px) i mobile (390 px), jasny i ciemny, zapisane w `context/changes/ui-projects-views/screenshots/` i porównane z `reference/screenshots/project-view-*.png` — b1ded83
+- [x] 4.5 Każda komórka macierzy 7 stanów jest pokazana albo oznaczona N/A z powodem — b1ded83
+- [x] 4.6 `CLAUDE.md` ma zaktualizowany punkt „Hard-coded value check” poza blokiem CLI — b1ded83
