@@ -213,18 +213,18 @@ Stare zakładki do `/dashboard` zwrócą 404 (zamierzone). Link z e-maila potwie
 
 #### Automated
 
-- [x] 2.1 Lint przechodzi: `npm run lint`
-- [x] 2.2 Typecheck przechodzi: `npx astro check`
-- [x] 2.3 Testy jednostkowe przechodzą: `npm run test:unit`
-- [x] 2.4 Skan wartości przechodzi: `npm run check:values`
-- [x] 2.5 Build przechodzi: `npm run build`
-- [x] 2.6 Smoke przechodzi: `npm run smoke`
-- [x] 2.7 Pliki `dashboard.astro`, `Welcome.astro`, `Topbar.astro` usunięte
-- [x] 2.8 Brak `bg-cosmic` w `src`
-- [x] 2.9 Odwołania do usuniętych elementów tylko w kroku smoke o 404
+- [x] 2.1 Lint przechodzi: `npm run lint` — bddf227
+- [x] 2.2 Typecheck przechodzi: `npx astro check` — bddf227
+- [x] 2.3 Testy jednostkowe przechodzą: `npm run test:unit` — bddf227
+- [x] 2.4 Skan wartości przechodzi: `npm run check:values` — bddf227
+- [x] 2.5 Build przechodzi: `npm run build` — bddf227
+- [x] 2.6 Smoke przechodzi: `npm run smoke` — bddf227
+- [x] 2.7 Pliki `dashboard.astro`, `Welcome.astro`, `Topbar.astro` usunięte — bddf227
+- [x] 2.8 Brak `bg-cosmic` w `src` — bddf227
+- [x] 2.9 Odwołania do usuniętych elementów tylko w kroku smoke o 404 — bddf227
 
 #### Manual
 
-- [x] 2.10 `/dashboard` zwraca 404 zalogowanemu i niezalogowanemu
-- [x] 2.11 `/today`, `/projects` i `/auth/*` bez regresji w jasnym i ciemnym motywie
-- [x] 2.12 Tabela „Auth routes” w README czytelna i zgodna z nowym zachowaniem `/`
+- [x] 2.10 `/dashboard` zwraca 404 zalogowanemu i niezalogowanemu — bddf227
+- [x] 2.11 `/today`, `/projects` i `/auth/*` bez regresji w jasnym i ciemnym motywie — bddf227
+- [x] 2.12 Tabela „Auth routes” w README czytelna i zgodna z nowym zachowaniem `/` — bddf227
