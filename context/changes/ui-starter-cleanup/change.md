@@ -1,7 +1,7 @@
 ---
 change_id: ui-starter-cleanup
 title: Usunięcie pozostałości startera (dashboard, strona główna, Topbar, bg-cosmic)
-status: implemented
+status: impl_reviewed
 created: 2026-10-23
 updated: 2026-10-23
 archived_at: null

@@ -39,6 +39,8 @@ Usuwamy ostatnie fragmenty startera 10x-astro: stronę `/dashboard`, stronę gł
 
 Najpierw przekierowanie i wylogowanie (strona `/dashboard` jeszcze istnieje, więc faza jest odwracalna), potem usunięcie. Dzięki temu po fazie 1 `/` już nigdy nie renderuje startera, a faza 2 to czyste kasowanie plus podmiana odwołań. Przekierowanie siedzi w `index.astro` (odczyt `Astro.locals.user`): middleware zostaje odpowiedzialny tylko za ochronę tras, a `signout.ts` i middleware już rozstrzygają o użytkowniku w ten sam sposób.
 
+**Adaptacja z implementacji (2026-10-23, za zgodą użytkownika):** top-level `return Astro.redirect(...)` w frontmatter `index.astro` wywalał ESLint (`@typescript-eslint/no-misused-promises`, „Non-null Assertion Failed”), co blokowało `npm run lint` w CI i hook pre-commit. Przekierowanie z `/` jest więc w `src/middleware.ts` (gałąź `pathname === "/"`: zalogowany → `/today`, anonim → `/auth/signin`, 302), a `src/pages/index.astro` został usunięty już w Fazie 1 (zamiast przerabiania go na przekierowanie). Opisy `index.astro` w Phase 1 poniżej oraz w `plan-brief.md` i `research.md` należy czytać z tą poprawką; zachowanie i kryteria sukcesu są bez zmian.
+
 ## Phase 1: Przekierowanie `/` i wylogowanie
 
 ### Overview
