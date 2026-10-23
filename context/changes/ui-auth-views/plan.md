@@ -318,37 +318,37 @@ Adresy `?error=<tekst>` zapisane w zakładkach przestaną pokazywać tekst (poka
 
 #### Automated
 
-- [x] 2.1 Lint przechodzi: `npm run lint`
-- [x] 2.2 Typecheck przechodzi: `npx astro check`
-- [x] 2.3 Testy jednostkowe przechodzą: `npm run test:unit`
-- [x] 2.4 Skan literałów na komponentach formularzy ma 0 trafień
-- [x] 2.5 Brak `outline-none` w `src/components/auth/`
-- [x] 2.6 Brak importów `FormField`/`ServerError`/`PasswordToggle` w `src`
-- [x] 2.7 Build przechodzi: `npm run build`
+- [x] 2.1 Lint przechodzi: `npm run lint` — e01e724
+- [x] 2.2 Typecheck przechodzi: `npx astro check` — e01e724
+- [x] 2.3 Testy jednostkowe przechodzą: `npm run test:unit` — e01e724
+- [x] 2.4 Skan literałów na komponentach formularzy ma 0 trafień — e01e724
+- [x] 2.5 Brak `outline-none` w `src/components/auth/` — e01e724
+- [x] 2.6 Brak importów `FormField`/`ServerError`/`PasswordToggle` w `src` — e01e724
+- [x] 2.7 Build przechodzi: `npm run build` — e01e724
 
 #### Manual
 
-- [x] 2.8 Pusty formularz pokazuje „Błąd: …” przy polach, fokus klawiatury widoczny na każdej kontrolce
-- [x] 2.9 „Pokaż/Ukryj hasło” działa, `aria-label` zmienia się ze stanem
-- [x] 2.10 Walidacja rejestracji (krótkie hasło, różne hasła) pokazuje właściwe komunikaty
-- [x] 2.11 `?error=invalid_credentials` daje polski komunikat, `?error=cokolwiek` komunikat ogólny bez echa
+- [x] 2.8 Pusty formularz pokazuje „Błąd: …” przy polach, fokus klawiatury widoczny na każdej kontrolce — e01e724
+- [x] 2.9 „Pokaż/Ukryj hasło” działa, `aria-label` zmienia się ze stanem — e01e724
+- [x] 2.10 Walidacja rejestracji (krótkie hasło, różne hasła) pokazuje właściwe komunikaty — e01e724
+- [x] 2.11 `?error=invalid_credentials` daje polski komunikat, `?error=cokolwiek` komunikat ogólny bez echa — e01e724
 
 ### Phase 3: Strony auth
 
 #### Automated
 
-- [ ] 3.1 Lint przechodzi: `npm run lint`
-- [ ] 3.2 Typecheck przechodzi: `npx astro check`
-- [ ] 3.3 Skan literałów na stronach auth i `AuthShell` ma 0 trafień
-- [ ] 3.4 `bg-cosmic` zostaje tylko w `global.css`, `dashboard.astro`, `Welcome.astro`
-- [ ] 3.5 Brak emoji w `src/pages/auth/*.astro`
-- [ ] 3.6 Build przechodzi: `npm run build`
+- [x] 3.1 Lint przechodzi: `npm run lint`
+- [x] 3.2 Typecheck przechodzi: `npx astro check`
+- [x] 3.3 Skan literałów na stronach auth i `AuthShell` ma 0 trafień
+- [x] 3.4 `bg-cosmic` zostaje tylko w `global.css`, `dashboard.astro`, `Welcome.astro`
+- [x] 3.5 Brak emoji w `src/pages/auth/*.astro`
+- [x] 3.6 Build przechodzi: `npm run build`
 
 #### Manual
 
-- [ ] 3.7 Trzy strony czytelne w jasnym i ciemnym motywie, karta wyśrodkowana, `<main>`, brak poziomego przewijania na 390 px
-- [ ] 3.8 Przełącznik hasła wyrównany z polem także przy błędzie
-- [ ] 3.9 Zrzuty desktop i mobile potwierdzają wygląd
+- [x] 3.7 Trzy strony czytelne w jasnym i ciemnym motywie, karta wyśrodkowana, `<main>`, brak poziomego przewijania na 390 px
+- [x] 3.8 Przełącznik hasła wyrównany z polem także przy błędzie
+- [x] 3.9 Zrzuty desktop i mobile potwierdzają wygląd
 
 ### Phase 4: Stany, bramka i zabezpieczenie
 

@@ -1,0 +1,23 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<main class="flex min-h-screen items-center justify-center bg-background p-4">
+  <div class="w-full max-w-sm rounded-md border border-border bg-card p-8 shadow-card">
+    <h1 class="type-display text-foreground">{title}</h1>
+    {description && <p class="type-body mt-2 text-muted-foreground">{description}</p>}
+    <div class="mt-6">
+      <slot />
+    </div>
+    {Astro.slots.has("footer") && (
+      <div class="type-meta mt-6 text-muted-foreground">
+        <slot name="footer" />
+      </div>
+    )}
+  </div>
+</main>
