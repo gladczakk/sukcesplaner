@@ -64,7 +64,7 @@
     "*.{json,css,md}": [
       "prettier --write"
     ],
-    "src/{layouts/AppLayout.astro,layouts/Layout.astro,components/Banner.astro,components/NavLink.astro,pages/today.astro,components/TextLink.astro,components/Chip.astro,components/TaskRow.astro,components/ui/inline-error.tsx,components/today/TodayTaskActions.tsx,components/today/CloseMilestoneButton.tsx,components/today/RestoreDeferredButton.tsx,components/today/AddTaskFromTodayDialog.tsx}": [
+    "src/{layouts/AppLayout.astro,layouts/Layout.astro,components/Banner.astro,components/NavLink.astro,pages/today.astro,components/TextLink.astro,components/Chip.astro,components/TaskRow.astro,components/ui/inline-error.tsx,components/today/TodayTaskActions.tsx,components/today/CloseMilestoneButton.tsx,components/today/RestoreDeferredButton.tsx,components/today/AddTaskFromTodayDialog.tsx,pages/projects/index.astro,pages/projects/\\[id\\].astro,components/projects/DeleteMilestoneDialog.tsx,components/projects/DeleteProjectDialog.tsx,components/projects/DeleteTaskDialog.tsx,components/projects/MilestoneFormDialog.tsx,components/projects/MilestoneRowActions.tsx,components/projects/ProjectFormDialog.tsx,components/projects/TaskFormDialog.tsx,components/projects/TaskRowActions.tsx,components/ui/confirm-dialog.tsx}": [
       "node scripts/check-hardcoded-values.mjs"
     ]
   },

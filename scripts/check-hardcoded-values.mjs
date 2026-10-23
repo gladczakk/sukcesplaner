@@ -17,6 +17,17 @@ const DEFAULT_FILES = [
   "src/components/today/CloseMilestoneButton.tsx",
   "src/components/today/RestoreDeferredButton.tsx",
   "src/components/today/AddTaskFromTodayDialog.tsx",
+  "src/pages/projects/index.astro",
+  "src/pages/projects/[id].astro",
+  "src/components/projects/DeleteMilestoneDialog.tsx",
+  "src/components/projects/DeleteProjectDialog.tsx",
+  "src/components/projects/DeleteTaskDialog.tsx",
+  "src/components/projects/MilestoneFormDialog.tsx",
+  "src/components/projects/MilestoneRowActions.tsx",
+  "src/components/projects/ProjectFormDialog.tsx",
+  "src/components/projects/TaskFormDialog.tsx",
+  "src/components/projects/TaskRowActions.tsx",
+  "src/components/ui/confirm-dialog.tsx",
 ];
 
 const PALETTE =

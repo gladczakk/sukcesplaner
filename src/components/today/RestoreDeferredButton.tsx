@@ -50,7 +50,6 @@ export default function RestoreDeferredButton({ projectId, milestoneId, taskId, 
       <Button
         variant="ghost"
         size="sm"
-        className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
         aria-disabled={pending}
         aria-busy={pending}
         aria-label={`Przywróć na dziś: ${title}`}

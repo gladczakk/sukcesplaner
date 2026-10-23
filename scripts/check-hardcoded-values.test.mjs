@@ -21,7 +21,8 @@ function lintStagedFiles() {
   assert.ok(key, "no lint-staged entry runs check-hardcoded-values.mjs");
   const braces = /^(.*)\{(.*)\}$/.exec(key);
   assert.ok(braces, `lint-staged glob is not a brace glob: ${key}`);
-  return braces[2].split(",").map((part) => braces[1] + part);
+  // Bracket characters are escaped in the glob (`\[id\]`) so micromatch reads them literally; DEFAULT_FILES holds the plain path.
+  return braces[2].split(",").map((part) => (braces[1] + part).replaceAll("\\", ""));
 }
 
 test("lint-staged glob and DEFAULT_FILES list the same files", () => {

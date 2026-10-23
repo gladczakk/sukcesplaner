@@ -55,7 +55,7 @@ function WeekdayPicker({
                 toggle(day.value);
               }}
               className={cn(
-                "type-button rounded-pill inline-flex h-10 min-w-10 items-center justify-center gap-1 border px-3 transition-colors outline-none",
+                "type-button rounded-pill inline-flex h-10 min-w-10 items-center justify-center gap-1 border px-3 outline-hidden transition-colors",
                 "focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2",
                 "disabled:pointer-events-none disabled:opacity-50",
                 pressed

@@ -60,15 +60,12 @@ export default function TodayTaskActions({
     }
   }
 
-  const buttonClassName = "aria-disabled:pointer-events-none aria-disabled:opacity-50";
-
   return (
     <div className="flex flex-col items-start gap-1">
       <div className="flex flex-wrap items-center gap-2">
         <Button
           variant="secondary"
           size="sm"
-          className={buttonClassName}
           aria-disabled={pending}
           aria-busy={pending}
           aria-label={`Zrobione: ${title}`}
@@ -87,7 +84,6 @@ export default function TodayTaskActions({
             <Button
               variant="ghost"
               size="sm"
-              className={buttonClassName}
               aria-disabled={pending}
               aria-busy={pending}
               aria-label={`Na jutro: ${title}`}
@@ -103,7 +99,6 @@ export default function TodayTaskActions({
             <Button
               variant="secondary"
               size="sm"
-              className={buttonClassName}
               aria-disabled={pending}
               aria-busy={pending}
               aria-pressed={status === "partial"}
@@ -120,7 +115,6 @@ export default function TodayTaskActions({
             <Button
               variant="ghost"
               size="sm"
-              className={buttonClassName}
               aria-disabled={pending}
               aria-busy={pending}
               aria-label={`Na jutro: ${title}`}

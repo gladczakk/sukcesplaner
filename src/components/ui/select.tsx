@@ -18,7 +18,7 @@ function Select({ className, options, onChange, ...props }: SelectProps) {
     <select
       data-slot="select"
       className={cn(
-        "type-body border-input bg-card text-foreground h-10 w-full rounded-md border px-3 transition-colors outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+        "type-body border-input bg-card text-foreground h-10 w-full rounded-md border px-3 outline-hidden transition-colors disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
         "focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2",
         "aria-invalid:border-destructive",
         className,

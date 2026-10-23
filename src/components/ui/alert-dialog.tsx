@@ -37,7 +37,7 @@ function AlertDialogContent({ className, ...props }: React.ComponentProps<typeof
         data-slot="alert-dialog-content"
         className={cn(
           // <768px: bottom sheet; >=768px: centred dialog.
-          "border-border bg-card text-card-foreground shadow-pop data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 fixed inset-x-0 bottom-0 z-50 grid max-h-full w-full gap-4 overflow-y-auto rounded-t-lg border p-6 outline-none md:inset-x-auto md:inset-y-auto md:top-1/2 md:left-1/2 md:max-w-lg md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-md",
+          "border-border bg-card text-card-foreground shadow-pop data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 fixed inset-x-0 bottom-0 z-50 grid max-h-full w-full gap-4 overflow-y-auto rounded-t-lg border p-6 outline-hidden md:inset-x-auto md:inset-y-auto md:top-1/2 md:left-1/2 md:max-w-lg md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-md",
           className,
         )}
         {...props}

@@ -206,13 +206,7 @@ export default function AddTaskFromTodayDialog({ targets }: AddTaskFromTodayDial
     return (
       <div className="flex flex-col items-start gap-1">
         <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
-            aria-disabled="true"
-            aria-describedby={EMPTY_HINT_ID}
-          >
+          <Button variant="secondary" size="sm" aria-disabled="true" aria-describedby={EMPTY_HINT_ID}>
             Dodaj zadanie
           </Button>
           <a
