@@ -142,6 +142,22 @@ const steps = [
   // Astro swallows SSR errors of React islands (page stays 200, island missing), so assert the island's form is there.
   ["signin page renders", () => request("/auth/signin"), { status: 200, bodyIncludes: 'action="/api/auth/signin"' }],
   ["signup page renders", () => request("/auth/signup"), { status: 200, bodyIncludes: 'action="/api/auth/signup"' }],
+  // Error codes arrive in the URL; the island must render the mapped Polish copy, and unknown input must never be echoed.
+  [
+    "signin page shows error for known code",
+    () => request("/auth/signin?error=invalid_credentials"),
+    { status: 200, bodyIncludes: ['action="/api/auth/signin"', "Nieprawidłowy e-mail lub hasło"] },
+  ],
+  [
+    "signin page does not echo unknown error text",
+    () => request("/auth/signin?error=%3Cscript%3Ex%3C%2Fscript%3E"),
+    { status: 200, bodyIncludes: "Coś poszło nie tak", bodyExcludes: ["<script>x</script>", "script>x"] },
+  ],
+  [
+    "signup page shows error for known code",
+    () => request("/auth/signup?error=user_already_exists"),
+    { status: 200, bodyIncludes: ['action="/api/auth/signup"', "Konto z tym adresem e-mail już istnieje"] },
+  ],
   ["dashboard redirects anonymous user", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
   ["projects page redirects anonymous user", () => request("/projects"), { status: 302, location: "/auth/signin" }],
   ["today page redirects anonymous user", () => request("/today"), { status: 302, location: "/auth/signin" }],
@@ -158,7 +174,7 @@ const steps = [
   [
     "signin rejects wrong password",
     () => request("/api/auth/signin", { method: "POST", form: { email, password: "wrong" } }),
-    { status: 302, location: "/auth/signin?error=" },
+    { status: 302, location: "/auth/signin?error=invalid_credentials" },
   ],
   [
     "signin accepts correct password",

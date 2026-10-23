@@ -7,7 +7,9 @@ import TaskRow from "@/components/TaskRow.astro";
 import TextLink from "@/components/TextLink.astro";
 import { Button } from "@/components/ui/button";
 import { InlineError } from "@/components/ui/inline-error";
-import { Repeat } from "lucide-react";
+import { LoaderCircle, Repeat } from "lucide-react";
+import SignInForm from "@/components/auth/SignInForm";
+import SignUpForm from "@/components/auth/SignUpForm";
 
 export const prerender = false;
 
@@ -263,6 +265,53 @@ const bannerFocusSim = "[&_a]:ring-2 [&_a]:ring-ring"; // symuluje focus-visible
                 <Button variant="secondary">Aktywny</Button>
               </div>
             </div>
+          </section>
+
+          <section class="mb-8">
+            <h2 class="type-section mb-3">Auth</h2>
+            {/* AuthShell renderuje <main min-h-screen>, więc karta jest odtworzona z tych samych klas tokenowych. */}
+            <div class="flex flex-col gap-3">
+              <div>
+                <p class="type-eyebrow mb-1 text-muted-foreground">karta, logowanie (default)</p>
+                <div class="w-full max-w-sm rounded-md border border-border bg-card p-8 shadow-card">
+                  <h3 class="type-display text-foreground">Zaloguj się</h3>
+                  <div class="mt-6">
+                    <SignInForm client:load />
+                  </div>
+                  <div class="type-meta mt-6 text-muted-foreground">
+                    <p>
+                      Nie masz konta? <TextLink href="/dev/kitchen-sink">Utwórz konto</TextLink>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <p class="type-eyebrow mb-1 text-muted-foreground">logowanie, błąd serwera</p>
+                <div class="w-full max-w-sm rounded-md border border-border bg-card p-8 shadow-card">
+                  <SignInForm serverError="invalid_credentials" client:load />
+                </div>
+              </div>
+              <div>
+                <p class="type-eyebrow mb-1 text-muted-foreground">rejestracja, błąd serwera</p>
+                <div class="w-full max-w-sm rounded-md border border-border bg-card p-8 shadow-card">
+                  <h3 class="type-display text-foreground">Utwórz konto</h3>
+                  <div class="mt-6">
+                    <SignUpForm serverError="user_already_exists" client:load />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <p class="type-eyebrow mb-1 text-muted-foreground">przycisk pending (disabled)</p>
+                <Button type="button" disabled class="w-full max-w-sm">
+                  <LoaderCircle className="animate-spin" aria-hidden="true" />
+                  Logowanie…
+                </Button>
+              </div>
+            </div>
+            <p class="type-meta mt-3 text-muted-foreground">
+              N/A: error pola — powstaje dopiero po wysłaniu formularza; pending to statyczny odpowiednik (useFormStatus
+              nie da się wymusić)
+            </p>
           </section>
 
           <p class="type-meta text-muted-foreground">

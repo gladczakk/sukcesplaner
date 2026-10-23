@@ -337,32 +337,32 @@ Adresy `?error=<tekst>` zapisane w zakładkach przestaną pokazywać tekst (poka
 
 #### Automated
 
-- [x] 3.1 Lint przechodzi: `npm run lint`
-- [x] 3.2 Typecheck przechodzi: `npx astro check`
-- [x] 3.3 Skan literałów na stronach auth i `AuthShell` ma 0 trafień
-- [x] 3.4 `bg-cosmic` zostaje tylko w `global.css`, `dashboard.astro`, `Welcome.astro`
-- [x] 3.5 Brak emoji w `src/pages/auth/*.astro`
-- [x] 3.6 Build przechodzi: `npm run build`
+- [x] 3.1 Lint przechodzi: `npm run lint` — 6a630ce
+- [x] 3.2 Typecheck przechodzi: `npx astro check` — 6a630ce
+- [x] 3.3 Skan literałów na stronach auth i `AuthShell` ma 0 trafień — 6a630ce
+- [x] 3.4 `bg-cosmic` zostaje tylko w `global.css`, `dashboard.astro`, `Welcome.astro` — 6a630ce
+- [x] 3.5 Brak emoji w `src/pages/auth/*.astro` — 6a630ce
+- [x] 3.6 Build przechodzi: `npm run build` — 6a630ce
 
 #### Manual
 
-- [x] 3.7 Trzy strony czytelne w jasnym i ciemnym motywie, karta wyśrodkowana, `<main>`, brak poziomego przewijania na 390 px
-- [x] 3.8 Przełącznik hasła wyrównany z polem także przy błędzie
-- [x] 3.9 Zrzuty desktop i mobile potwierdzają wygląd
+- [x] 3.7 Trzy strony czytelne w jasnym i ciemnym motywie, karta wyśrodkowana, `<main>`, brak poziomego przewijania na 390 px — 6a630ce
+- [x] 3.8 Przełącznik hasła wyrównany z polem także przy błędzie — 6a630ce
+- [x] 3.9 Zrzuty desktop i mobile potwierdzają wygląd — 6a630ce
 
 ### Phase 4: Stany, bramka i zabezpieczenie
 
 #### Automated
 
-- [ ] 4.1 `npm run check:values` — 0 trafień
-- [ ] 4.2 `npm run test:unit` przechodzi (lista = glob)
-- [ ] 4.3 `npm run lint` przechodzi
-- [ ] 4.4 `npm run build` przechodzi
-- [ ] 4.5 `npm run smoke` przechodzi
-- [ ] 4.6 Test zepsucia wyspy czerwieni krok smoke, po cofnięciu zielony
+- [x] 4.1 `npm run check:values` — 0 trafień
+- [x] 4.2 `npm run test:unit` przechodzi (lista = glob)
+- [x] 4.3 `npm run lint` przechodzi
+- [x] 4.4 `npm run build` przechodzi
+- [x] 4.5 `npm run smoke` przechodzi
+- [x] 4.6 Test zepsucia wyspy czerwieni krok smoke, po cofnięciu zielony
 
 #### Manual
 
-- [ ] 4.7 Kitchen-sink pokazuje sekcję Auth w obu motywach ze stanami z macierzy (reszta N/A z powodem)
+- [x] 4.7 Kitchen-sink pokazuje sekcję Auth w obu motywach ze stanami z macierzy (reszta N/A z powodem)
 - [ ] 4.8 Zrzuty desktop i mobile (jasny i ciemny) zapisane w folderze zmiany
-- [ ] 4.9 Przepływ end-to-end: rejestracja, logowanie poprawne i błędne
+- [x] 4.9 Przepływ end-to-end: rejestracja, logowanie poprawne i błędne

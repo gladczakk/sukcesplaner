@@ -28,6 +28,14 @@ const DEFAULT_FILES = [
   "src/components/projects/TaskFormDialog.tsx",
   "src/components/projects/TaskRowActions.tsx",
   "src/components/ui/confirm-dialog.tsx",
+  "src/pages/auth/signin.astro",
+  "src/pages/auth/signup.astro",
+  "src/pages/auth/confirm-email.astro",
+  "src/components/auth/AuthShell.astro",
+  "src/components/auth/SignInForm.tsx",
+  "src/components/auth/SignUpForm.tsx",
+  "src/components/auth/PasswordField.tsx",
+  "src/components/auth/SubmitButton.tsx",
 ];
 
 const PALETTE =
