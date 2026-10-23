@@ -1,16 +1,14 @@
 import { LoaderCircle } from "lucide-react";
-import { useFormStatus } from "react-dom";
 
 import { Button } from "@/components/ui/button";
 
 interface SubmitButtonProps {
   label: string;
   pendingLabel: string;
+  pending: boolean;
 }
 
-export function SubmitButton({ label, pendingLabel }: SubmitButtonProps) {
-  const { pending } = useFormStatus();
-
+export function SubmitButton({ label, pendingLabel, pending }: SubmitButtonProps) {
   return (
     <Button type="submit" disabled={pending} className="w-full">
       {pending ? (

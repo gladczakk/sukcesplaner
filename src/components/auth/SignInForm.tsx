@@ -4,16 +4,20 @@ import { Input } from "@/components/ui/input";
 import { InlineError } from "@/components/ui/inline-error";
 import { PasswordField } from "@/components/auth/PasswordField";
 import { SubmitButton } from "@/components/auth/SubmitButton";
+import { useNativeSubmit } from "@/components/hooks/use-native-submit";
 import { authErrorMessage } from "@/lib/auth-errors";
 
 interface Props {
   serverError?: string | null;
+  /** Prefix for element ids; lets the same form render more than once on a page (kitchen sink). */
+  idPrefix?: string;
 }
 
-export default function SignInForm({ serverError }: Props) {
+export default function SignInForm({ serverError, idPrefix = "" }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const { submitting, startSubmit } = useNativeSubmit();
   const serverMessage = authErrorMessage(serverError);
 
   function validate() {
@@ -37,14 +41,16 @@ export default function SignInForm({ serverError }: Props) {
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     if (!validate()) {
       e.preventDefault();
+      return;
     }
+    startSubmit();
   }
 
   return (
     <form method="POST" action="/api/auth/signin" className="space-y-4" onSubmit={handleSubmit} noValidate>
-      <Field id="email" label="E-mail" error={errors.email} required>
+      <Field id={`${idPrefix}email`} label="E-mail" error={errors.email} required>
         <Input
-          id="email"
+          id={`${idPrefix}email`}
           name="email"
           type="email"
           autoComplete="email"
@@ -58,7 +64,8 @@ export default function SignInForm({ serverError }: Props) {
       </Field>
 
       <PasswordField
-        id="password"
+        id={`${idPrefix}password`}
+        name="password"
         label="Hasło"
         value={password}
         onChange={(v) => {
@@ -72,7 +79,7 @@ export default function SignInForm({ serverError }: Props) {
 
       {serverMessage ? <InlineError role="alert">{serverMessage}</InlineError> : null}
 
-      <SubmitButton label="Zaloguj się" pendingLabel="Logowanie…" />
+      <SubmitButton label="Zaloguj się" pendingLabel="Logowanie…" pending={submitting} />
     </form>
   );
 }

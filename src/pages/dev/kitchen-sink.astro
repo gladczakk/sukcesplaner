@@ -276,7 +276,7 @@ const bannerFocusSim = "[&_a]:ring-2 [&_a]:ring-ring"; // symuluje focus-visible
                 <div class="w-full max-w-sm rounded-md border border-border bg-card p-8 shadow-card">
                   <h3 class="type-display text-foreground">Zaloguj się</h3>
                   <div class="mt-6">
-                    <SignInForm client:load />
+                    <SignInForm idPrefix={`${theme.label}-signin-`} client:load />
                   </div>
                   <div class="type-meta mt-6 text-muted-foreground">
                     <p>
@@ -288,7 +288,7 @@ const bannerFocusSim = "[&_a]:ring-2 [&_a]:ring-ring"; // symuluje focus-visible
               <div>
                 <p class="type-eyebrow mb-1 text-muted-foreground">logowanie, błąd serwera</p>
                 <div class="w-full max-w-sm rounded-md border border-border bg-card p-8 shadow-card">
-                  <SignInForm serverError="invalid_credentials" client:load />
+                  <SignInForm serverError="invalid_credentials" idPrefix={`${theme.label}-signin-error-`} client:load />
                 </div>
               </div>
               <div>
@@ -296,13 +296,17 @@ const bannerFocusSim = "[&_a]:ring-2 [&_a]:ring-ring"; // symuluje focus-visible
                 <div class="w-full max-w-sm rounded-md border border-border bg-card p-8 shadow-card">
                   <h3 class="type-display text-foreground">Utwórz konto</h3>
                   <div class="mt-6">
-                    <SignUpForm serverError="user_already_exists" client:load />
+                    <SignUpForm
+                      serverError="user_already_exists"
+                      idPrefix={`${theme.label}-signup-error-`}
+                      client:load
+                    />
                   </div>
                 </div>
               </div>
               <div>
                 <p class="type-eyebrow mb-1 text-muted-foreground">przycisk pending (disabled)</p>
-                <Button type="button" disabled class="w-full max-w-sm">
+                <Button type="button" disabled className="w-full max-w-sm">
                   <LoaderCircle className="animate-spin" aria-hidden="true" />
                   Logowanie…
                 </Button>

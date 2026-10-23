@@ -7,6 +7,7 @@ export type AuthErrorCode =
   | "user_already_exists"
   | "weak_password"
   | "rate_limited"
+  | "invalid_input"
   | "unavailable"
   | "unknown";
 
@@ -16,6 +17,7 @@ const MESSAGES: Record<AuthErrorCode, string> = {
   user_already_exists: "Konto z tym adresem e-mail już istnieje.",
   weak_password: "Hasło jest zbyt słabe.",
   rate_limited: "Zbyt wiele prób. Spróbuj ponownie za chwilę.",
+  invalid_input: "Sprawdź adres e-mail i hasło.",
   unavailable: "Aplikacja nie jest teraz dostępna. Spróbuj ponownie za chwilę.",
   unknown: "Coś poszło nie tak. Spróbuj ponownie.",
 };
@@ -38,4 +40,10 @@ export function toAuthErrorCode(error: { code?: string } | null | undefined): Au
 export function authErrorMessage(code: string | null | undefined): string | undefined {
   if (code === null || code === undefined) return undefined;
   return Object.hasOwn(MESSAGES, code) ? MESSAGES[code as AuthErrorCode] : MESSAGES.unknown;
+}
+
+/** Value of `?error=` safe to hand to the form island: a known code, `unknown` for anything else, `null` when absent. */
+export function parseAuthErrorCode(value: string | null | undefined): AuthErrorCode | null {
+  if (value === null || value === undefined) return null;
+  return Object.hasOwn(MESSAGES, value) ? (value as AuthErrorCode) : "unknown";
 }

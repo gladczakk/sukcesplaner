@@ -151,7 +151,7 @@ const steps = [
   [
     "signin page does not echo unknown error text",
     () => request("/auth/signin?error=%3Cscript%3Ex%3C%2Fscript%3E"),
-    { status: 200, bodyIncludes: "Coś poszło nie tak", bodyExcludes: ["<script>x</script>", "script>x"] },
+    { status: 200, bodyIncludes: "Coś poszło nie tak", bodyExcludes: ["<script>x</script>", "script>x", "&lt;script"] },
   ],
   [
     "signup page shows error for known code",
@@ -175,6 +175,16 @@ const steps = [
     "signin rejects wrong password",
     () => request("/api/auth/signin", { method: "POST", form: { email, password: "wrong" } }),
     { status: 302, location: "/auth/signin?error=invalid_credentials" },
+  ],
+  [
+    "signin rejects an empty email without calling Supabase",
+    () => request("/api/auth/signin", { method: "POST", form: { email: "", password } }),
+    { status: 302, location: "/auth/signin?error=invalid_input" },
+  ],
+  [
+    "signup rejects a malformed email",
+    () => request("/api/auth/signup", { method: "POST", form: { email: "not-an-email", password } }),
+    { status: 302, location: "/auth/signup?error=invalid_input" },
   ],
   [
     "signin accepts correct password",

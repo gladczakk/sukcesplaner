@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { InlineError } from "@/components/ui/inline-error";
 import { PasswordField } from "@/components/auth/PasswordField";
 import { SubmitButton } from "@/components/auth/SubmitButton";
+import { useNativeSubmit } from "@/components/hooks/use-native-submit";
 import { authErrorMessage } from "@/lib/auth-errors";
 import { plural } from "@/lib/format";
 
@@ -11,13 +12,16 @@ const MIN_PASSWORD_LENGTH = 6;
 
 interface Props {
   serverError?: string | null;
+  /** Prefix for element ids; lets the same form render more than once on a page (kitchen sink). */
+  idPrefix?: string;
 }
 
-export default function SignUpForm({ serverError }: Props) {
+export default function SignUpForm({ serverError, idPrefix = "" }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
+  const { submitting, startSubmit } = useNativeSubmit();
   const serverMessage = authErrorMessage(serverError);
 
   function validate() {
@@ -52,7 +56,9 @@ export default function SignUpForm({ serverError }: Props) {
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     if (!validate()) {
       e.preventDefault();
+      return;
     }
+    startSubmit();
   }
 
   const remaining = MIN_PASSWORD_LENGTH - password.length;
@@ -63,9 +69,9 @@ export default function SignUpForm({ serverError }: Props) {
 
   return (
     <form method="POST" action="/api/auth/signup" className="space-y-4" onSubmit={handleSubmit} noValidate>
-      <Field id="email" label="E-mail" error={errors.email} required>
+      <Field id={`${idPrefix}email`} label="E-mail" error={errors.email} required>
         <Input
-          id="email"
+          id={`${idPrefix}email`}
           name="email"
           type="email"
           autoComplete="email"
@@ -79,7 +85,8 @@ export default function SignUpForm({ serverError }: Props) {
       </Field>
 
       <PasswordField
-        id="password"
+        id={`${idPrefix}password`}
+        name="password"
         label="Hasło"
         value={password}
         onChange={(v) => {
@@ -93,7 +100,7 @@ export default function SignUpForm({ serverError }: Props) {
       />
 
       <PasswordField
-        id="confirmPassword"
+        id={`${idPrefix}confirmPassword`}
         label="Powtórz hasło"
         value={confirmPassword}
         onChange={(v) => {
@@ -107,7 +114,7 @@ export default function SignUpForm({ serverError }: Props) {
 
       {serverMessage ? <InlineError role="alert">{serverMessage}</InlineError> : null}
 
-      <SubmitButton label="Utwórz konto" pendingLabel="Tworzenie konta…" />
+      <SubmitButton label="Utwórz konto" pendingLabel="Tworzenie konta…" pending={submitting} />
     </form>
   );
 }

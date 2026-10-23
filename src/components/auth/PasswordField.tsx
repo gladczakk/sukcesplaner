@@ -20,7 +20,7 @@ interface PasswordFieldProps {
 
 interface PasswordControlProps {
   id: string;
-  name: string;
+  name?: string;
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
@@ -49,7 +49,6 @@ function PasswordControl({ onChange, ...inputProps }: PasswordControlProps) {
         variant="ghost"
         size="icon"
         className="absolute top-0 right-0"
-        aria-pressed={visible}
         aria-label={visible ? "Ukryj hasło" : "Pokaż hasło"}
         onClick={() => {
           setVisible((prev) => !prev);
@@ -77,7 +76,7 @@ export function PasswordField({
     <Field id={id} label={label} error={error} hint={hint} required={required}>
       <PasswordControl
         id={id}
-        name={name ?? id}
+        name={name}
         value={value}
         onChange={onChange}
         placeholder={placeholder}

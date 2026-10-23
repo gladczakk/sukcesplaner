@@ -2,9 +2,10 @@
 import Layout from "@/layouts/Layout.astro";
 import AuthShell from "@/components/auth/AuthShell.astro";
 import TextLink from "@/components/TextLink.astro";
+import { parseAuthErrorCode } from "@/lib/auth-errors";
 import SignUpForm from "@/components/auth/SignUpForm";
 
-const error = Astro.url.searchParams.get("error");
+const error = parseAuthErrorCode(Astro.url.searchParams.get("error"));
 ---
 
 <Layout title="Rejestracja">
