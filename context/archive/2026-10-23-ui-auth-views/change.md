@@ -1,10 +1,10 @@
 ---
 change_id: ui-auth-views
 title: Widoki auth (signin, signup, confirm-email) — przegląd UI
-status: impl_reviewed
+status: archived
 created: 2026-10-23
 updated: 2026-10-23
-archived_at: null
+archived_at: 2026-10-23T18:13:54Z
 ---
 
 ## Notes
