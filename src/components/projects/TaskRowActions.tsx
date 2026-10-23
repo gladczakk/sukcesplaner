@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { CircleAlert } from "lucide-react";
 
 import { useTaskApi } from "@/components/hooks/use-task-api";
 import DeleteTaskDialog from "@/components/projects/DeleteTaskDialog";
 import TaskFormDialog from "@/components/projects/TaskFormDialog";
+import { InlineError } from "@/components/ui/inline-error";
 import { Select, type SelectOption } from "@/components/ui/select";
 import { TASK_STATUSES, type Milestone, type Task, type TaskStatus } from "@/types";
 
@@ -72,6 +72,7 @@ export default function TaskRowActions({ projectId, milestone, task }: TaskRowAc
             options={STATUS_OPTIONS}
             value={task.status}
             aria-disabled={pending}
+            aria-busy={pending}
             onChange={(value) => {
               void changeStatus(value);
             }}
@@ -80,12 +81,7 @@ export default function TaskRowActions({ projectId, milestone, task }: TaskRowAc
         <TaskFormDialog mode="edit" projectId={projectId} milestone={milestone} task={task} />
         <DeleteTaskDialog projectId={projectId} milestoneId={milestone.id} taskId={task.id} taskTitle={task.title} />
       </div>
-      {error ? (
-        <p role="alert" className="type-meta text-destructive-ink flex items-center gap-1">
-          <CircleAlert className="size-4 shrink-0" aria-hidden="true" />
-          <span>{error}</span>
-        </p>
-      ) : null}
+      {error ? <InlineError>{error}</InlineError> : null}
     </div>
   );
 }

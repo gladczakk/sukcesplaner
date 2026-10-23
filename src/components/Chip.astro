@@ -1,10 +1,10 @@
 ---
-import { ArrowRight, Clock, Sun, TriangleAlert } from "lucide-react";
+import { ArrowRight, Check, Clock, Sun, TriangleAlert } from "lucide-react";
 
 import type { DueTone } from "@/lib/today";
 
 interface Props {
-  tone: DueTone | "skipped";
+  tone: DueTone | "skipped" | "done";
   label: string;
 }
 
@@ -14,6 +14,7 @@ const chipClasses: Record<Props["tone"], string> = {
   overdue: "bg-destructive-soft text-destructive-ink",
   today: "bg-warning-soft text-warning-ink",
   skipped: "bg-warning-soft text-warning-ink",
+  done: "bg-success-soft text-success-ink",
   tomorrow: "bg-info-soft text-info-ink",
   soon: "bg-muted text-muted-foreground",
   date: "bg-muted text-muted-foreground",
@@ -31,6 +32,7 @@ const chipClasses: Record<Props["tone"], string> = {
   {tone === "today" && <Sun className="size-3 shrink-0" aria-hidden="true" />}
   {tone === "tomorrow" && <ArrowRight className="size-3 shrink-0" aria-hidden="true" />}
   {tone === "skipped" && <Clock className="size-3 shrink-0" aria-hidden="true" />}
-  {tone !== "skipped" && tone !== "none" && <span class="sr-only">Termin: </span>}
+  {tone === "done" && <Check className="size-3 shrink-0" aria-hidden="true" />}
+  {tone !== "skipped" && tone !== "done" && tone !== "none" && <span class="sr-only">Termin: </span>}
   {label}
 </span>

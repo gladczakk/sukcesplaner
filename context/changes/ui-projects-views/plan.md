@@ -298,36 +298,36 @@ Brak danych do migracji. Zmiany we wspólnych plikach: `Chip` i `TaskRow` zyskuj
 
 #### Automated
 
-- [x] 1.1 Skan zielony dla plików z listy: `npm run check:values`
-- [x] 1.2 Test zepsucia: `bg-purple-300` dopisane tymczasowo do `src/pages/projects/index.astro` zaczerwienia `npm run check:values` z numerem linii; po wycofaniu zielone
-- [x] 1.3 Brak `outline-none` w komponentach `ui/`: `grep -rn "outline-none" src/components/ui` zwraca 0 trafień
-- [x] 1.4 Klasy stanu tylko w `Button`: `grep -rn "aria-disabled:pointer-events-none" src` zwraca wyłącznie `src/components/ui/button.tsx`
-- [x] 1.5 Test równości list przechodzi: `npm run test:unit`
-- [x] 1.6 Typy i build przechodzą: `npx astro check` oraz `npm run build`
-- [x] 1.7 Lint przechodzi: `npm run lint`
-- [x] 1.8 Smoke przechodzi: `npm run smoke`
+- [x] 1.1 Skan zielony dla plików z listy: `npm run check:values` — 6fdfbeb
+- [x] 1.2 Test zepsucia: `bg-purple-300` dopisane tymczasowo do `src/pages/projects/index.astro` zaczerwienia `npm run check:values` z numerem linii; po wycofaniu zielone — 6fdfbeb
+- [x] 1.3 Brak `outline-none` w komponentach `ui/`: `grep -rn "outline-none" src/components/ui` zwraca 0 trafień — 6fdfbeb
+- [x] 1.4 Klasy stanu tylko w `Button`: `grep -rn "aria-disabled:pointer-events-none" src` zwraca wyłącznie `src/components/ui/button.tsx` — 6fdfbeb
+- [x] 1.5 Test równości list przechodzi: `npm run test:unit` — 6fdfbeb
+- [x] 1.6 Typy i build przechodzą: `npx astro check` oraz `npm run build` — 6fdfbeb
+- [x] 1.7 Lint przechodzi: `npm run lint` — 6fdfbeb
+- [x] 1.8 Smoke przechodzi: `npm run smoke` — 6fdfbeb
 
 #### Manual
 
-- [x] 1.9 W trybie wysokiego kontrastu Windows fokus z klawiatury jest widoczny na polu tekstowym, selekcie, dniach tygodnia i przycisku zamknięcia w dialogach „Dodaj zadanie” i „Edytuj projekt”
-- [x] 1.10 W trybie zwykłym wygląd pól, dialogów i przycisków bez zmian; nieaktywny przycisk „Dodaj zadanie” przy zamkniętym milestonie jest wyszarzony
+- [x] 1.9 W trybie wysokiego kontrastu Windows fokus z klawiatury jest widoczny na polu tekstowym, selekcie, dniach tygodnia i przycisku zamknięcia w dialogach „Dodaj zadanie” i „Edytuj projekt” — 6fdfbeb
+- [x] 1.10 W trybie zwykłym wygląd pól, dialogów i przycisków bez zmian; nieaktywny przycisk „Dodaj zadanie” przy zamkniętym milestonie jest wyszarzony — 6fdfbeb
 
 ### Phase 2: Komponenty i błędy w wyspach
 
 #### Automated
 
-- [ ] 2.1 Skan zielony dla `ui/confirm-dialog.tsx`, `ui/inline-error.tsx`, sześciu komponentów `projects/*`, `Chip.astro` i `TaskRow.astro`: `npm run check:values`
-- [ ] 2.2 Brak skopiowanego bloku błędu: `grep -rn "<CircleAlert" src/components/projects src/components/ui/confirm-dialog.tsx` zwraca 0 trafień
-- [ ] 2.3 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
-- [ ] 2.4 Lint przechodzi: `npm run lint`
-- [ ] 2.5 Smoke przechodzi (wyspy projektów i `/today` nadal renderują się w HTML): `npm run smoke`
-- [ ] 2.6 Test zepsucia: tymczasowy `throw` na poziomie modułu w `ui/inline-error.tsx` zaczerwienia kroki smoke dla stron projektów i `/today`; po wycofaniu zielone
+- [x] 2.1 Skan zielony dla `ui/confirm-dialog.tsx`, `ui/inline-error.tsx`, sześciu komponentów `projects/*`, `Chip.astro` i `TaskRow.astro`: `npm run check:values`
+- [x] 2.2 Brak skopiowanego bloku błędu: `grep -rn "<CircleAlert" src/components/projects src/components/ui/confirm-dialog.tsx` zwraca 0 trafień
+- [x] 2.3 Typy i build przechodzą (po `npx astro preview stop`): `npx astro check` oraz `npm run build`
+- [x] 2.4 Lint przechodzi: `npm run lint`
+- [x] 2.5 Smoke przechodzi (wyspy projektów i `/today` nadal renderują się w HTML): `npm run smoke`
+- [x] 2.6 Test zepsucia: tymczasowy `throw` na poziomie modułu w `ui/inline-error.tsx` zaczerwienia kroki smoke dla stron projektów i `/today`; po wycofaniu zielone
 
 #### Manual
 
-- [ ] 2.7 Błąd akcji wiersza (Offline, klik „Zamknij milestone” lub zmiana statusu zadania) pokazuje komunikat z ikoną i słowem „Błąd:”, w obu motywach
-- [ ] 2.8 Błąd potwierdzenia usunięcia (Offline w dialogu „Usuń projekt”) pokazuje „Błąd:” wewnątrz dialogu
-- [ ] 2.9 Poza komunikatami błędów `/projects/[id]` wygląda tak jak wcześniej
+- [x] 2.7 Błąd akcji wiersza (Offline, klik „Zamknij milestone” lub zmiana statusu zadania) pokazuje komunikat z ikoną i słowem „Błąd:”, w obu motywach
+- [x] 2.8 Błąd potwierdzenia usunięcia (Offline w dialogu „Usuń projekt”) pokazuje „Błąd:” wewnątrz dialogu
+- [x] 2.9 Poza komunikatami błędów `/projects/[id]` wygląda tak jak wcześniej
 
 ### Phase 3: Strony projektów
 

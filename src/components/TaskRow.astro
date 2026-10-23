@@ -1,20 +1,30 @@
 ---
 interface Props {
-  variant?: "default" | "milestone";
+  variant?: "default" | "milestone" | "compact";
+  done?: boolean;
 }
 
-const { variant = "default" } = Astro.props;
+const { variant = "default", done = false } = Astro.props;
 const isMilestone = variant === "milestone";
+const isCompact = variant === "compact";
 ---
 
 <li
   class:list={[
-    "flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4",
+    isCompact
+      ? "flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
+      : "flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4",
     isMilestone && "bg-accent",
   ]}
 >
   <div class="min-w-0">
-    <p class:list={[isMilestone ? "type-section" : "type-task", "break-words text-foreground"]}>
+    <p
+      class:list={[
+        isMilestone ? "type-section" : isCompact ? "type-body" : "type-task",
+        "break-words",
+        done ? "text-muted-foreground line-through" : "text-foreground",
+      ]}
+    >
       <slot name="title" />
     </p>
     {/* The meta slot renders inside a <p>: pass inline content only (span, a, svg), never block elements. */}

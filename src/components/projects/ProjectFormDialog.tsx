@@ -1,5 +1,5 @@
 import { useState, type SubmitEvent } from "react";
-import { CircleAlert, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { useProjectApi } from "@/components/hooks/use-project-api";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
+import { InlineError } from "@/components/ui/inline-error";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -191,14 +192,7 @@ export default function ProjectFormDialog({ mode, project }: ProjectFormDialogPr
               }}
             />
           </Field>
-          {generalError ? (
-            <p role="alert" className="type-meta text-destructive-ink flex items-center gap-1">
-              <CircleAlert className="size-4 shrink-0" aria-hidden="true" />
-              <span>
-                <span className="font-semibold">Błąd:</span> {generalError}
-              </span>
-            </p>
-          ) : null}
+          {generalError ? <InlineError>{generalError}</InlineError> : null}
           <DialogFooter>
             <Button
               type="button"

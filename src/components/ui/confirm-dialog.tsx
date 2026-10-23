@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { CircleAlert } from "lucide-react";
 
 import {
   AlertDialog,
@@ -12,6 +11,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { InlineError } from "@/components/ui/inline-error";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -49,14 +49,7 @@ export function ConfirmDialog({
           <AlertDialogTitle className="break-words">{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
-        {error ? (
-          <p role="alert" className="type-meta text-destructive-ink flex items-center gap-1">
-            <CircleAlert className="size-4 shrink-0" aria-hidden="true" />
-            <span>
-              <span className="font-semibold">Błąd:</span> {error}
-            </span>
-          </p>
-        ) : null}
+        {error ? <InlineError>{error}</InlineError> : null}
         <AlertDialogFooter>
           <AlertDialogCancel variant="ghost" disabled={pending}>
             Anuluj

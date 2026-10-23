@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { CircleAlert } from "lucide-react";
 
 import { useMilestoneApi } from "@/components/hooks/use-milestone-api";
 import DeleteMilestoneDialog from "@/components/projects/DeleteMilestoneDialog";
 import MilestoneFormDialog from "@/components/projects/MilestoneFormDialog";
 import { Button } from "@/components/ui/button";
+import { InlineError } from "@/components/ui/inline-error";
 import type { Milestone } from "@/types";
 
 interface MilestoneRowActionsProps {
@@ -63,6 +63,7 @@ export default function MilestoneRowActions({
           variant="secondary"
           size="sm"
           aria-disabled={pending}
+          aria-busy={pending}
           aria-label={`${isCompleted ? "Otwórz ponownie" : "Zamknij milestone"} ${milestone.name}`}
           onClick={() => {
             void toggle();
@@ -77,12 +78,7 @@ export default function MilestoneRowActions({
           taskCount={taskCount}
         />
       </div>
-      {error ? (
-        <p role="alert" className="type-meta text-destructive-ink flex items-center gap-1">
-          <CircleAlert className="size-4 shrink-0" aria-hidden="true" />
-          <span>{error}</span>
-        </p>
-      ) : null}
+      {error ? <InlineError>{error}</InlineError> : null}
     </div>
   );
 }
