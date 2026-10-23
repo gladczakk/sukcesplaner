@@ -364,5 +364,5 @@ Adresy `?error=<tekst>` zapisane w zakładkach przestaną pokazywać tekst (poka
 #### Manual
 
 - [x] 4.7 Kitchen-sink pokazuje sekcję Auth w obu motywach ze stanami z macierzy (reszta N/A z powodem) — 0b33162
-- [x] 4.8 Zrzuty desktop i mobile (jasny i ciemny) zapisane w folderze zmiany
+- [x] 4.8 Zrzuty desktop i mobile (jasny i ciemny) zapisane w folderze zmiany — 6f3cdec
 - [x] 4.9 Przepływ end-to-end: rejestracja, logowanie poprawne i błędne — 0b33162
