@@ -195,36 +195,36 @@ Stare zakładki do `/dashboard` zwrócą 404 (zamierzone). Link z e-maila potwie
 
 #### Automated
 
-- [x] 1.1 Lint przechodzi: `npm run lint`
-- [x] 1.2 Typecheck przechodzi: `npx astro check`
-- [x] 1.3 Testy jednostkowe przechodzą: `npm run test:unit`
-- [x] 1.4 Build przechodzi: `npm run build`
-- [x] 1.5 Smoke przechodzi: `npm run smoke`
-- [x] 1.6 Test zepsucia przekierowania zalogowanego czerwieni krok smoke, po cofnięciu zielony
-- [x] 1.7 `signout.ts` nie przekierowuje już na korzeń (grep bez trafień)
+- [x] 1.1 Lint przechodzi: `npm run lint` — 32a8191
+- [x] 1.2 Typecheck przechodzi: `npx astro check` — 32a8191
+- [x] 1.3 Testy jednostkowe przechodzą: `npm run test:unit` — 32a8191
+- [x] 1.4 Build przechodzi: `npm run build` — 32a8191
+- [x] 1.5 Smoke przechodzi: `npm run smoke` — 32a8191
+- [x] 1.6 Test zepsucia przekierowania zalogowanego czerwieni krok smoke, po cofnięciu zielony — 32a8191
+- [x] 1.7 `signout.ts` nie przekierowuje już na korzeń (grep bez trafień) — 32a8191
 
 #### Manual
 
-- [x] 1.8 Niezalogowany wchodzący na `/` ląduje na `/auth/signin`
-- [x] 1.9 Zalogowany wchodzący na `/` ląduje na `/today`
-- [x] 1.10 Wylogowanie kończy na `/auth/signin` bez pośredniego ekranu
+- [x] 1.8 Niezalogowany wchodzący na `/` ląduje na `/auth/signin` — 32a8191
+- [x] 1.9 Zalogowany wchodzący na `/` ląduje na `/today` — 32a8191
+- [x] 1.10 Wylogowanie kończy na `/auth/signin` bez pośredniego ekranu — 32a8191
 
 ### Phase 2: Usunięcie startera i dokumentacja
 
 #### Automated
 
-- [ ] 2.1 Lint przechodzi: `npm run lint`
-- [ ] 2.2 Typecheck przechodzi: `npx astro check`
-- [ ] 2.3 Testy jednostkowe przechodzą: `npm run test:unit`
-- [ ] 2.4 Skan wartości przechodzi: `npm run check:values`
-- [ ] 2.5 Build przechodzi: `npm run build`
-- [ ] 2.6 Smoke przechodzi: `npm run smoke`
-- [ ] 2.7 Pliki `dashboard.astro`, `Welcome.astro`, `Topbar.astro` usunięte
-- [ ] 2.8 Brak `bg-cosmic` w `src`
-- [ ] 2.9 Odwołania do usuniętych elementów tylko w kroku smoke o 404
+- [x] 2.1 Lint przechodzi: `npm run lint`
+- [x] 2.2 Typecheck przechodzi: `npx astro check`
+- [x] 2.3 Testy jednostkowe przechodzą: `npm run test:unit`
+- [x] 2.4 Skan wartości przechodzi: `npm run check:values`
+- [x] 2.5 Build przechodzi: `npm run build`
+- [x] 2.6 Smoke przechodzi: `npm run smoke`
+- [x] 2.7 Pliki `dashboard.astro`, `Welcome.astro`, `Topbar.astro` usunięte
+- [x] 2.8 Brak `bg-cosmic` w `src`
+- [x] 2.9 Odwołania do usuniętych elementów tylko w kroku smoke o 404
 
 #### Manual
 
-- [ ] 2.10 `/dashboard` zwraca 404 zalogowanemu i niezalogowanemu
-- [ ] 2.11 `/today`, `/projects` i `/auth/*` bez regresji w jasnym i ciemnym motywie
-- [ ] 2.12 Tabela „Auth routes” w README czytelna i zgodna z nowym zachowaniem `/`
+- [x] 2.10 `/dashboard` zwraca 404 zalogowanemu i niezalogowanemu
+- [x] 2.11 `/today`, `/projects` i `/auth/*` bez regresji w jasnym i ciemnym motywie
+- [x] 2.12 Tabela „Auth routes” w README czytelna i zgodna z nowym zachowaniem `/`

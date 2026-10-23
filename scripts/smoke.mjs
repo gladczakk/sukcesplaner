@@ -158,7 +158,7 @@ const steps = [
     () => request("/auth/signup?error=user_already_exists"),
     { status: 200, bodyIncludes: ['action="/api/auth/signup"', "Konto z tym adresem e-mail już istnieje"] },
   ],
-  ["dashboard redirects anonymous user", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
+  ["removed dashboard page returns 404", () => request("/dashboard"), { status: 404 }],
   ["projects page redirects anonymous user", () => request("/projects"), { status: 302, location: "/auth/signin" }],
   ["today page redirects anonymous user", () => request("/today"), { status: 302, location: "/auth/signin" }],
   [
@@ -192,7 +192,6 @@ const steps = [
     { status: 302, location: "/today" },
   ],
   ["home redirects signed-in user", () => request("/"), { status: 302, location: "/today" }],
-  ["dashboard renders for signed-in user", () => request("/dashboard"), { status: 200 }],
   // Island SSR errors leave the page at 200, so assert the empty state and the island's trigger button.
   [
     "projects page renders empty state",
@@ -1425,7 +1424,7 @@ const steps = [
     () => request("/api/auth/signout", { method: "POST" }),
     { status: 302, location: "/auth/signin" },
   ],
-  ["dashboard redirects after signout", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
+  ["today redirects after signout", () => request("/today"), { status: 302, location: "/auth/signin" }],
 ];
 
 function readPath(object, path) {
