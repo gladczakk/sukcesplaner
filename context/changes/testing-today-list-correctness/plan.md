@@ -326,11 +326,11 @@ Brak migracji bazy i brak zmian w danych. Wycofanie: usunięcie nowych plików t
 
 #### Automated
 
-- [x] 4.1 W test-planie nie ma już „TBD — see §3 Phase 1”: `grep -n "TBD — see §3 Phase 1" context/foundation/test-plan.md` (brak wyników)
-- [x] 4.2 Polecenia opisane w cookbooku działają: `npm run test:app` oraz `npm run test:db`
+- [x] 4.1 W test-planie nie ma już „TBD — see §3 Phase 1”: `grep -n "TBD — see §3 Phase 1" context/foundation/test-plan.md` (brak wyników) — b427c38
+- [x] 4.2 Polecenia opisane w cookbooku działają: `npm run test:app` oraz `npm run test:db` — b427c38
 - [ ] 4.3 Formatowanie markdown przechodzi: `npx prettier --check context/foundation/test-plan.md CLAUDE.md`
 
 #### Manual
 
-- [x] 4.4 §6.1–6.3 mówią nowej osobie, gdzie dodać test, jak go nazwać i jak uruchomić
-- [x] 4.5 Wpis w §7 i §6.3 poprawnie opisuje lukę US-01/guardrail 2 i nie obiecuje testu, którego nie ma
+- [x] 4.4 §6.1–6.3 mówią nowej osobie, gdzie dodać test, jak go nazwać i jak uruchomić — b427c38
+- [x] 4.5 Wpis w §7 i §6.3 poprawnie opisuje lukę US-01/guardrail 2 i nie obiecuje testu, którego nie ma — b427c38
