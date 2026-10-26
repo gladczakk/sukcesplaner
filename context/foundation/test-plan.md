@@ -75,15 +75,16 @@ orchestrator updates Status as artifacts appear on disk.
 
 ## 4. Stack
 
-The classic test base for this project. Profil bazy testów: `sparse` — skonfigurowane tylko
-testy `node --test` (3 pliki w `scripts/`), 10 testów pgTAP w `supabase/tests/database/` oraz
-smoke auth; warstwa aplikacji (serwisy, endpointy, widoki) bez testów.
+The classic test base for this project. Profil bazy testów: `sparse` na starcie rolloutu; po Fazie 1 są
+testy `node --test` (3 pliki w `scripts/`), testy `vitest` dla warstwy aplikacji (`src/**/*.test.ts`),
+11 plików pgTAP w `supabase/tests/database/` (w CI) oraz smoke auth; serwisy, endpointy i widoki
+poza logiką dat nadal bez testów.
 
 | Layer | Tool | Version | Notes |
 |-------|------|---------|-------|
 | unit | `node --test` (wbudowany runner Node, `npm run test:unit`) | Node 22 | Pokrywa tylko `scripts/`; w CI |
-| database / integration | pgTAP przez Supabase CLI (`supabase/tests/database/`) | Supabase CLI latest (z CI) | 10 testów reguł domeny i RLS; nie podpięte do CI — none yet, see Phase 1 |
-| app-level unit + integration | none yet — see Phase 1 | — | Wybór runnera należy do `/10x-research` i `/10x-plan` Fazy 1 |
+| database / integration | pgTAP przez Supabase CLI (`supabase/tests/database/`) | Supabase CLI latest (z CI) | 11 plików reguł domeny i RLS (`npm run test:db`); krok w jobie `smoke` w CI |
+| app-level unit + integration | `vitest` | 5.0.5 (checked: 2026-10-26) | `npm run test:app`, `src/**/*.test.ts` (alias `@/`); krok w jobie `ci` w CI |
 | smoke | `scripts/smoke.mjs` (job `smoke` w CI) | — | Tylko przepływ auth; sprawdza treść wysp React, nie tylko status (lessons.md) |
 | e2e | none yet — see Phase 4 | — | Najwyżej 1 przepływ krytyczny |
 | accessibility | none | — | Poza zakresem (patrz §7) |
@@ -104,8 +105,8 @@ runnera aplikacji `/10x-research` powinien sprawdzić aktualną dokumentację.
 | lint + typecheck (`eslint`, `astro check`) | local (husky pre-commit) + CI | required (wired) | syntactic / type drift |
 | unit (`npm run test:unit`) | local + CI | required (wired) | regresje w skryptach pomocniczych |
 | smoke auth | CI (job `smoke`) | required (wired) | zepsuty przepływ logowania, wyspy React nierenderujące się |
-| database tests (pgTAP) | local + CI | required after §3 Phase 1 | regresje reguł domeny, listy na dziś i RLS |
-| app-level unit + integration | local + CI | required after §3 Phase 1 | błędy logiki serwisów i walidacji |
+| database tests (pgTAP) | local + CI | required (wired) | regresje reguł domeny, listy na dziś i RLS |
+| app-level unit + integration | local + CI | required (wired) | błędy logiki serwisów i walidacji |
 | e2e on critical flow | CI on PR | required after §3 Phase 4 | zepsuty krytyczny przepływ (login → zadanie → lista → odhaczenie) |
 | post-edit hook | local (agent loop) | recommended after §3 Phase 4 | regresje w czasie edycji |
 | mutation testing (Stryker) | local, ad hoc | optional, selektywnie po fazie ryzyka | testy, które nie wykryłyby zepsucia reguły |
@@ -118,21 +119,28 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.1 Adding a unit test
 
-- **Location**: obecnie `scripts/*.test.mjs`; dla warstwy aplikacji — TBD, see §3 Phase 1.
-- **Naming**: `<module>.test.mjs` (istniejące pliki).
-- **Reference test**: `scripts/weekdays.test.mjs`.
-- **Run locally**: `npm run test:unit`.
+- **Location**: `src/**/*.test.ts` (obok modułu, runner `vitest`); `scripts/*.test.mjs` zostają na `npm run test:unit`.
+- **Naming**: `<module>.test.ts`.
+- **Reference test**: `src/lib/today.test.ts`.
+- **Run locally**: `npm run test:app`.
 
 ### 6.2 Adding a database / integration test
 
 - **Location**: `supabase/tests/database/`.
 - **Naming**: `core_domain_<topic>.test.sql`.
 - **Reference test**: `supabase/tests/database/core_domain_today_list.test.sql`.
-- **Run locally**: TBD — see §3 Phase 1 (polecenie i podpięcie do CI).
+- **Run locally**: `npm run test:db` (`supabase test db`; wymaga `npx supabase start` i Dockera). Uruchamia wszystkie pliki z katalogu; w CI jako krok jobu `smoke`.
+- **Reference test (przegląd dat)**: `supabase/tests/database/core_domain_today_list_days.test.sql`.
 
 ### 6.3 Adding a test for the today-list rule (qualification, ordering, date boundaries)
 
-- TBD — see §3 Phase 1 for the missing-task, late-appearance and date-boundary regression pattern.
+- Wyrocznia pisana ręcznie z PRD (FR-009, FR-010) i kalendarza Warszawy, nigdy liczona kodem pod testem.
+- Jeden zestaw danych; zapytanie o kilka dat przez `generate_series`, jedna asercja na własność nad wspólnym zapytaniem (bez kopii per dzień).
+- Datę podajemy jako parametr `p_today`, nigdy z zegara systemowego; do tego test strefy czasowej sesji i strażnik strukturalny (źródło funkcji bez `current_date`, `now()`, `current_timestamp`).
+- Kolejność dosłownie wg FR-010: własny termin rosnąco, brak terminu na końcu, ale widoczny; data milestona tylko jako rozstrzygnięcie remisu.
+- Logika dat po stronie aplikacji: tabele `vitest` z ręcznie wpisanymi oczekiwanymi dniami dla chwil wokół północy w Warszawie i obu zmian czasu (wzór: `src/lib/today.test.ts`).
+- Każdy nowy test zepsuj celowo (break-check) i potwierdź, że robi się czerwony.
+- Znana luka: PRD US-01 mówi o terminie „własnym lub milestona", a kolejność tego nie dziedziczy; nie ma testu, który by tego wymagał (patrz §7).
 
 ### 6.4 Adding a test for list actions and recurring rhythm changes
 
@@ -151,6 +159,8 @@ the relevant rollout phase ships; before that, the sub-section reads
 (Optional. After each phase lands, `/10x-implement` appends a 2–3 line note
 here capturing anything surprising the rollout phase taught.)
 
+- **Faza 1 (testing-today-list-correctness)**: baza pgTAP była już zielona przed zmianami; peers `vitest` 5.0.5 akceptują Vite 8. Słabość: istniejący test kolejności opiera się na `row_number`, więc przestałby pilnować kolejności, gdyby funkcja przestała zwracać wiersze uporządkowane.
+
 ## 7. What We Deliberately Don't Test
 
 Exclusions agreed during the rollout (Phase 2 interview, Q5). Future
@@ -160,11 +170,13 @@ contributors should respect these unless the underlying assumption changes.
 - **Strony auth poza istniejącym smoke** — obecny smoke wystarcza. Re-evaluate if pojawi się OAuth lub dodatkowe przepływy auth. (Source: interview Q5.)
 - **Kitchen sink (`/dev/kitchen-sink`) i skrypty pomocnicze** — narzędzia deweloperskie, niewidoczne dla użytkownika. Re-evaluate if zaczną wpływać na produkcję. (Source: interview Q5.)
 - **Kontrola wielu użytkowników i nadużyć na dużą skalę (rate-limit, obciążenie)** — na starcie jedyny użytkownik to autor. Re-evaluate if aplikacja zostanie udostępniona szerszemu gronu. (Source: interview Q5.)
+- **Dziedziczenie terminu milestona w kolejności (PRD US-01) i sygnał daty milestona na wierszu zadania (guardrail 2)** — nie testujemy ich jako wymagań, bo to nierozstrzygnięta decyzja produktowa; aktualne zachowanie jest utrwalone (FR-010 dosłownie, chip terminu). Re-evaluate if decyzja produktowa zapadnie. (Source: research/plan of change testing-today-list-correctness.)
+- **Runtime Cloudflare Workers dla `Intl` / strefy Europe/Warsaw** — pokryty jest tylko Node. Re-evaluate if w produkcji zaobserwowany zostanie błąd granicy dnia albo pojawi się warstwa e2e/workerd. (Source: research/plan of change testing-today-list-correctness.)
 
 ## 8. Freshness Ledger
 
 - Strategy (§1–§5) last reviewed: 2026-10-26
-- Stack versions last verified: 2026-10-26
+- Stack versions last verified: 2026-10-26 (w tym `vitest` 5.0.5, verified 2026-10-26)
 - AI-native tool references last verified: 2026-10-26 (brak narzędzi AI-native w planie)
 
 Refresh (`/10x-test-plan --refresh`) when:

@@ -312,25 +312,25 @@ Brak migracji bazy i brak zmian w danych. Wycofanie: usunięcie nowych plików t
 
 #### Automated
 
-- [x] 3.1 Baza odniesienia: wszystkie istniejące pliki pgTAP zielone przed zmianami: `npx supabase test db`
-- [x] 3.2 Nowy i istniejące testy przechodzą: `npm run test:db`
-- [x] 3.3 Lint przechodzi: `npm run lint`
-- [x] 3.4 Job `smoke` zawiera krok `supabase test db`: `grep -n "supabase test db" .github/workflows/ci.yml`
+- [x] 3.1 Baza odniesienia: wszystkie istniejące pliki pgTAP zielone przed zmianami: `npx supabase test db` — 6980ecb
+- [x] 3.2 Nowy i istniejące testy przechodzą: `npm run test:db` — 6980ecb
+- [x] 3.3 Lint przechodzi: `npm run lint` — 6980ecb
+- [x] 3.4 Job `smoke` zawiera krok `supabase test db`: `grep -n "supabase test db" .github/workflows/ci.yml` — 6980ecb
 
 #### Manual
 
-- [x] 3.5 Test zepsucia: podmiana `today_list` wariantem z `>=` zamiast `>` albo z `current_date` robi `npm run test:db` czerwonym, potem `npx supabase db reset` przywraca stan
+- [x] 3.5 Test zepsucia: podmiana `today_list` wariantem z `>=` zamiast `>` albo z `current_date` robi `npm run test:db` czerwonym, potem `npx supabase db reset` przywraca stan — 6980ecb
 - [ ] 3.6 PR z tą zmianą: job `smoke` jest zielony i log pokazuje wykonanie `supabase test db`
 
 ### Phase 4: Cookbook i synchronizacja test-planu
 
 #### Automated
 
-- [ ] 4.1 W test-planie nie ma już „TBD — see §3 Phase 1”: `grep -n "TBD — see §3 Phase 1" context/foundation/test-plan.md` (brak wyników)
-- [ ] 4.2 Polecenia opisane w cookbooku działają: `npm run test:app` oraz `npm run test:db`
+- [x] 4.1 W test-planie nie ma już „TBD — see §3 Phase 1”: `grep -n "TBD — see §3 Phase 1" context/foundation/test-plan.md` (brak wyników)
+- [x] 4.2 Polecenia opisane w cookbooku działają: `npm run test:app` oraz `npm run test:db`
 - [ ] 4.3 Formatowanie markdown przechodzi: `npx prettier --check context/foundation/test-plan.md CLAUDE.md`
 
 #### Manual
 
-- [ ] 4.4 §6.1–6.3 mówią nowej osobie, gdzie dodać test, jak go nazwać i jak uruchomić
-- [ ] 4.5 Wpis w §7 i §6.3 poprawnie opisuje lukę US-01/guardrail 2 i nie obiecuje testu, którego nie ma
+- [x] 4.4 §6.1–6.3 mówią nowej osobie, gdzie dodać test, jak go nazwać i jak uruchomić
+- [x] 4.5 Wpis w §7 i §6.3 poprawnie opisuje lukę US-01/guardrail 2 i nie obiecuje testu, którego nie ma
