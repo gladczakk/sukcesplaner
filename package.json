@@ -12,7 +12,8 @@
     "format": "prettier --write .",
     "smoke": "node scripts/smoke.mjs",
     "check:values": "node scripts/check-hardcoded-values.mjs",
-    "test:unit": "node --experimental-strip-types --test scripts/weekdays.test.mjs scripts/auth-errors.test.mjs scripts/check-hardcoded-values.test.mjs"
+    "test:unit": "node --experimental-strip-types --test scripts/weekdays.test.mjs scripts/auth-errors.test.mjs scripts/check-hardcoded-values.test.mjs",
+    "test:app": "vitest run"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
@@ -55,6 +56,7 @@
     "supabase": "^2.23.4",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.70.0",
+    "vitest": "^5.0.5",
     "wrangler": "^4.131.1"
   },
   "lint-staged": {
