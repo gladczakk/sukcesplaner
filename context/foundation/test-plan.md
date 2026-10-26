@@ -136,7 +136,7 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 - Wyrocznia pisana ręcznie z PRD (FR-009, FR-010) i kalendarza Warszawy, nigdy liczona kodem pod testem.
 - Jeden zestaw danych; zapytanie o kilka dat przez `generate_series`, jedna asercja na własność nad wspólnym zapytaniem (bez kopii per dzień).
-- Datę podajemy jako parametr `p_today`, nigdy z zegara systemowego; do tego test strefy czasowej sesji i strażnik strukturalny (źródło funkcji bez `current_date`, `now()`, `current_timestamp`).
+- Datę podajemy jako parametr `p_today`, nigdy z zegara systemowego; do tego test strefy czasowej sesji i strażnik strukturalny (źródło funkcji bez odczytu zegara: `current_*`, `localtime*`, `now()`, `*_timestamp`, `timeofday`). Test strefy sam nie wykryje zegara, bo data jest podawana jawnie, więc to strażnik jest właściwą ochroną.
 - Kolejność dosłownie wg FR-010: własny termin rosnąco, brak terminu na końcu, ale widoczny; data milestona tylko jako rozstrzygnięcie remisu.
 - Logika dat po stronie aplikacji: tabele `vitest` z ręcznie wpisanymi oczekiwanymi dniami dla chwil wokół północy w Warszawie i obu zmian czasu (wzór: `src/lib/today.test.ts`).
 - Każdy nowy test zepsuj celowo (break-check) i potwierdź, że robi się czerwony.
@@ -159,7 +159,7 @@ the relevant rollout phase ships; before that, the sub-section reads
 (Optional. After each phase lands, `/10x-implement` appends a 2–3 line note
 here capturing anything surprising the rollout phase taught.)
 
-- **Faza 1 (testing-today-list-correctness)**: baza pgTAP była już zielona przed zmianami; peers `vitest` 5.0.5 akceptują Vite 8. Słabość: istniejący test kolejności opiera się na `row_number`, więc przestałby pilnować kolejności, gdyby funkcja przestała zwracać wiersze uporządkowane.
+- **Faza 1 (testing-today-list-correctness)**: baza pgTAP była już zielona przed zmianami; peers `vitest` 5.0.5 akceptują Vite 8. Słabość: nowy test kolejności w `core_domain_today_list_days.test.sql` czyta kolejność wierszy przez `row_number() over ()` bez `ORDER BY`; dziś kolejność gwarantuje pełny `ORDER BY` funkcji, ale zmiana planera mogłaby dać fałszywą czerwień (nie fałszywą zieleń).
 
 ## 7. What We Deliberately Don't Test
 

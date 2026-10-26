@@ -9,7 +9,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(11);
+select plan(12);
 
 insert into auth.users (id, aud, role, email)
 values
@@ -67,6 +67,24 @@ select is(
    where not exists (select 1 from public.today_list(g.d::date))),
   0::bigint,
   'kazdy dzien zakresu 2026-10-01 .. 2027-01-31 ma niepusta liste');
+
+-- Kontrola pozytywna: lista tytulow z nastepnego testu trafia dokladnie w 10 zadan (literowka nie
+-- zmniejszy po cichu sprawdzanego zbioru), a zadanie przeniesione pojawia sie w sweepie co najmniej raz
+select is(
+  (select count(*) from public.tasks
+   where title in (
+       'a-pozno', 'a-wczesnie', 'a-bez-terminu', 'a-odlozone', 'a-partial',
+       'c-otwarte', 'e-20-grudnia', 'e-bez-terminu', 'e-5-grudnia', 'e-12-grudnia')),
+  10::bigint,
+  'lista tytulow sweepu trafia dokladnie w 10 zadan');
+
+select ok(
+  exists (
+    select 1
+    from generate_series(timestamp '2026-10-01', timestamp '2027-01-31', interval '1 day') g(d)
+    cross join lateral public.today_list(g.d::date) l
+    where l.task_title = 'a-odlozone'),
+  'zadanie przeniesione a-odlozone pojawia sie w sweepie (kontrola pozytywna)');
 
 -- #1: niedokonczone zadanie najblizszego milestona nie znika w zadnym dniu zakresu (takze w dniu
 -- terminu milestona 2026-10-25, po nim i dla zadania przeniesionego); liczymy pary (dzien, zadanie)
@@ -140,6 +158,9 @@ select is(
 -- #2: kolejnosc wg FR-010 (termin rosnaco, bez terminu na koncu, ale widoczne) jest taka sama
 -- w dwoch roznych dniach; dla zadan bez terminu rozstrzyga data milestona i created_at.
 -- Oczekiwana lista wpisana recznie.
+-- Uwaga: kolejnosc wierszy czytamy przez row_number() over () bez ORDER BY - opieramy sie na tym, ze
+-- today_list zwraca wiersze w kolejnosci swojego pelnego ORDER BY; zmiana planera dalaby falszywa
+-- czerwien (nie falszywa zielen).
 select results_eq(
   $$select g.d::date,
            (select string_agg(l.task_title, ', ' order by l.ord)
@@ -157,7 +178,8 @@ select results_eq(
     ('2026-10-29'::date, 'a-wczesnie, a-partial, a-pozno, e-5-grudnia, e-12-grudnia, e-20-grudnia, a-bez-terminu, a-odlozone, c-otwarte, e-bez-terminu')$$,
   'kolejnosc zadan wg FR-010 jest taka sama w dniach D i D+3, bez terminu na koncu');
 
--- #3: wynik nie zalezy od strefy czasowej sesji (stala data p_today = 2026-10-19: wszystkie rodzaje wierszy)
+-- #3: wynik nie zalezy od strefy czasowej sesji (stala data p_today = 2026-10-19; rodzaje wierszy w
+-- danych: task, milestone i deferred - bez rutyn, wiec 'routine' i 'skipped' nie sa tu objete)
 set local timezone = 'Pacific/Kiritimati';
 
 select results_eq(
@@ -182,37 +204,16 @@ select results_eq(
     ('deferred', 'a-odlozone')$$,
   'strefa Pacific/Kiritimati (UTC+14): wynik dla stalego p_today bez zmian');
 
-set local timezone = 'Etc/GMT+12';
-
-select results_eq(
-  $$select kind, coalesce(task_title, milestone_name)
-    from public.today_list('2026-10-19')
-    where project_id in (
-      '40000000-0000-0000-0000-000000000001',
-      '40000000-0000-0000-0000-000000000002',
-      '40000000-0000-0000-0000-000000000003',
-      '40000000-0000-0000-0000-000000000005')$$,
-  $$values
-    ('task', 'a-wczesnie'),
-    ('task', 'a-partial'),
-    ('task', 'a-pozno'),
-    ('task', 'e-5-grudnia'),
-    ('task', 'e-12-grudnia'),
-    ('task', 'e-20-grudnia'),
-    ('task', 'a-bez-terminu'),
-    ('task', 'c-otwarte'),
-    ('task', 'e-bez-terminu'),
-    ('milestone', 'mB1'),
-    ('deferred', 'a-odlozone')$$,
-  'strefa Etc/GMT+12 (UTC-12): wynik dla stalego p_today bez zmian');
-
--- Straznik strukturalny: uzupelnia testy stref czasowych - zrodlo funkcji nie zawiera zegara
--- (current_date, now(), current_timestamp), wiec "dzis" pochodzi wylacznie z parametru
+-- Straznik strukturalny: uzupelnia test strefy czasowej (ktory sam nie wykryje zegara, bo p_today
+-- jest podane jawnie) - zrodlo funkcji, bez komentarzy `--`, nie zawiera zadnego odczytu zegara
+-- (current_date/time/timestamp, localtime(stamp), now(), clock/statement/transaction_timestamp,
+-- timeofday, literaly 'now'/'today'/'yesterday'/'tomorrow'), wiec "dzis" pochodzi wylacznie z parametru
 select ok(
-  (select prosrc !~* '(current_date|now\s*\(\s*\)|current_timestamp)'
+  (select regexp_replace(prosrc, '--[^\n]*', '', 'g')
+            !~* '(\y(current_(date|time|timestamp)|localtime(stamp)?|clock_timestamp|statement_timestamp|transaction_timestamp|timeofday)\y|\ynow\s*\(|''(now|today|yesterday|tomorrow)'')'
    from pg_proc
    where oid = 'public.today_list(date)'::regprocedure),
-  'zrodlo today_list(date) nie uzywa current_date, now() ani current_timestamp');
+  'zrodlo today_list(date) nie odczytuje zegara (current_*, localtime*, now(), *_timestamp, timeofday, literaly now/today)');
 
 reset role;
 
