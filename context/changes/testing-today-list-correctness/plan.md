@@ -300,26 +300,26 @@ Brak migracji bazy i brak zmian w danych. Wycofanie: usunięcie nowych plików t
 
 #### Automated
 
-- [x] 2.1 Testy aplikacji przechodzą: `npm run test:app`
-- [x] 2.2 Lint i typecheck przechodzą: `npm run lint` oraz `npx astro check`
+- [x] 2.1 Testy aplikacji przechodzą: `npm run test:app` — 89fdd42
+- [x] 2.2 Lint i typecheck przechodzą: `npm run lint` oraz `npx astro check` — 89fdd42
 
 #### Manual
 
-- [x] 2.3 Test zepsucia dla źródła „dziś”: zmiana strefy w `todayInWarsaw` na `UTC` robi czerwone przypadki granicy północy, po cofnięciu zielone
-- [x] 2.4 Test zepsucia dla chipów: zmiana progu `days <= 7` na `days <= 6` robi czerwony przypadek 7 dni, po cofnięciu zielone
+- [x] 2.3 Test zepsucia dla źródła „dziś”: zmiana strefy w `todayInWarsaw` na `UTC` robi czerwone przypadki granicy północy, po cofnięciu zielone — 89fdd42
+- [x] 2.4 Test zepsucia dla chipów: zmiana progu `days <= 7` na `days <= 6` robi czerwony przypadek 7 dni, po cofnięciu zielone — 89fdd42
 
 ### Phase 3: pgTAP dla listy na dziś i CI
 
 #### Automated
 
-- [ ] 3.1 Baza odniesienia: wszystkie istniejące pliki pgTAP zielone przed zmianami: `npx supabase test db`
-- [ ] 3.2 Nowy i istniejące testy przechodzą: `npm run test:db`
-- [ ] 3.3 Lint przechodzi: `npm run lint`
-- [ ] 3.4 Job `smoke` zawiera krok `supabase test db`: `grep -n "supabase test db" .github/workflows/ci.yml`
+- [x] 3.1 Baza odniesienia: wszystkie istniejące pliki pgTAP zielone przed zmianami: `npx supabase test db`
+- [x] 3.2 Nowy i istniejące testy przechodzą: `npm run test:db`
+- [x] 3.3 Lint przechodzi: `npm run lint`
+- [x] 3.4 Job `smoke` zawiera krok `supabase test db`: `grep -n "supabase test db" .github/workflows/ci.yml`
 
 #### Manual
 
-- [ ] 3.5 Test zepsucia: podmiana `today_list` wariantem z `>=` zamiast `>` albo z `current_date` robi `npm run test:db` czerwonym, potem `npx supabase db reset` przywraca stan
+- [x] 3.5 Test zepsucia: podmiana `today_list` wariantem z `>=` zamiast `>` albo z `current_date` robi `npm run test:db` czerwonym, potem `npx supabase db reset` przywraca stan
 - [ ] 3.6 PR z tą zmianą: job `smoke` jest zielony i log pokazuje wykonanie `supabase test db`
 
 ### Phase 4: Cookbook i synchronizacja test-planu

@@ -13,7 +13,8 @@
     "smoke": "node scripts/smoke.mjs",
     "check:values": "node scripts/check-hardcoded-values.mjs",
     "test:unit": "node --experimental-strip-types --test scripts/weekdays.test.mjs scripts/auth-errors.test.mjs scripts/check-hardcoded-values.test.mjs",
-    "test:app": "vitest run"
+    "test:app": "vitest run",
+    "test:db": "supabase test db"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
