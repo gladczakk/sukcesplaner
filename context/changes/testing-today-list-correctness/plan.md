@@ -287,26 +287,26 @@ Brak migracji bazy i brak zmian w danych. Wycofanie: usunięcie nowych plików t
 
 #### Automated
 
-- [x] 1.1 Testy aplikacji przechodzą: `npm run test:app`
-- [x] 1.2 Istniejące testy jednostkowe nadal przechodzą: `npm run test:unit`
-- [x] 1.3 Lint i typecheck przechodzą: `npm run lint` oraz `npx astro check`
-- [x] 1.4 Job `ci` zawiera krok `npm run test:app`: `grep -n "test:app" .github/workflows/ci.yml`
+- [x] 1.1 Testy aplikacji przechodzą: `npm run test:app` — 626ca33
+- [x] 1.2 Istniejące testy jednostkowe nadal przechodzą: `npm run test:unit` — 626ca33
+- [x] 1.3 Lint i typecheck przechodzą: `npm run lint` oraz `npx astro check` — 626ca33
+- [x] 1.4 Job `ci` zawiera krok `npm run test:app`: `grep -n "test:app" .github/workflows/ci.yml` — 626ca33
 
 #### Manual
 
-- [x] 1.5 Test zepsucia: zmiana oczekiwanego dnia w teście startowym robi `npm run test:app` czerwonym, po cofnięciu znów zielony
+- [x] 1.5 Test zepsucia: zmiana oczekiwanego dnia w teście startowym robi `npm run test:app` czerwonym, po cofnięciu znów zielony — 626ca33
 
 ### Phase 2: Testy dat i chipów w aplikacji
 
 #### Automated
 
-- [ ] 2.1 Testy aplikacji przechodzą: `npm run test:app`
-- [ ] 2.2 Lint i typecheck przechodzą: `npm run lint` oraz `npx astro check`
+- [x] 2.1 Testy aplikacji przechodzą: `npm run test:app`
+- [x] 2.2 Lint i typecheck przechodzą: `npm run lint` oraz `npx astro check`
 
 #### Manual
 
-- [ ] 2.3 Test zepsucia dla źródła „dziś”: zmiana strefy w `todayInWarsaw` na `UTC` robi czerwone przypadki granicy północy, po cofnięciu zielone
-- [ ] 2.4 Test zepsucia dla chipów: zmiana progu `days <= 7` na `days <= 6` robi czerwony przypadek 7 dni, po cofnięciu zielone
+- [x] 2.3 Test zepsucia dla źródła „dziś”: zmiana strefy w `todayInWarsaw` na `UTC` robi czerwone przypadki granicy północy, po cofnięciu zielone
+- [x] 2.4 Test zepsucia dla chipów: zmiana progu `days <= 7` na `days <= 6` robi czerwony przypadek 7 dni, po cofnięciu zielone
 
 ### Phase 3: pgTAP dla listy na dziś i CI
 
