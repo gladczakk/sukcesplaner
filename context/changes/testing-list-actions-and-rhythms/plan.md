@@ -252,23 +252,23 @@ Brak migracji i zmian danych. Wycofanie: usunięcie nowych plików testowych i w
 
 #### Automated
 
-- [x] 2.1 Wszystkie pliki pgTAP przechodzą: `npm run test:db`
-- [x] 2.2 Lint przechodzi: `npm run lint`
+- [x] 2.1 Wszystkie pliki pgTAP przechodzą: `npm run test:db` — ad0a79a
+- [x] 2.2 Lint przechodzi: `npm run lint` — ad0a79a
 
 #### Manual
 
-- [x] 2.3 Test zepsucia: wariant `today_list` z `>=` zamiast `>` albo z zawsze prawdziwym `task_can_move` robi `npm run test:db` czerwonym na nowym pliku, po ponownym wgraniu oryginału zielony
+- [x] 2.3 Test zepsucia: wariant `today_list` z `>=` zamiast `>` albo z zawsze prawdziwym `task_can_move` robi `npm run test:db` czerwonym na nowym pliku, po ponownym wgraniu oryginału zielony — ad0a79a
 
 ### Phase 3: pgTAP: luki zmiany rytmu (#5)
 
 #### Automated
 
-- [ ] 3.1 Wszystkie pliki pgTAP przechodzą: `npm run test:db`
-- [ ] 3.2 Lint przechodzi: `npm run lint`
+- [x] 3.1 Wszystkie pliki pgTAP przechodzą: `npm run test:db`
+- [x] 3.2 Lint przechodzi: `npm run lint`
 
 #### Manual
 
-- [ ] 3.3 Test zepsucia: wariant `cleanup_moved_occurrences_on_rhythm_change` z `>` zamiast `>=` robi `npm run test:db` czerwonym, po ponownym wgraniu oryginału zielony
+- [x] 3.3 Test zepsucia: wariant `cleanup_moved_occurrences_on_rhythm_change` z `>` zamiast `>=` robi `npm run test:db` czerwonym, po ponownym wgraniu oryginału zielony
 
 ### Phase 4: Cookbook i synchronizacja test-planu
 
