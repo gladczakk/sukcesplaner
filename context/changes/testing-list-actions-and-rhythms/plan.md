@@ -274,10 +274,10 @@ Brak migracji i zmian danych. Wycofanie: usunięcie nowych plików testowych i w
 
 #### Automated
 
-- [x] 4.1 W test-planie nie ma już „TBD — see §3 Phase 2”: `grep -n "TBD — see §3 Phase 2" context/foundation/test-plan.md` (brak wyników)
-- [x] 4.2 Polecenia z cookbooka działają: `npm run test:app` oraz `npm run test:db`
+- [x] 4.1 W test-planie nie ma już „TBD — see §3 Phase 2”: `grep -n "TBD — see §3 Phase 2" context/foundation/test-plan.md` (brak wyników) — ca314c4
+- [x] 4.2 Polecenia z cookbooka działają: `npm run test:app` oraz `npm run test:db` — ca314c4
 
 #### Manual
 
-- [x] 4.3 §6.4 mówi nowej osobie, jak dodać test akcji lub zmiany rytmu
-- [x] 4.4 Wpisy w §7 poprawnie opisują reguły projektowe i nie obiecują testu, którego nie ma
+- [x] 4.3 §6.4 mówi nowej osobie, jak dodać test akcji lub zmiany rytmu — ca314c4
+- [x] 4.4 Wpisy w §7 poprawnie opisują reguły projektowe i nie obiecują testu, którego nie ma — ca314c4
