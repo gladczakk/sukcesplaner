@@ -1,10 +1,10 @@
 ---
 change_id: testing-list-actions-and-rhythms
 title: Testy akcji na liście i zmiany rytmu (test-plan, Faza 2)
-status: impl_reviewed
+status: archived
 created: 2026-10-26
 updated: 2026-10-27
-archived_at: null
+archived_at: 2026-10-27T10:43:26Z
 ---
 
 ## Notes
