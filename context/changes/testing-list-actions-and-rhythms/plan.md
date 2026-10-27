@@ -239,25 +239,25 @@ Brak migracji i zmian danych. Wycofanie: usunięcie nowych plików testowych i w
 
 #### Automated
 
-- [x] 1.1 Testy aplikacji przechodzą: `npm run test:app`
-- [x] 1.2 Lint i typecheck przechodzą: `npm run lint` oraz `npx astro check`
-- [x] 1.3 Plik testowy dotyka wszystkich sześciu funkcji: `grep -c "describe(" src/lib/services/tasks.test.ts`
+- [x] 1.1 Testy aplikacji przechodzą: `npm run test:app` — 7eca8d8
+- [x] 1.2 Lint i typecheck przechodzą: `npm run lint` oraz `npx astro check` — 7eca8d8
+- [x] 1.3 Plik testowy dotyka wszystkich sześciu funkcji: `grep -c "describe(" src/lib/services/tasks.test.ts` — 7eca8d8
 
 #### Manual
 
-- [x] 1.4 Test zepsucia 1: usunięcie warunku `.neq("status", "done")` w `setTaskDeferral` robi czerwony przypadek, po cofnięciu zielony
-- [x] 1.5 Test zepsucia 2: zamiana kolejności gałęzi komunikatów w `moveOccurrenceToTomorrow` robi czerwony przypadek pułapki, po cofnięciu zielony
+- [x] 1.4 Test zepsucia 1: usunięcie warunku `.neq("status", "done")` w `setTaskDeferral` robi czerwony przypadek, po cofnięciu zielony — 7eca8d8
+- [x] 1.5 Test zepsucia 2: zamiana kolejności gałęzi komunikatów w `moveOccurrenceToTomorrow` robi czerwony przypadek pułapki, po cofnięciu zielony — 7eca8d8
 
 ### Phase 2: pgTAP: stan końcowy akcji i lista następnego dnia
 
 #### Automated
 
-- [ ] 2.1 Wszystkie pliki pgTAP przechodzą: `npm run test:db`
-- [ ] 2.2 Lint przechodzi: `npm run lint`
+- [x] 2.1 Wszystkie pliki pgTAP przechodzą: `npm run test:db`
+- [x] 2.2 Lint przechodzi: `npm run lint`
 
 #### Manual
 
-- [ ] 2.3 Test zepsucia: wariant `today_list` z `>=` zamiast `>` albo z zawsze prawdziwym `task_can_move` robi `npm run test:db` czerwonym na nowym pliku, po ponownym wgraniu oryginału zielony
+- [x] 2.3 Test zepsucia: wariant `today_list` z `>=` zamiast `>` albo z zawsze prawdziwym `task_can_move` robi `npm run test:db` czerwonym na nowym pliku, po ponownym wgraniu oryginału zielony
 
 ### Phase 3: pgTAP: luki zmiany rytmu (#5)
 
