@@ -68,10 +68,12 @@ orchestrator updates Status as artifacts appear on disk.
 
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|---------------|------------|--------|---------------|
-| 1 | Poprawność listy na dziś | Dowieść, że lista jest kompletna, uporządkowana i stabilna na granicach dat; zainicjować runner testów aplikacji i podpiąć testy bazy do CI | #1, #2, #3 | integration, parametryczne granice dat | change opened | context/changes/testing-today-list-correctness/ |
-| 2 | Akcje i rytmy | Dowieść, że akcje na liście i zmiana rytmu nie gubią zadań ani odhaczeń | #4, #5 | integration, hermetyczne stuby częściowych błędów | not started | — |
+| 1 | Poprawność listy na dziś | Dowieść, że lista jest kompletna, uporządkowana i stabilna na granicach dat; zainicjować runner testów aplikacji i podpiąć testy bazy do CI | #1, #2, #3 | integration, parametryczne granice dat | complete | context/archive/2026-10-26-testing-today-list-correctness/ |
+| 2 | Akcje i rytmy | Dowieść, że akcje na liście i zmiana rytmu nie gubią zadań ani odhaczeń | #4, #5 | integration, hermetyczne stuby częściowych błędów | change opened | context/changes/testing-list-actions-and-rhythms/ |
 | 3 | Spójność danych i izolacja | Dowieść poprawności reguły milestona po edycji i usunięciu oraz granicy własności danych | #6, #7 | integration (rozszerzenie testów bazy i RLS) | not started | — |
 | 4 | Jeden przepływ e2e i bramki | Domknąć krytyczny przepływ w przeglądarce i utrwalić bramki w CI i hooku | #1, #4 (domknięcie) | 1 test e2e, bramki jakości | not started | — |
+
+Faza 1 zamknięta z dwoma świadomie otwartymi wierszami Progress: 3.6 (job `smoke` z `supabase test db` nie był uruchomiony na CI, brak zdalnego repozytorium) i 4.3 (`prettier --check` dla tego pliku i `CLAUDE.md` nie przechodził już przed zmianą). Zweryfikować 3.6 przy pierwszym pushu.
 
 ## 4. Stack
 
@@ -144,7 +146,15 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.4 Adding a test for list actions and recurring rhythm changes
 
-- TBD — see §3 Phase 2 for the task-state-after-action and rhythm-change pattern, including partial-failure stubs.
+- **Dwie warstwy, najtańsza z sygnałem**: stan końcowy i lista dla dni D i D+1 sprawdzamy w pgTAP na prawdziwej bazie; w `vitest` ze stubem klienta tylko to, czego baza nie widzi (mapowanie błędów po podciągach komunikatów, warunkowe zapisy typu `.neq`, odczyt rozstrzygający). Każda akcja serwisu to jeden zapis, więc testów „połowicznego zapisu” nie piszemy.
+- **pgTAP — akcje**: wykonuj ten sam `update`/`insert` co serwis jako rola `authenticated`, potem `today_list(p_today)` dla D i D+1. Dane jako `postgres`. Wzór: `supabase/tests/database/core_domain_today_list_actions.test.sql`.
+- **pgTAP — zmiana rytmu**: jeden `update` z nowym rytmem i `recurrence_start_date` = dzień zmiany (tak jak aplikacja), stan wierszy `task_occurrences` (`occurrence_date`, `state`, `moved_to`) wpisany ręcznie po każdym kroku. Wzory: `core_domain_recurring_rhythm_change.test.sql` (reguła podstawowa), `core_domain_recurring_rhythm_change_edges.test.sql` (dwie zmiany pod rząd, milestone, kaskada).
+- **vitest — serwisy**: stub klienta supabase-js, komunikaty błędów kopiowane z migracji, nigdy ze stałych serwisu (inaczej test lustrzany). Wzór: `src/lib/services/tasks.test.ts`. Uruchom: `npm run test:app`.
+- **Oracle**: oczekiwane wartości wpisane ręcznie z PRD i decyzji (nagłówek pliku wskazuje źródło). Reguły z decyzji S-05 (422 dla zrobionego, zapis statusu zeruje przeniesienie, częściowo + na jutro zostawia status) to reguły projektowe, nie PRD; w nagłówku oznaczone jako takie.
+- **Granica zmiany rytmu**: usuwane są przeniesienia ze źródłem lub celem `>=` nowej daty startu (decyzja S-10); test F i `edges` pinują `>=` z obu stron.
+- **Break-check**: każda nowa asercja przechodzi kontrolę zepsucia. Dla bazy: wyciągnij definicję funkcji z migracji do pliku tymczasowego, wgraj wariant (`docker exec -i supabase_db_10x-astro-starter psql -U postgres < wariant.sql`), uruchom `npm run test:db` (ma być czerwony), wgraj oryginał i potwierdź zielony. Dla `vitest`: zmień kod serwisu w working tree i przywróć `git checkout`.
+- **Uruchom**: `npm run test:db` (pgTAP, wymaga lokalnego Supabase i Dockera), `npm run test:app` (vitest).
+- **Znane luki**: współbieżność dwóch sesji, widoczność przeniesienia sprzed nowego startu i zmiana rytmu w zamkniętym milestonie — patrz §7.
 
 ### 6.5 Adding a test for data integrity and ownership
 
@@ -161,6 +171,8 @@ here capturing anything surprising the rollout phase taught.)
 
 - **Faza 1 (testing-today-list-correctness)**: baza pgTAP była już zielona przed zmianami; peers `vitest` 5.0.5 akceptują Vite 8. Słabość: nowy test kolejności w `core_domain_today_list_days.test.sql` czyta kolejność wierszy przez `row_number() over ()` bez `ORDER BY`; dziś kolejność gwarantuje pełny `ORDER BY` funkcji, ale zmiana planera mogłaby dać fałszywą czerwień (nie fałszywą zieleń).
 
+- **Faza 2 (testing-list-actions-and-rhythms)**: research błędnie twierdził, że kolejność gałęzi komunikatów błędu w `moveOccurrenceToTomorrow` ma znaczenie; sprawdzenie pokazało, że gałęzie są rozłączne, więc break-check 1.5 psuje podciąg komunikatu, nie kolejność. Wszystkie ręcznie wpisane oczekiwania pgTAP zgodziły się z bazą od razu poza jednym (asercja 11 w `edges`: przeniesienie sprzed nowego startu nie pojawia się na liście, bo `today_list` obejmuje dni od startu rytmu; wiersz zostaje w tabeli).
+
 ## 7. What We Deliberately Don't Test
 
 Exclusions agreed during the rollout (Phase 2 interview, Q5). Future
@@ -173,10 +185,15 @@ contributors should respect these unless the underlying assumption changes.
 - **Dziedziczenie terminu milestona w kolejności (PRD US-01) i sygnał daty milestona na wierszu zadania (guardrail 2)** — nie testujemy ich jako wymagań, bo to nierozstrzygnięta decyzja produktowa; aktualne zachowanie jest utrwalone (FR-010 dosłownie, chip terminu). Re-evaluate if decyzja produktowa zapadnie. (Source: research/plan of change testing-today-list-correctness.)
 - **Runtime Cloudflare Workers dla `Intl` / strefy Europe/Warsaw** — pokryty jest tylko Node. Re-evaluate if w produkcji zaobserwowany zostanie błąd granicy dnia albo pojawi się warstwa e2e/workerd. (Source: research/plan of change testing-today-list-correctness.)
 
+- **Współbieżność dwóch sesji na tym samym zadaniu (akcja i zmiana rytmu równocześnie)** — pgTAP jest jednosesyjny, a wyścig wymagałby osobnej infrastruktury. Re-evaluate if pojawi się współdzielenie zadań lub użycie z kilku urządzeń naraz. (Source: plan of change testing-list-actions-and-rhythms.)
+- **Zmiana rytmu w zamkniętym milestonie** — PRD nie rozstrzyga, czy baza ma ją przyjąć; test `core_domain_recurring_rhythm_change_edges.test.sql` tylko pinuje obecne zachowanie (przyjmuje zmianę, lista bez `routine`/`skipped`), nie jest wymaganiem. Re-evaluate if decyzja produktowa zapadnie. (Source: research of change testing-list-actions-and-rhythms.)
+- **Widoczność przeniesienia sprzed nowej daty startu rytmu** — zachowanie (wiersz zostaje, lista go nie pokazuje) jest pinowane jako wynik reguły „start = dziś”, PRD tego wprost nie mówi. (Source: Phase 3 of change testing-list-actions-and-rhythms.)
+- **Reguły S-05 (422 dla zrobionego zadania, zapis statusu zeruje przeniesienie, częściowo + na jutro zostawia status)** — pinowane jako reguły projektowe, nie wymagania PRD; zmiana decyzji S-05 powinna zmienić te testy świadomie. (Source: plan of change testing-list-actions-and-rhythms.)
+
 ## 8. Freshness Ledger
 
 - Strategy (§1–§5) last reviewed: 2026-10-26
-- Stack versions last verified: 2026-10-26 (w tym `vitest` 5.0.5, verified 2026-10-26)
+- Stack versions last verified: 2026-10-27 (bez zmian wersji; `vitest` 5.0.5)
 - AI-native tool references last verified: 2026-10-26 (brak narzędzi AI-native w planie)
 
 Refresh (`/10x-test-plan --refresh`) when:

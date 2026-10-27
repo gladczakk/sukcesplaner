@@ -263,21 +263,21 @@ Brak migracji i zmian danych. Wycofanie: usunięcie nowych plików testowych i w
 
 #### Automated
 
-- [x] 3.1 Wszystkie pliki pgTAP przechodzą: `npm run test:db`
-- [x] 3.2 Lint przechodzi: `npm run lint`
+- [x] 3.1 Wszystkie pliki pgTAP przechodzą: `npm run test:db` — a2ace6e
+- [x] 3.2 Lint przechodzi: `npm run lint` — a2ace6e
 
 #### Manual
 
-- [x] 3.3 Test zepsucia: wariant `cleanup_moved_occurrences_on_rhythm_change` z `>` zamiast `>=` robi `npm run test:db` czerwonym, po ponownym wgraniu oryginału zielony
+- [x] 3.3 Test zepsucia: wariant `cleanup_moved_occurrences_on_rhythm_change` z `>` zamiast `>=` robi `npm run test:db` czerwonym, po ponownym wgraniu oryginału zielony — a2ace6e
 
 ### Phase 4: Cookbook i synchronizacja test-planu
 
 #### Automated
 
-- [ ] 4.1 W test-planie nie ma już „TBD — see §3 Phase 2”: `grep -n "TBD — see §3 Phase 2" context/foundation/test-plan.md` (brak wyników)
-- [ ] 4.2 Polecenia z cookbooka działają: `npm run test:app` oraz `npm run test:db`
+- [x] 4.1 W test-planie nie ma już „TBD — see §3 Phase 2”: `grep -n "TBD — see §3 Phase 2" context/foundation/test-plan.md` (brak wyników)
+- [x] 4.2 Polecenia z cookbooka działają: `npm run test:app` oraz `npm run test:db`
 
 #### Manual
 
-- [ ] 4.3 §6.4 mówi nowej osobie, jak dodać test akcji lub zmiany rytmu
-- [ ] 4.4 Wpisy w §7 poprawnie opisują reguły projektowe i nie obiecują testu, którego nie ma
+- [x] 4.3 §6.4 mówi nowej osobie, jak dodać test akcji lub zmiany rytmu
+- [x] 4.4 Wpisy w §7 poprawnie opisują reguły projektowe i nie obiecują testu, którego nie ma
