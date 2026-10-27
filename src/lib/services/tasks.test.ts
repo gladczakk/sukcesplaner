@@ -1,5 +1,5 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from "vitest";
 
 import type { Database } from "@/db/database.types";
 import {
@@ -29,7 +29,15 @@ interface Write {
   payload: unknown;
   neq: [string, unknown][];
 }
+interface Call {
+  table: string;
+  op: Op;
+  eq: [string, unknown][];
+}
 
+// Oracle: expected results come from PRD Business Logic and the decisions S-05 (actions on the list), not from reading
+// the service. The S-05 rules pinned here are design rules, not PRD: a done task is not deferred or reopened (validation
+// error), a status write clears the deferral, "partial" + "tomorrow" leaves the status unchanged.
 const GENERIC_MESSAGE = "Nie udało się wykonać operacji. Spróbuj ponownie za chwilę.";
 const SESSION_MESSAGE = "Sesja wygasła. Zaloguj się ponownie.";
 
@@ -72,17 +80,21 @@ const doneGuardApplied = (ctx: Ctx) => ctx.neq.some(([column, value]) => column 
 
 /**
  * Stub of the Supabase query builder: every chained call returns the same builder, awaiting it (or `maybeSingle`)
- * takes the next programmed reply for `table.operation`. Writes are recorded with the filters applied to them.
+ * takes the next programmed reply for `table.operation`. Writes are recorded with the `neq` filters applied to them,
+ * every call (reads included) with its `eq` filters.
  */
 function stubClient(queues: Partial<Record<`${string}.${Op}`, Responder[]>> = {}) {
   const remaining = { ...queues };
   const writes: Write[] = [];
+  const calls: Call[] = [];
 
   function from(table: string) {
     let op: Op = "select";
     let payload: unknown;
     const neq: [string, unknown][] = [];
+    const eq: [string, unknown][] = [];
     const run = () => {
+      calls.push({ table, op, eq: [...eq] });
       if (op !== "select") writes.push({ table, op, payload, neq: [...neq] });
       const key = `${table}.${op}` as const;
       const queue = remaining[key] ?? (key === "milestones.select" ? [MILESTONE_FOUND] : []);
@@ -107,7 +119,10 @@ function stubClient(queues: Partial<Record<`${string}.${Op}`, Responder[]>> = {}
         op = "delete";
         return builder;
       },
-      eq: () => builder,
+      eq: (column: string, value: unknown) => {
+        eq.push([column, value]);
+        return builder;
+      },
       neq: (column: string, value: unknown) => {
         neq.push([column, value]);
         return builder;
@@ -121,6 +136,7 @@ function stubClient(queues: Partial<Record<`${string}.${Op}`, Responder[]>> = {}
   return {
     client: { from } as unknown as Client,
     writes,
+    calls,
     lastWrite: (table: string, op: Op) => writes.filter((write) => write.table === table && write.op === op).at(-1),
   };
 }
@@ -133,9 +149,11 @@ const input = (overrides: Partial<TaskCreateInput> = {}): TaskCreateInput => ({
   ...overrides,
 });
 
+let consoleError: MockInstance<(message: string) => void>;
+
 beforeEach(() => {
-  // The generic branch logs the real cause; keep the test output clean.
-  vi.spyOn(console, "error").mockImplementation(() => undefined);
+  // The generic branch logs the real cause; keep the test output clean (and let a test assert it).
+  consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
 });
 
 afterEach(() => {
@@ -159,6 +177,11 @@ describe("setTaskStatus", () => {
   it.each([
     { name: "no row updated", reply: ok([]), expected: { status: "not_found" } },
     {
+      name: "the row is gone (foreign key violation)",
+      reply: fail("23503", 'insert or update violates foreign key constraint "tasks_milestone_id_fkey"'),
+      expected: { status: "not_found" },
+    },
+    {
       name: "a recurring task cannot be done (shape check)",
       reply: fail("23514", SHAPE_VIOLATION),
       expected: { status: "validation", error: expect.stringContaining("powtarzalne") as unknown },
@@ -177,6 +200,18 @@ describe("setTaskStatus", () => {
     const { client } = stubClient({ "tasks.update": [reply] });
 
     expect(await setTaskStatus(client, "p1", "m1", "t1", "done")).toMatchObject(expected);
+  });
+
+  it.each([
+    { name: "a generic failure", reply: fail("XX000", "boom") },
+    { name: "an expired session", reply: fail("42501", "permission denied") },
+  ])("logs the cause of a failure it does not translate: $name", async ({ reply }) => {
+    const { client } = stubClient({ "tasks.update": [reply] });
+
+    await setTaskStatus(client, "p1", "m1", "t1", "done");
+
+    expect(consoleError).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenCalledWith(expect.stringContaining(reply.error?.message ?? ""));
   });
 
   it("returns not_found without writing when the milestone is not in the project", async () => {
@@ -373,6 +408,24 @@ describe("moveOccurrenceToTomorrow", () => {
       expected: { status: "validation", error: expect.stringContaining("nie można przenieść na jutro") as unknown },
     },
     {
+      name: "the moved_to check constraint fires",
+      insert: fail(
+        "23514",
+        'new row for relation "task_occurrences" violates check constraint "task_occurrences_moved_to_check"',
+      ),
+      stored: undefined,
+      expected: { status: "validation", error: expect.stringContaining("nie można przenieść na jutro") as unknown },
+    },
+    {
+      name: "the moved shape check constraint fires",
+      insert: fail(
+        "23514",
+        'new row for relation "task_occurrences" violates check constraint "task_occurrences_moved_shape"',
+      ),
+      stored: undefined,
+      expected: { status: "validation", error: expect.stringContaining("nie można przenieść na jutro") as unknown },
+    },
+    {
       name: "the common occurrence rejection keeps its own wording",
       insert: fail("23514", NOT_RHYTHM_DAY),
       stored: undefined,
@@ -456,6 +509,26 @@ describe("updateTask", () => {
       recurrence_start_date: "2026-10-25",
     });
   });
+
+  it.each([
+    { name: "weekdays", next: { recurrence_weekdays: [1, 3] }, field: "recurrence_weekdays" },
+    { name: "an interval", next: { recurrence_interval_days: 5 }, field: "recurrence_interval_days" },
+  ])(
+    "shows a start date past the milestone date under the rhythm field the input has: $name",
+    async ({ next, field }) => {
+      const { client } = stubClient({
+        "tasks.select": [ok(taskRow(EVERY_3_DAYS))],
+        "tasks.update": [
+          fail("23514", "Powtarzanie zadania nie moze zaczac sie (2026-10-31) po dacie milestona (2026-10-30)"),
+        ],
+      });
+
+      const result = await updateTask(client, "p1", "m1", "t1", input(next));
+
+      expect(result.status).toBe("validation");
+      expect(result.status === "validation" ? Object.keys(result.fieldErrors) : []).toEqual([field]);
+    },
+  );
 
   it("refuses to turn the rhythm off (that is deleting the task) and writes nothing", async () => {
     const { client, writes } = stubClient({ "tasks.select": [ok(taskRow(EVERY_3_DAYS))] });
@@ -570,4 +643,78 @@ describe("deleteTask", () => {
     expect(await deleteTask(client, "p1", "m1", "t1")).toEqual({ status: "not_found" });
     expect(writes).toEqual([]);
   });
+});
+
+describe("reading the task before a write", () => {
+  it.each([
+    { name: "completeOccurrence", run: (client: Client) => completeOccurrence(client, "p1", "m1", "t1", "2026-10-26") },
+    {
+      name: "moveOccurrenceToTomorrow",
+      run: (client: Client) => moveOccurrenceToTomorrow(client, "p1", "m1", "t1", "2026-10-26", "2026-10-27"),
+    },
+    { name: "updateTask", run: (client: Client) => updateTask(client, "p1", "m1", "t1", input()) },
+  ])("$name reports unavailable and writes nothing when the read of the task fails", async ({ run }) => {
+    const { client, writes } = stubClient({ "tasks.select": [fail("XX000", "boom")] });
+
+    expect(await run(client)).toEqual({ status: "unavailable", error: GENERIC_MESSAGE });
+    expect(writes).toEqual([]);
+  });
+});
+
+describe("ownership filters", () => {
+  // The stub cannot tell another milestone's task from this one, so the filters themselves are the contract:
+  // every read and write of `tasks` is narrowed to the task AND its milestone, and the milestone to its project.
+  const TASK_FILTERS = [
+    ["id", "t1"],
+    ["milestone_id", "m1"],
+  ];
+  const recurring = ok(taskRow({ recurrence_interval_days: 2 }));
+
+  it.each([
+    {
+      name: "setTaskStatus",
+      queues: { "tasks.update": [ok([taskRow()])] },
+      run: (client: Client) => setTaskStatus(client, "p1", "m1", "t1", "done"),
+    },
+    {
+      name: "setTaskDeferral",
+      queues: { "tasks.update": [ok([taskRow()])] },
+      run: (client: Client) => setTaskDeferral(client, "p1", "m1", "t1", null),
+    },
+    {
+      name: "completeOccurrence",
+      queues: { "tasks.select": [recurring], "task_occurrences.insert": [ok(null)] },
+      run: (client: Client) => completeOccurrence(client, "p1", "m1", "t1", "2026-10-26"),
+    },
+    {
+      name: "moveOccurrenceToTomorrow",
+      queues: { "tasks.select": [recurring], "task_occurrences.insert": [ok(null)] },
+      run: (client: Client) => moveOccurrenceToTomorrow(client, "p1", "m1", "t1", "2026-10-26", "2026-10-27"),
+    },
+    {
+      name: "updateTask",
+      queues: { "tasks.select": [ok(taskRow())], "tasks.update": [ok([taskRow()])] },
+      run: (client: Client) => updateTask(client, "p1", "m1", "t1", input()),
+    },
+    {
+      name: "deleteTask",
+      queues: { "tasks.delete": [ok([{ id: "t1" }])] },
+      run: (client: Client) => deleteTask(client, "p1", "m1", "t1"),
+    },
+  ] satisfies { name: string; queues: Parameters<typeof stubClient>[0]; run: (client: Client) => Promise<unknown> }[])(
+    "$name narrows every task access to the task and its milestone, and the milestone to its project",
+    async ({ queues, run }) => {
+      const { client, calls } = stubClient(queues);
+
+      await run(client);
+
+      const taskCalls = calls.filter((call) => call.table === "tasks");
+      expect(taskCalls.length).toBeGreaterThan(0);
+      for (const call of taskCalls) expect(call.eq).toEqual(TASK_FILTERS);
+      expect(calls.find((call) => call.table === "milestones")?.eq).toEqual([
+        ["id", "m1"],
+        ["project_id", "p1"],
+      ]);
+    },
+  );
 });

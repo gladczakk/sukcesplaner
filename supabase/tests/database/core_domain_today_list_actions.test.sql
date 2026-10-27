@@ -4,7 +4,7 @@
 -- Akcje wykonujemy jako authenticated tym samym update/insert, ktory wykonuja serwisy aplikacji
 -- (update tasks set status = ..., deferred_until = null; set deferred_until = <jutro>; insert do
 -- task_occurrences ze stanem 'moved'). Dane bazowe wstawiamy jako postgres (RLS omijane).
--- Wyrocznia: PRD Business Logic i decyzje S-05, oczekiwane listy wpisane recznie:
+-- Wyrocznia: PRD Business Logic i decyzje S-05 (reguly S-05 to reguly projektowe, nie PRD), oczekiwane listy wpisane recznie:
 -- - zadanie done nie jest wierszem task/deferred; gdy jest ostatnim niedokonczonym, pojawia sie wiersz
 --   milestone ("do zamkniecia");
 -- - "Na jutro" nie zmienia statusu (deferred w D, task w D+1); zapis statusu zeruje deferred_until

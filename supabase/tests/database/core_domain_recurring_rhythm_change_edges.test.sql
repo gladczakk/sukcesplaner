@@ -16,7 +16,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(24);
+select plan(25);
 
 insert into auth.users (id, aud, role, email)
 values ('00000000-0000-0000-0000-0000000000f1', 'authenticated', 'authenticated', 'f@example.test');
@@ -42,7 +42,9 @@ values
   ('83000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-0000000000f1', '82000000-0000-0000-0000-000000000002', 'r2-zamkniety-milestone', null, null, '{3,5}', '2026-10-14'),
   ('83000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-0000000000f1', '82000000-0000-0000-0000-000000000003', 'r3-start-za-data-milestona', null, null, '{3,5}', '2026-10-21'),
   ('83000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-0000000000f1', '82000000-0000-0000-0000-000000000004', 'r4-usuwane', null, null, '{3,5}', '2026-10-14'),
-  ('83000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-0000000000f1', '82000000-0000-0000-0000-000000000004', 'r4-zostaje', null, null, '{3,5}', '2026-10-14');
+  ('83000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-0000000000f1', '82000000-0000-0000-0000-000000000004', 'r4-zostaje', null, null, '{3,5}', '2026-10-14'),
+  -- kontrola otwartego bliznika dla r2: ten sam rytm po zmianie (pn+sr od 2026-10-26), ale milestone otwarty
+  ('83000000-0000-0000-0000-000000000006', '00000000-0000-0000-0000-0000000000f1', '82000000-0000-0000-0000-000000000001', 'r2-kontrola-otwarty', null, null, '{1,3}', '2026-10-26');
 
 -- Wiersze wystapien (jako postgres), wszystkie na dniach rytmu (zrodla) albo poza nimi (cele przeniesien)
 insert into public.task_occurrences (task_id, user_id, occurrence_date, state, moved_to)
@@ -151,6 +153,7 @@ select results_eq(
 
 -- (11) wtorek 27.10 leży przed nowym startem D2: lista nie pokazuje rytmu sprzed startu (wiersz przeniesienia
 -- zostaje w tabeli jako historia, ale nie wraca na liste)
+-- Pinuje obecne zachowanie: PRD ("rytm od dzis") nie mowi wprost, czy przeniesienie sprzed startu ma byc widoczne.
 select is_empty(
   $$select 1 from public.today_list('2026-10-27') l
     where l.task_id = '83000000-0000-0000-0000-000000000001'$$,
@@ -185,6 +188,14 @@ select results_eq(
     where task_id = '83000000-0000-0000-0000-000000000002' order by occurrence_date$$,
   $$values ('2026-10-14'::date, 'done', null::date), ('2026-10-21'::date, 'moved', '2026-10-22'::date)$$,
   'r2: done i przeniesienie sprzed nowego startu zostaja');
+
+-- (16a) kontrola pozytywna dla (16): ten sam rytm w otwartym milestonie daje w pn 26.10 wiersz routine,
+-- wiec pustka w (16) pochodzi z zamkniecia milestona, nie z braku rytmu
+select results_eq(
+  $$select l.kind from public.today_list('2026-10-26') l
+    where l.task_id = '83000000-0000-0000-0000-000000000006'$$,
+  $$values ('routine')$$,
+  'r2: ten sam rytm w otwartym milestonie daje w poniedzialek 26.10 wiersz routine (kontrola dla zamknietego)');
 
 -- (16)
 select is_empty(
