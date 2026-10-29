@@ -125,6 +125,8 @@ Powtarzające się próby zapisz jako pętlę `for` albo funkcję pomocniczą w 
 - Dla każdej asercji da się wskazać ryzyko #7, które wykrywa; brak asercji bez regresji, którą łapią
 - Wynik `23505` (jeśli wystąpi) jest wpisany jako znane ryzyko, a nie ukryty
 
+**Note (implementacja Fazy 2)**: Plik używa kont `e1`/`e2`, a kod prób to funkcja `zz_iso_run(aktor, ofiara)` wołana dla A→B i B→A (66 asercji). Wariant klucza (`task_id` zadania ofiary, istniejąca data, `user_id` aktora) zwraca **23505** (`task_occurrences_pkey`) w obu kierunkach: wyciek istnienia wiersza przy znajomości UUID zadania, znane ryzyko bez zmiany schematu (do §7 w Fazie 3). Break-checki: `tasks_select_own using (true)` czerwone 5, 8, 37, 40 (oba kierunki); `milestones_update_own` chroniący tylko e1 czerwone tylko 30 (jeden kierunek); `security definer` na `today_list` czerwone 3-4, 35-36. Adaptacja 2.4: sama polityka `task_occurrences_delete_own using (true)` NIE zaczerwienia testu, bo `DELETE` wymaga widoczności wiersza z polityki `select` (ta nadal ukrywa cudze wiersze); realistyczny wariant to zepsute `select` i `delete` razem, czerwone 5, 9-10, 19, 28, 34-35, 41-42, 51, 60, 66.
+
 **Implementation Note**: Po zakończeniu fazy i zielonych kontrolach automatycznych zatrzymaj się na ręczne potwierdzenie, zanim przejdziesz do kolejnej fazy.
 
 ---
@@ -203,33 +205,33 @@ Brak migracji i brak zmian schematu. Wycofanie: usunięcie dwóch plików testow
 
 #### Automated
 
-- [x] 1.1 Nowy plik przechodzi: `npm run test:db` (cały katalog zielony, plik widoczny w wyniku)
-- [x] 1.2 Break-check reguły wyboru: wariant `today_list` z `order by m.project_id, m.due_date desc, m.seq` powoduje czerwone asercje „przesunięcie daty" i „remis"; po przywróceniu zielone
-- [x] 1.3 Break-check filtra zamkniętych: wariant `today_list` bez `where m.completed_at is null` powoduje czerwone asercje „zamknięcie/ponowne otwarcie"; po przywróceniu zielone
-- [x] 1.4 Break-check kaskady: wariant FK `task_occurrences_task_owner_fkey` bez `on delete cascade` powoduje czerwone asercje kaskady; po przywróceniu zielone
-- [x] 1.5 `npm run lint` i `npm run test:app` pozostają zielone (brak zmian w `src`)
+- [x] 1.1 Nowy plik przechodzi: `npm run test:db` (cały katalog zielony, plik widoczny w wyniku) — 6ab0ff3
+- [x] 1.2 Break-check reguły wyboru: wariant `today_list` z `order by m.project_id, m.due_date desc, m.seq` powoduje czerwone asercje „przesunięcie daty" i „remis"; po przywróceniu zielone — 6ab0ff3
+- [x] 1.3 Break-check filtra zamkniętych: wariant `today_list` bez `where m.completed_at is null` powoduje czerwone asercje „zamknięcie/ponowne otwarcie"; po przywróceniu zielone — 6ab0ff3
+- [x] 1.4 Break-check kaskady: wariant FK `task_occurrences_task_owner_fkey` bez `on delete cascade` powoduje czerwone asercje kaskady; po przywróceniu zielone — 6ab0ff3
+- [x] 1.5 `npm run lint` i `npm run test:app` pozostają zielone (brak zmian w `src`) — 6ab0ff3
 
 #### Manual
 
-- [x] 1.6 Oczekiwane wiersze w każdym scenariuszu da się uzasadnić wyłącznie z nagłówka pliku (PRD/decyzje), bez czytania funkcji `today_list`
-- [x] 1.7 Nagłówek jasno rozdziela wymagania PRD od reguł projektowych
+- [x] 1.6 Oczekiwane wiersze w każdym scenariuszu da się uzasadnić wyłącznie z nagłówka pliku (PRD/decyzje), bez czytania funkcji `today_list` — 6ab0ff3
+- [x] 1.7 Nagłówek jasno rozdziela wymagania PRD od reguł projektowych — 6ab0ff3
 
 ### Phase 2: pgTAP #7 — izolacja dwóch kont
 
 #### Automated
 
-- [ ] 2.1 Nowy plik przechodzi: `npm run test:db` (cały katalog zielony)
-- [ ] 2.2 Break-check RLS: wariant polityki `tasks_select_own` z `using (true)` powoduje czerwone asercje odczytu w obu kierunkach; po przywróceniu zielone
-- [ ] 2.3 Break-check kierunku B→A: wariant polityki `milestones_update_own` chroniący tylko A powoduje czerwone asercje tylko dla jednego kierunku; po przywróceniu zielone
-- [ ] 2.4 Break-check `moved`: wariant polityki `task_occurrences_delete_own` z `using (true)` powoduje czerwone asercje usunięcia odhaczeń i liczności `moved`; po przywróceniu zielone
-- [ ] 2.5 Break-check listy: wariant `today_list` z `security definer` powoduje czerwone asercje „brak wierszy obcego konta"; po przywróceniu zielone
-- [ ] 2.6 Wynik wariantu `23505` zapisany w nagłówku pliku i w notatce fazy (kod błędu zaobserwowany, nie założony)
-- [ ] 2.7 `npm run lint` i `npm run test:app` pozostają zielone
+- [x] 2.1 Nowy plik przechodzi: `npm run test:db` (cały katalog zielony)
+- [x] 2.2 Break-check RLS: wariant polityki `tasks_select_own` z `using (true)` powoduje czerwone asercje odczytu w obu kierunkach; po przywróceniu zielone
+- [x] 2.3 Break-check kierunku B→A: wariant polityki `milestones_update_own` chroniący tylko A powoduje czerwone asercje tylko dla jednego kierunku; po przywróceniu zielone
+- [x] 2.4 Break-check `moved`: wariant polityki `task_occurrences_delete_own` z `using (true)` powoduje czerwone asercje usunięcia odhaczeń i liczności `moved`; po przywróceniu zielone
+- [x] 2.5 Break-check listy: wariant `today_list` z `security definer` powoduje czerwone asercje „brak wierszy obcego konta"; po przywróceniu zielone
+- [x] 2.6 Wynik wariantu `23505` zapisany w nagłówku pliku i w notatce fazy (kod błędu zaobserwowany, nie założony)
+- [x] 2.7 `npm run lint` i `npm run test:app` pozostają zielone
 
 #### Manual
 
-- [ ] 2.8 Dla każdej asercji da się wskazać ryzyko #7, które wykrywa; brak asercji bez regresji, którą łapią
-- [ ] 2.9 Wynik `23505` (jeśli wystąpi) jest wpisany jako znane ryzyko, a nie ukryty
+- [x] 2.8 Dla każdej asercji da się wskazać ryzyko #7, które wykrywa; brak asercji bez regresji, którą łapią
+- [x] 2.9 Wynik `23505` (jeśli wystąpi) jest wpisany jako znane ryzyko, a nie ukryty
 
 ### Phase 3: Cookbook §6.5 i synchronizacja test-planu
 
