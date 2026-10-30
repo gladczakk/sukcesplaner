@@ -220,28 +220,28 @@ Brak migracji i brak zmian schematu. Wycofanie: usunięcie dwóch plików testow
 
 #### Automated
 
-- [x] 2.1 Nowy plik przechodzi: `npm run test:db` (cały katalog zielony)
-- [x] 2.2 Break-check RLS: wariant polityki `tasks_select_own` z `using (true)` powoduje czerwone asercje odczytu w obu kierunkach; po przywróceniu zielone
-- [x] 2.3 Break-check kierunku B→A: wariant polityki `milestones_update_own` chroniący tylko A powoduje czerwone asercje tylko dla jednego kierunku; po przywróceniu zielone
-- [x] 2.4 Break-check `moved`: wariant polityki `task_occurrences_delete_own` z `using (true)` powoduje czerwone asercje usunięcia odhaczeń i liczności `moved`; po przywróceniu zielone
-- [x] 2.5 Break-check listy: wariant `today_list` z `security definer` powoduje czerwone asercje „brak wierszy obcego konta"; po przywróceniu zielone
-- [x] 2.6 Wynik wariantu `23505` zapisany w nagłówku pliku i w notatce fazy (kod błędu zaobserwowany, nie założony)
-- [x] 2.7 `npm run lint` i `npm run test:app` pozostają zielone
+- [x] 2.1 Nowy plik przechodzi: `npm run test:db` (cały katalog zielony) — 13e2e37
+- [x] 2.2 Break-check RLS: wariant polityki `tasks_select_own` z `using (true)` powoduje czerwone asercje odczytu w obu kierunkach; po przywróceniu zielone — 13e2e37
+- [x] 2.3 Break-check kierunku B→A: wariant polityki `milestones_update_own` chroniący tylko A powoduje czerwone asercje tylko dla jednego kierunku; po przywróceniu zielone — 13e2e37
+- [x] 2.4 Break-check `moved`: wariant polityki `task_occurrences_delete_own` z `using (true)` powoduje czerwone asercje usunięcia odhaczeń i liczności `moved`; po przywróceniu zielone — 13e2e37
+- [x] 2.5 Break-check listy: wariant `today_list` z `security definer` powoduje czerwone asercje „brak wierszy obcego konta"; po przywróceniu zielone — 13e2e37
+- [x] 2.6 Wynik wariantu `23505` zapisany w nagłówku pliku i w notatce fazy (kod błędu zaobserwowany, nie założony) — 13e2e37
+- [x] 2.7 `npm run lint` i `npm run test:app` pozostają zielone — 13e2e37
 
 #### Manual
 
-- [x] 2.8 Dla każdej asercji da się wskazać ryzyko #7, które wykrywa; brak asercji bez regresji, którą łapią
-- [x] 2.9 Wynik `23505` (jeśli wystąpi) jest wpisany jako znane ryzyko, a nie ukryty
+- [x] 2.8 Dla każdej asercji da się wskazać ryzyko #7, które wykrywa; brak asercji bez regresji, którą łapią — 13e2e37
+- [x] 2.9 Wynik `23505` (jeśli wystąpi) jest wpisany jako znane ryzyko, a nie ukryty — 13e2e37
 
 ### Phase 3: Cookbook §6.5 i synchronizacja test-planu
 
 #### Automated
 
-- [ ] 3.1 Cookbook nie zawiera już `TBD` w §6.5: `grep -c "TBD — see §3 Phase 3" context/foundation/test-plan.md` zwraca 0
-- [ ] 3.2 Pliki wskazane w §6.5 istnieją: `ls` obu nowych plików testowych
-- [ ] 3.3 `npx prettier --check context/foundation/test-plan.md` nie pogarsza stanu bazowego
+- [x] 3.1 Cookbook nie zawiera już `TBD` w §6.5: `grep -c "TBD — see §3 Phase 3" context/foundation/test-plan.md` zwraca 0
+- [x] 3.2 Pliki wskazane w §6.5 istnieją: `ls` obu nowych plików testowych
+- [x] 3.3 `npx prettier --check context/foundation/test-plan.md` nie pogarsza stanu bazowego
 
 #### Manual
 
-- [ ] 3.4 Osoba nieznająca zmiany potrafi z §6.5 dodać nowy test kaskady lub izolacji bez czytania research
-- [ ] 3.5 §7 i notatka w §6.7 zgadzają się z faktycznym wynikiem wariantu `23505`
+- [x] 3.4 Osoba nieznająca zmiany potrafi z §6.5 dodać nowy test kaskady lub izolacji bez czytania research
+- [x] 3.5 §7 i notatka w §6.7 zgadzają się z faktycznym wynikiem wariantu `23505`

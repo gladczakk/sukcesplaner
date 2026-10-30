@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-10-26
+> Last updated: 2026-10-29
 
 ## 1. Strategy
 
@@ -69,8 +69,8 @@ orchestrator updates Status as artifacts appear on disk.
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|---------------|------------|--------|---------------|
 | 1 | Poprawność listy na dziś | Dowieść, że lista jest kompletna, uporządkowana i stabilna na granicach dat; zainicjować runner testów aplikacji i podpiąć testy bazy do CI | #1, #2, #3 | integration, parametryczne granice dat | complete | context/archive/2026-10-26-testing-today-list-correctness/ |
-| 2 | Akcje i rytmy | Dowieść, że akcje na liście i zmiana rytmu nie gubią zadań ani odhaczeń | #4, #5 | integration, hermetyczne stuby częściowych błędów | change opened | context/changes/testing-list-actions-and-rhythms/ |
-| 3 | Spójność danych i izolacja | Dowieść poprawności reguły milestona po edycji i usunięciu oraz granicy własności danych | #6, #7 | integration (rozszerzenie testów bazy i RLS) | not started | — |
+| 2 | Akcje i rytmy | Dowieść, że akcje na liście i zmiana rytmu nie gubią zadań ani odhaczeń | #4, #5 | integration, hermetyczne stuby częściowych błędów | complete | context/archive/2026-10-26-testing-list-actions-and-rhythms/ |
+| 3 | Spójność danych i izolacja | Dowieść poprawności reguły milestona po edycji i usunięciu oraz granicy własności danych | #6, #7 | integration (rozszerzenie testów bazy i RLS) | planned | context/changes/testing-data-integrity-isolation/ |
 | 4 | Jeden przepływ e2e i bramki | Domknąć krytyczny przepływ w przeglądarce i utrwalić bramki w CI i hooku | #1, #4 (domknięcie) | 1 test e2e, bramki jakości | not started | — |
 
 Faza 1 zamknięta z dwoma świadomie otwartymi wierszami Progress: 3.6 (job `smoke` z `supabase test db` nie był uruchomiony na CI, brak zdalnego repozytorium) i 4.3 (`prettier --check` dla tego pliku i `CLAUDE.md` nie przechodził już przed zmianą). Zweryfikować 3.6 przy pierwszym pushu.
@@ -158,7 +158,15 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.5 Adding a test for data integrity and ownership
 
-- TBD — see §3 Phase 3 for the cascade, milestone-rule and cross-account isolation pattern.
+- **Warstwa**: wyłącznie pgTAP na prawdziwej bazie. `vitest` ze stubem klienta nie nadaje się do #6 i #7: stub nie ma RLS ani kaskad, więc kłamałby dokładnie o tym, co chcemy dowieść (§2, „mock bazy, który kłamie o kaskadach").
+- **Location**: `supabase/tests/database/`; **Naming**: `core_domain_<topic>.test.sql`; **Run locally**: `npm run test:db` (wymaga `npx supabase start` i Dockera).
+- **Reference tests**: `supabase/tests/database/core_domain_milestone_list_integrity.test.sql` (reguła milestona po edycji/usunięciu, kaskady) i `supabase/tests/database/core_domain_account_isolation.test.sql` (izolacja dwóch kont).
+- **Reguła milestona (#6)**: scenariusz to sekwencja stan → mutacja jako `authenticated` (ten sam `update`/`delete` co aplikacja) → `today_list(p_today)` dla stałej daty → `results_eq` z wierszami wpisanymi ręcznie. Każdy scenariusz ma własny projekt, a asercje filtrują po `project_id`; projekt kontrolny z identyczną strukturą dowodzi, że mutacja nie dotknęła cudzego poddrzewa. Kaskady sprawdzamy licznością `task_occurrences` (w tym stan `moved`) dla usuniętego poddrzewa i dla kontrolnego.
+- **Oracle**: z PRD (FR-003, FR-005, Business Logic, Access Control), nigdy z ciała `today_list`; reguły projektowe (np. „najbliższy = niezamknięty o najmniejszym `due_date`, `seq`") oznacz w nagłówku jako decyzje, nie PRD.
+- **Izolacja (#7)**: symetryczne drzewo danych na konto i ten sam zestaw prób A→B oraz B→A (jedna funkcja prób w pliku wołana dwa razy z zamienionymi aktorami, bez kopiowania asercji; funkcje pomocnicze znikają z `rollback`). Odczyty ofiary muszą być puste, także dla `today_list` (dzień dobrany tak, by dane ofiary dawały wiersze, gdyby były widoczne).
+- **Stan ofiary jako `postgres`**: RLS milczy przy `update`/`delete` cudzego wiersza (0 wierszy, brak błędu), więc sam brak błędu niczego nie dowodzi. Po serii ataków `reset role` i sprawdź jako `postgres` nazwy, `user_id` i liczność dzieci ofiary (np. delete projektu przez obce konto zostawia milestony, zadania i odhaczenia bez zmian). Zapisy z cudzym `user_id` dają `42501`, a własne dziecko pod cudzym rodzicem `23503`.
+- **Break-check wg §6.4** (wariant polityki/funkcji/FK wgrany do kontenera, `npm run test:db` czerwone, przywrócenie, zielone). Ustalenie z Fazy 2: `DELETE` i `UPDATE` wymagają widoczności wiersza z polityki `select`, więc zepsucie samej polityki `delete` nie jest obserwowalne; break-check ochrony przed usunięciem musi psuć `select` i `delete` razem. Break-check kierunku: wariant chroniący tylko jedno konto ma zaczerwienić asercje tylko jednego kierunku.
+- **Znane luki**: współbieżność i HTTP/API na dwóch kontach, plus znane ryzyko wycieku istnienia wiersza — patrz §7.
 
 ### 6.6 Adding an e2e test
 
@@ -172,6 +180,8 @@ here capturing anything surprising the rollout phase taught.)
 - **Faza 1 (testing-today-list-correctness)**: baza pgTAP była już zielona przed zmianami; peers `vitest` 5.0.5 akceptują Vite 8. Słabość: nowy test kolejności w `core_domain_today_list_days.test.sql` czyta kolejność wierszy przez `row_number() over ()` bez `ORDER BY`; dziś kolejność gwarantuje pełny `ORDER BY` funkcji, ale zmiana planera mogłaby dać fałszywą czerwień (nie fałszywą zieleń).
 
 - **Faza 2 (testing-list-actions-and-rhythms)**: research błędnie twierdził, że kolejność gałęzi komunikatów błędu w `moveOccurrenceToTomorrow` ma znaczenie; sprawdzenie pokazało, że gałęzie są rozłączne, więc break-check 1.5 psuje podciąg komunikatu, nie kolejność. Wszystkie ręcznie wpisane oczekiwania pgTAP zgodziły się z bazą od razu poza jednym (asercja 11 w `edges`: przeniesienie sprzed nowego startu nie pojawia się na liście, bo `today_list` obejmuje dni od startu rytmu; wiersz zostaje w tabeli).
+
+- **Faza 3 (testing-data-integrity-isolation)**: oba pliki pgTAP zgodziły się z ręczną wyrocznią; jedyna korekta break-checku dotyczyła „remisu" dat (łapie go wariant `seq desc`, nie `due_date desc`). Wariant klucza w teście izolacji (odhaczenie z `task_id` zadania ofiary, istniejącą datą i `user_id` aktora) daje `23505` (`task_occurrences_pkey`) w obu kierunkach: wyciek istnienia wiersza przy znajomości UUID zadania, przypięty w teście i opisany w §7, bez zmiany schematu. Polityka `delete` nie jest osobno obserwowalna bez zepsucia `select` (patrz §6.5).
 
 ## 7. What We Deliberately Don't Test
 
@@ -190,10 +200,14 @@ contributors should respect these unless the underlying assumption changes.
 - **Widoczność przeniesienia sprzed nowej daty startu rytmu** — zachowanie (wiersz zostaje, lista go nie pokazuje) jest pinowane jako wynik reguły „start = dziś”, PRD tego wprost nie mówi. (Source: Phase 3 of change testing-list-actions-and-rhythms.)
 - **Reguły S-05 (422 dla zrobionego zadania, zapis statusu zeruje przeniesienie, częściowo + na jutro zostawia status)** — pinowane jako reguły projektowe, nie wymagania PRD; zmiana decyzji S-05 powinna zmienić te testy świadomie. (Source: plan of change testing-list-actions-and-rhythms.)
 
+- **Współbieżność usunięcia milestona i zapisu zadania (deadlock `40P01`)** — pgTAP jest jednosesyjny, a wyścig wymagałby osobnej infrastruktury; reguła jest tylko opisana w migracji. Re-evaluate if pojawi się współdzielenie danych lub użycie z kilku urządzeń naraz albo deadlock zostanie zaobserwowany w produkcji. (Source: plan of change testing-data-integrity-isolation.)
+- **HTTP/API na dwóch kontach (e2e w Fazie 4)** — izolację dowodzimy na poziomie bazy (RLS i funkcje `security invoker`), nie przez endpointy. Re-evaluate if Faza 4 doda infrastrukturę e2e z dwoma kontami albo aplikacja zacznie używać klucza innego niż anon po stronie serwera. (Source: plan of change testing-data-integrity-isolation.)
+- **Znane ryzyko: wyciek istnienia wiersza `task_occurrences` (`23505`)** — wstawienie odhaczenia z kluczem zadania innego konta i istniejącą datą zwraca `23505` zamiast `23503`, co zdradza istnienie wiersza; wymaga znajomości UUID zadania. Test `core_domain_account_isolation.test.sql` pinuje wynik jako obserwację, nie wymaganie; schemat bez zmian. Re-evaluate if UUID zadań staną się odgadywalne lub ujawniane albo przed publicznym udostępnieniem API. (Source: Phase 2 of change testing-data-integrity-isolation.)
+
 ## 8. Freshness Ledger
 
 - Strategy (§1–§5) last reviewed: 2026-10-26
-- Stack versions last verified: 2026-10-27 (bez zmian wersji; `vitest` 5.0.5)
+- Stack versions last verified: 2026-10-29 (bez zmian wersji; `vitest` 5.0.5)
 - AI-native tool references last verified: 2026-10-26 (brak narzędzi AI-native w planie)
 
 Refresh (`/10x-test-plan --refresh`) when:
