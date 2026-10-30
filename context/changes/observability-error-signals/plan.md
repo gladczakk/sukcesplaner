@@ -334,28 +334,28 @@ Brak migracji i brak zmian schematu. Wycofanie: przywrócenie `log.ts`, `postgre
 
 #### Automated
 
-- [x] 1.1 Testy loggera były czerwone przed zmianą i są zielone po: `npx vitest run src/lib/log.test.ts`
-- [x] 1.2 Break-check serializatora: usunięcie `stack` albo łańcucha `cause` z wyjścia zaczerwienia testy; po przywróceniu zielone
-- [x] 1.3 Zestaw aplikacji zielony po przepisaniu asercji: `npm run test:app`
-- [x] 1.4 Typy i lint: `npx astro check` oraz `npm run lint`
+- [x] 1.1 Testy loggera były czerwone przed zmianą i są zielone po: `npx vitest run src/lib/log.test.ts` — 36cf813
+- [x] 1.2 Break-check serializatora: usunięcie `stack` albo łańcucha `cause` z wyjścia zaczerwienia testy; po przywróceniu zielone — 36cf813
+- [x] 1.3 Zestaw aplikacji zielony po przepisaniu asercji: `npm run test:app` — 36cf813
+- [x] 1.4 Typy i lint: `npx astro check` oraz `npm run lint` — 36cf813
 
 #### Manual
 
-- [x] 1.5 Przykładowa linia logu zawiera stos, `cause`, `code`, `details`, `hint` i ctx, a nie zawiera hasła ani e-maila
+- [x] 1.5 Przykładowa linia logu zawiera stos, `cause`, `code`, `details`, `hint` i ctx, a nie zawiera hasła ani e-maila — 36cf813
 
 ### Phase 2: Middleware, klient Supabase i signOut
 
 #### Automated
 
-- [ ] 2.1 Testy klasyfikatora i middleware były czerwone przed zmianą i są zielone po: `npx vitest run src/lib/__tests__/auth-health.test.ts src/lib/__tests__/middleware.test.ts`
-- [ ] 2.2 Gość nadal dostaje 302 / 401 (test middleware) i smoke przechodzi bez zmian oczekiwań: build, preview w tle, `npm run smoke`
-- [ ] 2.3 Break-check middleware: przywrócenie starego zachowania (zignorowanie `error` z `getUser()`) zaczerwienia test 503; po przywróceniu zielone
-- [ ] 2.4 Testy klienta i `signOut` zielone: `npx vitest run src/lib/__tests__/supabase.test.ts src/lib/__tests__/signout.test.ts`
-- [ ] 2.5 Typy, lint, testy aplikacji: `npx astro check`, `npm run lint`, `npm run test:app`
+- [x] 2.1 Testy klasyfikatora i middleware były czerwone przed zmianą i są zielone po: `npx vitest run src/lib/__tests__/auth-health.test.ts src/lib/__tests__/middleware.test.ts`
+- [x] 2.2 Gość nadal dostaje 302 / 401 (test middleware) i smoke przechodzi bez zmian oczekiwań: build, preview w tle, `npm run smoke`
+- [x] 2.3 Break-check middleware: przywrócenie starego zachowania (zignorowanie `error` z `getUser()`) zaczerwienia test 503; po przywróceniu zielone
+- [x] 2.4 Testy klienta i `signOut` zielone: `npx vitest run src/lib/__tests__/supabase.test.ts src/lib/__tests__/signout.test.ts`
+- [x] 2.5 Typy, lint, testy aplikacji: `npx astro check`, `npm run lint`, `npm run test:app`
 
 #### Manual
 
-- [ ] 2.6 Przy zatrzymanym kontenerze `supabase_auth_10x-astro-starter` `/today` z ważną sesją zwraca 503 po polsku i w logu jest wpis `middleware-getUser` z `requestId`; po uruchomieniu kontenera `/today` znowu działa
+- [x] 2.6 Przy zatrzymanym kontenerze `supabase_auth_10x-astro-starter` `/today` z ważną sesją zwraca 503 po polsku i w logu jest wpis `middleware-getUser` z `requestId`; po uruchomieniu kontenera `/today` znowu działa
 
 ### Phase 3: Usługi zadań (zero wierszy, 23503, PGRST303)
 
