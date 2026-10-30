@@ -211,7 +211,15 @@ describe("setTaskStatus", () => {
     await setTaskStatus(client, "p1", "m1", "t1", "done");
 
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenCalledWith(expect.stringContaining(reply.error?.message ?? ""));
+    const entry = JSON.parse(consoleError.mock.calls[0][0]) as Record<string, unknown>;
+    expect(entry).toMatchObject({
+      level: "error",
+      scope: "tasks",
+      message: `${reply.error?.code ?? ""}: ${reply.error?.message ?? ""}`,
+    });
+    expect(entry.cause).toEqual([
+      expect.objectContaining({ code: reply.error?.code, message: reply.error?.message }) as unknown,
+    ]);
   });
 
   it("returns not_found without writing when the milestone is not in the project", async () => {
