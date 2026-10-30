@@ -1,10 +1,10 @@
 ---
 change_id: observability-error-signals
 title: Widoczne i diagnozowalne błędy produkcyjne (audyt obserwowalności)
-status: impl_reviewed
+status: archived
 created: 2026-10-30
 updated: 2026-10-30
-archived_at: null
+archived_at: 2026-10-30T18:05:04Z
 ---
 
 ## Notes
