@@ -387,12 +387,12 @@ Brak migracji i brak zmian schematu. Wycofanie: przywrócenie `log.ts`, `postgre
 
 #### Automated
 
-- [x] 5.1 Pełny zestaw zielony: `npm run lint`, `npx astro check`, `npm run test:unit`, `npm run test:app`, `npm run test:db`
-- [x] 5.2 E2E zielone: `npm run test:e2e`
-- [x] 5.3 Smoke zielony na buildzie: build, preview w tle, `npm run smoke`
-- [x] 5.4 Notka w test-planie jest obecna: `grep -n "observability-error-signals" context/foundation/test-plan.md`
+- [x] 5.1 Pełny zestaw zielony: `npm run lint`, `npx astro check`, `npm run test:unit`, `npm run test:app`, `npm run test:db` — b4ad0f5
+- [x] 5.2 E2E zielone: `npm run test:e2e` — b4ad0f5
+- [x] 5.3 Smoke zielony na buildzie: build, preview w tle, `npm run smoke` — b4ad0f5
+- [x] 5.4 Notka w test-planie jest obecna: `grep -n "observability-error-signals" context/foundation/test-plan.md` — b4ad0f5
 
 #### Manual
 
-- [x] 5.5 Raport audytu `--verify` oznacza P1, P2, P3, P4, A5, L4 i W4 jako `fixed`, a L1 jako zawężone do prawdziwych przyczyn
-- [x] 5.6 Notka w §6.1/§6.7 zgadza się z wynikiem zmiany
+- [x] 5.5 Raport audytu `--verify` oznacza P1, P2, P3, P4, A5, L4 i W4 jako `fixed`, a L1 jako zawężone do prawdziwych przyczyn — b4ad0f5
+- [x] 5.6 Notka w §6.1/§6.7 zgadza się z wynikiem zmiany — b4ad0f5
