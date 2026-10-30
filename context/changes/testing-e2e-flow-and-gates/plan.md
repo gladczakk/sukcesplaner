@@ -137,6 +137,8 @@ Jeden test e2e (`/10x-e2e`), który prowadzi przepływ z oczekiwaniami z PRD i d
 - Każda asercja nazywa ryzyko (#1 lub #4) i oczekiwanie z PRD; brak oczekiwań liczonych z kodu, brak `waitForTimeout`, lokatory to role/label/tekst
 - Przebieg testu (trace) wygląda jak realny przepływ użytkownika i zgadza się z AC US-01
 
+**Note (implementacja Fazy 2)**: Odstępstwa: (1) test nie używa współdzielonego `storageState` użytkownika: z jednym kontem `--repeat-each=3` padało 3 z 3 (równoległe przebiegi widziały nawzajem milestony i przeniesione zadania), a seed asertuje pusty `/today` dla swojego użytkownika. Każdy test rejestruje więc własnego świeżego użytkownika przez helper `tests/e2e/helpers/auth.ts` (wspólny z `auth.setup.ts`); to świadomy wyjątek od „bez logowania przez UI w teście", opisany w nagłówku specyfikacji. (2) Brak osobnego cleanupu: dane należą do świeżego użytkownika (RLS), a adnotacja `test-data` niesie tytuły. (3) Blok „Przeniesione na później" jest domyślnie zwinięty, więc test asertuje podsumowanie „…: 1", rozwija je i asertuje `Przywróć na dziś: <B>`. Break-checki: 2.3 `throw` w ciele `TodayTaskActions` (pierwsza próba z `throw` w sygnaturze dała błąd builda, nie czerwoną asercję, więc ją odrzuciłem), 2.4 zapis `done` zamieniony na `todo` w `TodayTaskActions` (czerwone `Zrobione: A` toHaveCount(0)), 2.5 ukryty blok `view.deferred` w `today.astro` (czerwone „Przeniesione na później: 1"); każdy przywrócony `git checkout --`.
+
 **Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase. Phase blocks use plain bullets — the corresponding `- [ ]` checkboxes for these items live in the `## Progress` section at the bottom of the plan.
 
 ---
@@ -259,30 +261,30 @@ Brak migracji i brak zmian schematu. Wycofanie: usunięcie `tests/e2e/`, `playwr
 
 #### Automated
 
-- [x] 1.1 Zależność i skrypt istnieją: `grep -n "playwright" package.json` pokazuje `@playwright/test` i `test:e2e`
-- [x] 1.2 Seed jest zielony na lokalnym stosie: `npm run test:e2e`
-- [x] 1.3 Break-check seeda: `throw` w komponencie wyspy logowania powoduje czerwony seed; po przywróceniu zielony
-- [x] 1.4 Zestawy aplikacji nie psują się: `npm run lint` i `npm run test:app`
+- [x] 1.1 Zależność i skrypt istnieją: `grep -n "playwright" package.json` pokazuje `@playwright/test` i `test:e2e` — da957ee
+- [x] 1.2 Seed jest zielony na lokalnym stosie: `npm run test:e2e` — da957ee
+- [x] 1.3 Break-check seeda: `throw` w komponencie wyspy logowania powoduje czerwony seed; po przywróceniu zielony — da957ee
+- [x] 1.4 Zestawy aplikacji nie psują się: `npm run lint` i `npm run test:app` — da957ee
 
 #### Manual
 
-- [x] 1.5 `context/foundation/test-stack.md` opisuje uruchomienie tak, że osoba nowa w repo uruchomi `npm run test:e2e` bez pytań
+- [x] 1.5 `context/foundation/test-stack.md` opisuje uruchomienie tak, że osoba nowa w repo uruchomi `npm run test:e2e` bez pytań — da957ee
 
 ### Phase 2: Test przepływu krytycznego
 
 #### Automated
 
-- [ ] 2.1 Test przechodzi: `npm run test:e2e`
-- [ ] 2.2 Stabilność: `npx playwright test today-flow --repeat-each=3` zielone
-- [ ] 2.3 Break-check wyspy: `throw` w `TodayTaskActions.tsx` powoduje czerwony test; po przywróceniu zielony
-- [ ] 2.4 Break-check „Zrobione": wariant psujący zapis statusu `done` powoduje czerwoną asercję „wiersz znika"; po przywróceniu zielony
-- [ ] 2.5 Break-check „Na jutro": wariant, w którym przeniesione zadanie nie jest widoczne w „Przeniesione na później", powoduje czerwoną asercję; po przywróceniu zielony
-- [ ] 2.6 Brak regresji: `npm run lint`, `npm run test:app`, `npm run test:db`
+- [x] 2.1 Test przechodzi: `npm run test:e2e`
+- [x] 2.2 Stabilność: `npx playwright test today-flow --repeat-each=3` zielone
+- [x] 2.3 Break-check wyspy: `throw` w `TodayTaskActions.tsx` powoduje czerwony test; po przywróceniu zielony
+- [x] 2.4 Break-check „Zrobione": wariant psujący zapis statusu `done` powoduje czerwoną asercję „wiersz znika"; po przywróceniu zielony
+- [x] 2.5 Break-check „Na jutro": wariant, w którym przeniesione zadanie nie jest widoczne w „Przeniesione na później", powoduje czerwoną asercję; po przywróceniu zielony
+- [x] 2.6 Brak regresji: `npm run lint`, `npm run test:app`, `npm run test:db`
 
 #### Manual
 
-- [ ] 2.7 Każda asercja nazywa ryzyko (#1 lub #4) i oczekiwanie z PRD; brak oczekiwań liczonych z kodu, brak `waitForTimeout`
-- [ ] 2.8 Przebieg testu (trace) wygląda jak realny przepływ użytkownika i zgadza się z AC US-01
+- [x] 2.7 Każda asercja nazywa ryzyko (#1 lub #4) i oczekiwanie z PRD; brak oczekiwań liczonych z kodu, brak `waitForTimeout`
+- [x] 2.8 Przebieg testu (trace) wygląda jak realny przepływ użytkownika i zgadza się z AC US-01
 
 ### Phase 3: Bramki jakości (CI i hook)
 
