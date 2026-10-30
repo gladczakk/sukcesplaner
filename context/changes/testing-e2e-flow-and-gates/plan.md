@@ -305,12 +305,12 @@ Brak migracji i brak zmian schematu. Wycofanie: usunięcie `tests/e2e/`, `playwr
 
 #### Automated
 
-- [x] 4.1 Cookbook nie zawiera już `TBD` dla e2e: `grep -c "TBD — see §3 Phase 4" context/foundation/test-plan.md` zwraca 0
-- [x] 4.2 Wiersz e2e w §4 nie mówi już „none yet": `grep -c "e2e | none yet" context/foundation/test-plan.md` zwraca 0
-- [x] 4.3 Pliki wskazane w §6.6 istnieją: `ls tests/e2e/today-flow.spec.ts playwright.config.ts`
-- [x] 4.4 `npx prettier --check context/foundation/test-plan.md` nie pogarsza stanu bazowego
+- [x] 4.1 Cookbook nie zawiera już `TBD` dla e2e: `grep -c "TBD — see §3 Phase 4" context/foundation/test-plan.md` zwraca 0 — 6e6dd28
+- [x] 4.2 Wiersz e2e w §4 nie mówi już „none yet": `grep -c "e2e | none yet" context/foundation/test-plan.md` zwraca 0 — 6e6dd28
+- [x] 4.3 Pliki wskazane w §6.6 istnieją: `ls tests/e2e/today-flow.spec.ts playwright.config.ts` — 6e6dd28
+- [x] 4.4 `npx prettier --check context/foundation/test-plan.md` nie pogarsza stanu bazowego — 6e6dd28
 
 #### Manual
 
-- [x] 4.5 Osoba nieznająca zmiany potrafi z §6.6 dodać nowy test e2e bez czytania research
-- [x] 4.6 Korekty §2 #4 i §5 zgadzają się z wynikiem badania i faktycznym stanem hooków oraz CI
+- [x] 4.5 Osoba nieznająca zmiany potrafi z §6.6 dodać nowy test e2e bez czytania research — 6e6dd28
+- [x] 4.6 Korekty §2 #4 i §5 zgadzają się z wynikiem badania i faktycznym stanem hooków oraz CI — 6e6dd28

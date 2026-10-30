@@ -71,7 +71,7 @@ orchestrator updates Status as artifacts appear on disk.
 | 1 | Poprawność listy na dziś | Dowieść, że lista jest kompletna, uporządkowana i stabilna na granicach dat; zainicjować runner testów aplikacji i podpiąć testy bazy do CI | #1, #2, #3 | integration, parametryczne granice dat | complete | context/archive/2026-10-26-testing-today-list-correctness/ |
 | 2 | Akcje i rytmy | Dowieść, że akcje na liście i zmiana rytmu nie gubią zadań ani odhaczeń | #4, #5 | integration, hermetyczne stuby częściowych błędów | complete | context/archive/2026-10-26-testing-list-actions-and-rhythms/ |
 | 3 | Spójność danych i izolacja | Dowieść poprawności reguły milestona po edycji i usunięciu oraz granicy własności danych | #6, #7 | integration (rozszerzenie testów bazy i RLS) | complete | context/archive/2026-10-27-testing-data-integrity-isolation/ |
-| 4 | Jeden przepływ e2e i bramki | Domknąć krytyczny przepływ w przeglądarce i utrwalić bramki w CI i hooku | #1, #4 (domknięcie) | 1 test e2e, bramki jakości | change opened | context/changes/testing-e2e-flow-and-gates/ |
+| 4 | Jeden przepływ e2e i bramki | Domknąć krytyczny przepływ w przeglądarce i utrwalić bramki w CI i hooku | #1, #4 (domknięcie) | 1 test e2e, bramki jakości | complete | context/changes/testing-e2e-flow-and-gates/ |
 
 Faza 1 zamknięta z dwoma świadomie otwartymi wierszami Progress: 3.6 (job `smoke` z `supabase test db` nie był uruchomiony na CI, brak zdalnego repozytorium) i 4.3 (`prettier --check` dla tego pliku i `CLAUDE.md` nie przechodził już przed zmianą). Zweryfikować 3.6 przy pierwszym pushu.
 
