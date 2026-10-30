@@ -237,11 +237,11 @@ Brak migracji i brak zmian schematu. Wycofanie: usunięcie dwóch plików testow
 
 #### Automated
 
-- [x] 3.1 Cookbook nie zawiera już `TBD` w §6.5: `grep -c "TBD — see §3 Phase 3" context/foundation/test-plan.md` zwraca 0
-- [x] 3.2 Pliki wskazane w §6.5 istnieją: `ls` obu nowych plików testowych
-- [x] 3.3 `npx prettier --check context/foundation/test-plan.md` nie pogarsza stanu bazowego
+- [x] 3.1 Cookbook nie zawiera już `TBD` w §6.5: `grep -c "TBD — see §3 Phase 3" context/foundation/test-plan.md` zwraca 0 — d074bac
+- [x] 3.2 Pliki wskazane w §6.5 istnieją: `ls` obu nowych plików testowych — d074bac
+- [x] 3.3 `npx prettier --check context/foundation/test-plan.md` nie pogarsza stanu bazowego — d074bac
 
 #### Manual
 
-- [x] 3.4 Osoba nieznająca zmiany potrafi z §6.5 dodać nowy test kaskady lub izolacji bez czytania research
-- [x] 3.5 §7 i notatka w §6.7 zgadzają się z faktycznym wynikiem wariantu `23505`
+- [x] 3.4 Osoba nieznająca zmiany potrafi z §6.5 dodać nowy test kaskady lub izolacji bez czytania research — d074bac
+- [x] 3.5 §7 i notatka w §6.7 zgadzają się z faktycznym wynikiem wariantu `23505` — d074bac
