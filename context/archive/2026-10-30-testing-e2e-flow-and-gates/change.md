@@ -1,10 +1,10 @@
 ---
 change_id: testing-e2e-flow-and-gates
 title: Jeden przepływ e2e i bramki jakości (Faza 4 rolloutu)
-status: impl_reviewed
+status: archived
 created: 2026-10-30
 updated: 2026-10-30
-archived_at: null
+archived_at: 2026-10-30T13:41:55Z
 ---
 
 ## Notes
