@@ -7,7 +7,9 @@ if (existsSync(".env")) process.loadEnvFile(".env");
 
 // 4321 is the Astro preview default (astro preview, no port set in astro.config.mjs).
 // E2E_PORT overrides it when that port is taken on this machine (local `astro dev`).
-const PORT = Number(process.env.E2E_PORT ?? 4321);
+// Number("") is 0 and Number(undefined) is NaN: both fall back to 4321 (an empty E2E_PORT= line is common).
+const requestedPort = Number(process.env.E2E_PORT);
+const PORT = requestedPort > 0 ? requestedPort : 4321;
 const baseURL = `http://localhost:${PORT}`;
 
 export default defineConfig({
@@ -16,10 +18,10 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: "html",
+  reporter: [["html", { open: "never" }]],
   use: {
     baseURL,
-    trace: "on-first-retry",
+    trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
   projects: [

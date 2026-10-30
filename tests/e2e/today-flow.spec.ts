@@ -8,8 +8,11 @@ import { registerAndSignIn } from "./helpers/auth";
 // Expectations are written by hand from the PRD, never computed from app code:
 //   prd.md:51  "Oznaczenie zadania jako zrobione usuwa je z listy na dziś"
 //   prd.md:52  "Oznaczenie jako częściowo zrobione i przeniesienie na jutro przenosi pozostałą część
-//               na listę następnego dnia" (the partial task is still open, so it stays on the list)
-//   prd.md:106 the list shows every unfinished task of the nearest open milestone
+//               na listę następnego dnia" (moving to tomorrow takes the task off today's list)
+//   prd.md:106 the list shows every unfinished task of the nearest open milestone; a partly done task
+//               is unfinished, so it stays on today's list (an inference from 106, 52 does not say it)
+// Beyond the PRD, by deliberate choice (S-05 design, not requirements): aria-pressed on "Częściowo",
+// the "częściowo" note on the row and the collapsed "Przeniesione na później" block.
 // What the PRD does not define is not asserted: dates, deadline chips, the day heading, the
 // "milestone do zamknięcia" row, error messages.
 //
@@ -45,16 +48,16 @@ test("risks #1 and #4: task actions on /today persist after reload (done leaves,
   await waitForHydration(page);
   // The empty state shows a second "Dodaj projekt" button; both open the same dialog.
   await page.getByRole("button", { name: "Dodaj projekt" }).first().click();
-  await page.getByLabel("Nazwa").fill(projectName);
-  await page.getByLabel("Termin").fill("2099-12-31");
+  await page.getByLabel("Nazwa", { exact: true }).fill(projectName);
+  await page.getByLabel("Termin", { exact: true }).fill("2099-12-31");
   await page.getByRole("button", { name: "Zapisz" }).click();
   await page.waitForURL(/\/projects\/[0-9a-f-]+$/);
   await expect(page.getByRole("heading", { name: projectName, level: 1 })).toBeVisible();
 
   await waitForHydration(page);
   await page.getByRole("button", { name: "Dodaj milestone" }).click();
-  await page.getByLabel("Nazwa").fill(milestoneName);
-  await page.getByLabel("Data").fill("2099-12-30");
+  await page.getByLabel("Nazwa", { exact: true }).fill(milestoneName);
+  await page.getByLabel("Data", { exact: true }).fill("2099-12-30");
   await page.getByRole("button", { name: "Zapisz" }).click();
   await expect(page.getByText(milestoneName).first()).toBeVisible();
 
@@ -63,7 +66,7 @@ test("risks #1 and #4: task actions on /today persist after reload (done leaves,
   await waitForHydration(page);
   for (const title of [titleA, titleB]) {
     await page.getByRole("button", { name: "Dodaj zadanie" }).click();
-    await page.getByLabel("Tytuł").fill(title);
+    await page.getByLabel("Tytuł", { exact: true }).fill(title);
     await page.getByRole("button", { name: "Zapisz" }).click();
     // The dialog reloads the page; the new task must be rendered in the list (risk #1).
     await expect(page.getByRole("button", { name: `Zrobione: ${title}` })).toBeVisible();

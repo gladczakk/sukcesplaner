@@ -45,7 +45,7 @@ for (const root of roots) {
 
   const lintable = changed.filter((f) => LINT_EXT.test(f) && existsSync(path.join(root, f)));
   if (lintable.length > 0) {
-    const r = runBin(root, "eslint", ["--quiet", "--no-warn-ignored", ...lintable], Math.min(40_000, left()));
+    const r = runBin(root, "eslint", ["--quiet", "--no-warn-ignored", "--", ...lintable], Math.min(40_000, left()));
     if (!r.ok) report += `\nESLint errors in changed files (${root}):\n${r.output}\n`;
   }
   if (changed.some((f) => CODE_CHANGE.test(f))) {

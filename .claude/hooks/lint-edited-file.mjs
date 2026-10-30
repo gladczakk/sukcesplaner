@@ -33,7 +33,7 @@ if (registry) {
 }
 
 const rel = path.relative(root, file).split(path.sep).join("/");
-const result = runBin(root, "eslint", ["--quiet", "--no-warn-ignored", rel], 28_000);
+const result = runBin(root, "eslint", ["--quiet", "--no-warn-ignored", "--", rel], 28_000);
 if (!result.ok) {
   process.stderr.write(`ESLint reported errors in ${rel}:\n${result.output}\n`);
   process.exit(2);

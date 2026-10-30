@@ -128,7 +128,7 @@ describe("PostToolUse hook: lint-edited-file.mjs", () => {
     assert.match(r.stderr, /src\/broken\.ts/);
     assert.match(r.stderr, /stub-rule/);
     assert.equal(r.stdout, "");
-    assert.deepEqual(r.calls, ["eslint --quiet --no-warn-ignored src/broken.ts"]);
+    assert.deepEqual(r.calls, ["eslint --quiet --no-warn-ignored -- src/broken.ts"]);
   });
 
   test("clean file: exit 0 and silent", () => {

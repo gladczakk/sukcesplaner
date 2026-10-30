@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [master]
 
+permissions:
+  contents: read
+
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -28,6 +31,7 @@ jobs:
 
   smoke:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -52,16 +56,17 @@ jobs:
       - run: npm run build
       - name: Run smoke test against production preview
         run: |
-          npm run preview -- --port 4321 &
+          node node_modules/astro/bin/astro.mjs preview --port 4321 &
+          PREVIEW_PID=$!
           for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:4321/ && break; sleep 1; done
           BASE_URL=http://localhost:4321 npm run smoke
+          # Stop it: `astro preview` keeps a per-directory lock, and Playwright starts its own preview below.
+          kill "$PREVIEW_PID"
+          wait "$PREVIEW_PID" 2>/dev/null || true
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
-      # The smoke preview above keeps port 4321, so Playwright starts its own build + preview on 4322.
       - name: Run e2e tests
         run: npm run test:e2e
-        env:
-          E2E_PORT: 4322
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
