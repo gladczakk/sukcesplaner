@@ -55,5 +55,22 @@ jobs:
           npm run preview -- --port 4321 &
           for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:4321/ && break; sleep 1; done
           BASE_URL=http://localhost:4321 npm run smoke
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      # The smoke preview above keeps port 4321, so Playwright starts its own build + preview on 4322.
+      - name: Run e2e tests
+        run: npm run test:e2e
+        env:
+          E2E_PORT: 4322
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
       - if: always()
         run: supabase stop --no-backup

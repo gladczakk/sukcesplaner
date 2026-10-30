@@ -180,6 +180,8 @@ Wpinamy e2e w CI na PR i instalujemy hook po edycji i na koniec tury. CI nie da 
 - Agent w prawdziwej sesji widzi błąd z hooka na celowym błędzie i go naprawia, a hook końca tury nie zapętla się
 - Krok e2e przechodzi na CI przy pierwszym pushu na zdalne repozytorium (odroczone: brak zdalnego repozytorium)
 
+**Note (implementacja Fazy 3)**: Odstępstwa: (1) w CI krok e2e ma `E2E_PORT: 4322`, a krok smoke zostaje bez zmian na 4321: w CI `reuseExistingServer` jest `false`, a smoke zostawia preview w tle na 4321, więc Playwright startuje własny build + preview na 4322 (`.env`/`.dev.vars` z lokalnym Supabase już są zapisane wcześniejszym krokiem); (2) `actions/upload-artifact` przypięty do SHA `ea165f8…` z komentarzem `# v4` (SHA z `git ls-remote`, tag lekki odpowiada v4.6.2); (3) hooki napisane w Node (`.claude/hooks/*.mjs`, bez `jq`, którego na tej maszynie nie ma), rejestrowane w `.claude/settings.json` z `shell: "bash"` (Git Bash): PostToolUse `Write|Edit` (ESLint tylko edytowanego pliku, 30 s) i Stop (ESLint zmienionych plików + `astro check` + `vitest run`, 120 s, jedna próba ponowienia przez `stop_hook_active`); sygnał to exit 2 + stderr; (4) dowód to zacommitowany `scripts/agent-hooks.test.mjs` (22 przypadki, `node --test`, dopisany do `test:unit`, więc działa w CI), a nie jednorazowe uruchomienie; (5) `test:unit` nie jest w hooku Stop, bo uruchamia te hooki (rekurencja). Break-checki hooków wykonane po stronie implementacji: usunięcie zabezpieczenia `stop_hook_active` zaczerwieniło „retry flag set…”, a zmiana `exit 2`→`exit 0` w hooku po edycji zaczerwieniła 3 przypadki (broken file, relative path, missing linter); oba przywrócone `git checkout --`. Niezapisane zalecenie: typecheck w husky pre-commit (§5 twierdzi, że jest) albo poprawić §5 (Faza 4).
+
 **Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase. Phase blocks use plain bullets — the corresponding `- [ ]` checkboxes for these items live in the `## Progress` section at the bottom of the plan.
 
 ---
@@ -274,29 +276,29 @@ Brak migracji i brak zmian schematu. Wycofanie: usunięcie `tests/e2e/`, `playwr
 
 #### Automated
 
-- [x] 2.1 Test przechodzi: `npm run test:e2e`
-- [x] 2.2 Stabilność: `npx playwright test today-flow --repeat-each=3` zielone
-- [x] 2.3 Break-check wyspy: `throw` w `TodayTaskActions.tsx` powoduje czerwony test; po przywróceniu zielony
-- [x] 2.4 Break-check „Zrobione": wariant psujący zapis statusu `done` powoduje czerwoną asercję „wiersz znika"; po przywróceniu zielony
-- [x] 2.5 Break-check „Na jutro": wariant, w którym przeniesione zadanie nie jest widoczne w „Przeniesione na później", powoduje czerwoną asercję; po przywróceniu zielony
-- [x] 2.6 Brak regresji: `npm run lint`, `npm run test:app`, `npm run test:db`
+- [x] 2.1 Test przechodzi: `npm run test:e2e` — 85c7a77
+- [x] 2.2 Stabilność: `npx playwright test today-flow --repeat-each=3` zielone — 85c7a77
+- [x] 2.3 Break-check wyspy: `throw` w `TodayTaskActions.tsx` powoduje czerwony test; po przywróceniu zielony — 85c7a77
+- [x] 2.4 Break-check „Zrobione": wariant psujący zapis statusu `done` powoduje czerwoną asercję „wiersz znika"; po przywróceniu zielony — 85c7a77
+- [x] 2.5 Break-check „Na jutro": wariant, w którym przeniesione zadanie nie jest widoczne w „Przeniesione na później", powoduje czerwoną asercję; po przywróceniu zielony — 85c7a77
+- [x] 2.6 Brak regresji: `npm run lint`, `npm run test:app`, `npm run test:db` — 85c7a77
 
 #### Manual
 
-- [x] 2.7 Każda asercja nazywa ryzyko (#1 lub #4) i oczekiwanie z PRD; brak oczekiwań liczonych z kodu, brak `waitForTimeout`
-- [x] 2.8 Przebieg testu (trace) wygląda jak realny przepływ użytkownika i zgadza się z AC US-01
+- [x] 2.7 Każda asercja nazywa ryzyko (#1 lub #4) i oczekiwanie z PRD; brak oczekiwań liczonych z kodu, brak `waitForTimeout` — 85c7a77
+- [x] 2.8 Przebieg testu (trace) wygląda jak realny przepływ użytkownika i zgadza się z AC US-01 — 85c7a77
 
 ### Phase 3: Bramki jakości (CI i hook)
 
 #### Automated
 
-- [ ] 3.1 Workflow zawiera kroki e2e i jest poprawnie sformatowany: `grep -n "playwright" .github/workflows/ci.yml` oraz `npx prettier --check .github/workflows/ci.yml`
-- [ ] 3.2 Hook udowodniony na celowo zepsutym pliku: sygnał dla błędu, cisza dla czystego pliku
-- [ ] 3.3 Brak regresji: `npm run lint`
+- [x] 3.1 Workflow zawiera kroki e2e i jest poprawnie sformatowany: `grep -n "playwright" .github/workflows/ci.yml` oraz `npx prettier --check .github/workflows/ci.yml`
+- [x] 3.2 Hook udowodniony na celowo zepsutym pliku: sygnał dla błędu, cisza dla czystego pliku
+- [x] 3.3 Brak regresji: `npm run lint`
 
 #### Manual
 
-- [ ] 3.4 Agent w prawdziwej sesji widzi błąd z hooka na celowym błędzie i go naprawia, a hook końca tury nie zapętla się
+- [x] 3.4 Agent w prawdziwej sesji widzi błąd z hooka na celowym błędzie i go naprawia, a hook końca tury nie zapętla się
 - [ ] 3.5 Krok e2e przechodzi na CI przy pierwszym pushu na zdalne repozytorium (odroczone: brak zdalnego repozytorium)
 
 ### Phase 4: Cookbook i synchronizacja planu testów
