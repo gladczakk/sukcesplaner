@@ -1,6 +1,6 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/db/database.types";
-import { logError } from "@/lib/log";
+import { logError, logWarn, type LogContext } from "@/lib/log";
 import { GENERIC_ERROR, SESSION_ERROR, readFailure } from "@/lib/services/postgrest";
 import { todayInWarsaw } from "@/lib/today";
 import type { Task, TaskStatus } from "@/types";
@@ -43,10 +43,17 @@ function toTask(row: TaskRow): Task {
   return { ...row, status: row.status as TaskStatus };
 }
 
+/** Logs why an empty result became `not_found` (the caller still just sees `not_found`). */
+function notFound(event: string, ctx: LogContext): { status: "not_found" } {
+  logWarn("tasks", event, ctx);
+  return { status: "not_found" };
+}
+
 /** `rhythmField` is the field a start-date error is shown on: the rhythm the task being written has. */
 function translateError(
   error: PostgrestError,
   rhythmField: Extract<TaskField, "recurrence_interval_days" | "recurrence_weekdays"> = "recurrence_interval_days",
+  ctx?: LogContext,
 ): TaskFailure {
   if (error.code === "23514") {
     if (error.message.includes("Termin zadania")) {
@@ -87,10 +94,12 @@ function translateError(
     }
   }
   if (error.code === "23503") {
-    return { status: "not_found" };
+    const constraint = /constraint "([^"]+)"/.exec(error.message)?.[1];
+    return notFound(constraint ? `fk_violation:${constraint}` : "fk_violation", ctx ?? {});
   }
-  logError("tasks", readFailure(error));
-  if (error.code === "42501") {
+  logError("tasks", readFailure(error), ctx);
+  // 42501: RLS/permission; PGRST301/PGRST303: the JWT is missing, invalid or expired.
+  if (error.code === "42501" || error.code === "PGRST301" || error.code === "PGRST303") {
     return { status: "unavailable", error: SESSION_ERROR };
   }
   return { status: "unavailable", error: GENERIC_ERROR };
@@ -101,6 +110,7 @@ async function findMilestone(
   supabase: Client,
   projectId: string,
   milestoneId: string,
+  ctx: LogContext,
 ): Promise<{ status: "found" } | TaskFailure> {
   const { data, error } = await supabase
     .from("milestones")
@@ -108,8 +118,8 @@ async function findMilestone(
     .eq("id", milestoneId)
     .eq("project_id", projectId)
     .maybeSingle();
-  if (error) return translateError(error);
-  return data ? { status: "found" } : { status: "not_found" };
+  if (error) return translateError(error, undefined, ctx);
+  return data ? { status: "found" } : notFound("parent_not_found", ctx);
 }
 
 export async function createTask(
@@ -117,8 +127,10 @@ export async function createTask(
   projectId: string,
   milestoneId: string,
   input: TaskCreateInput,
+  ctx?: LogContext,
 ): Promise<TaskResult> {
-  const milestone = await findMilestone(supabase, projectId, milestoneId);
+  const log: LogContext = { ...ctx, op: "createTask", projectId, milestoneId };
+  const milestone = await findMilestone(supabase, projectId, milestoneId, log);
   if (milestone.status !== "found") return milestone;
 
   // The rhythm (interval or weekdays) starts today (Warsaw date, set here so a task added just after midnight gets the right day).
@@ -132,9 +144,9 @@ export async function createTask(
       recurrence_start_date: hasRhythm ? todayInWarsaw() : null,
     })
     .select();
-  if (error) return translateError(error, hasWeekdays ? "recurrence_weekdays" : "recurrence_interval_days");
+  if (error) return translateError(error, hasWeekdays ? "recurrence_weekdays" : "recurrence_interval_days", log);
   const row = data.at(0);
-  return row ? { status: "ok", task: toTask(row) } : { status: "not_found" };
+  return row ? { status: "ok", task: toTask(row) } : notFound("zero_rows", log);
 }
 
 function sameRhythm(
@@ -164,13 +176,15 @@ export async function updateTask(
   milestoneId: string,
   taskId: string,
   input: TaskCreateInput,
+  ctx?: LogContext,
 ): Promise<TaskResult> {
-  const milestone = await findMilestone(supabase, projectId, milestoneId);
+  const log: LogContext = { ...ctx, op: "updateTask", projectId, milestoneId, taskId };
+  const milestone = await findMilestone(supabase, projectId, milestoneId, log);
   if (milestone.status !== "found") return milestone;
 
   const existing = await supabase.from("tasks").select().eq("id", taskId).eq("milestone_id", milestoneId).maybeSingle();
-  if (existing.error) return translateError(existing.error);
-  if (!existing.data) return { status: "not_found" };
+  if (existing.error) return translateError(existing.error, undefined, log);
+  if (!existing.data) return notFound("target_not_found", log);
   const current = existing.data;
 
   const wasRecurring = current.recurrence_interval_days !== null || current.recurrence_weekdays !== null;
@@ -192,9 +206,11 @@ export async function updateTask(
   async function write(patch: Partial<TaskRow>, onlyOpen = false): Promise<TaskResult> {
     const query = supabase.from("tasks").update(patch).eq("id", taskId).eq("milestone_id", milestoneId);
     const { data, error } = await (onlyOpen ? query.neq("status", "done") : query).select();
-    if (error) return translateError(error, rhythmField);
+    if (error) return translateError(error, rhythmField, log);
     const row = data.at(0);
-    return row ? { status: "ok", task: toTask(row) } : { status: "not_found" };
+    if (row) return { status: "ok", task: toTask(row) };
+    // With `onlyOpen` an empty result is resolved by the caller (done vs deleted), so it is not logged here.
+    return onlyOpen ? { status: "not_found" } : notFound("zero_rows", log);
   }
 
   if (wasRecurring && sameRhythm(current, input)) return write({ title: input.title });
@@ -229,8 +245,8 @@ export async function updateTask(
     .eq("id", taskId)
     .eq("milestone_id", milestoneId)
     .maybeSingle();
-  if (stillThere.error) return translateError(stillThere.error);
-  if (!stillThere.data) return { status: "not_found" };
+  if (stillThere.error) return translateError(stillThere.error, undefined, log);
+  if (!stillThere.data) return notFound("zero_rows", log);
   return { status: "validation", error: DONE_TO_RECURRING_ERROR, fieldErrors: {} };
 }
 
@@ -240,8 +256,10 @@ export async function setTaskStatus(
   milestoneId: string,
   taskId: string,
   status: TaskStatus,
+  ctx?: LogContext,
 ): Promise<TaskResult> {
-  const milestone = await findMilestone(supabase, projectId, milestoneId);
+  const log: LogContext = { ...ctx, op: "setTaskStatus", projectId, milestoneId, taskId };
+  const milestone = await findMilestone(supabase, projectId, milestoneId, log);
   if (milestone.status !== "found") return milestone;
 
   const { data, error } = await supabase
@@ -250,9 +268,9 @@ export async function setTaskStatus(
     .eq("id", taskId)
     .eq("milestone_id", milestoneId)
     .select();
-  if (error) return translateError(error);
+  if (error) return translateError(error, undefined, log);
   const row = data.at(0);
-  return row ? { status: "ok", task: toTask(row) } : { status: "not_found" };
+  return row ? { status: "ok", task: toTask(row) } : notFound("zero_rows", log);
 }
 
 /** Sets or clears `deferred_until`; a done task cannot be deferred (a status change clears the deferral in `setTaskStatus`). */
@@ -262,8 +280,10 @@ export async function setTaskDeferral(
   milestoneId: string,
   taskId: string,
   until: string | null,
+  ctx?: LogContext,
 ): Promise<TaskResult> {
-  const milestone = await findMilestone(supabase, projectId, milestoneId);
+  const log: LogContext = { ...ctx, op: "setTaskDeferral", projectId, milestoneId, taskId };
+  const milestone = await findMilestone(supabase, projectId, milestoneId, log);
   if (milestone.status !== "found") return milestone;
 
   const base = supabase
@@ -272,10 +292,10 @@ export async function setTaskDeferral(
     .eq("id", taskId)
     .eq("milestone_id", milestoneId);
   const { data, error } = await (until === null ? base : base.neq("status", "done")).select();
-  if (error) return translateError(error);
+  if (error) return translateError(error, undefined, log);
   const row = data.at(0);
   if (row) return { status: "ok", task: toTask(row) };
-  if (until === null) return { status: "not_found" };
+  if (until === null) return notFound("zero_rows", log);
 
   const existing = await supabase
     .from("tasks")
@@ -283,8 +303,8 @@ export async function setTaskDeferral(
     .eq("id", taskId)
     .eq("milestone_id", milestoneId)
     .maybeSingle();
-  if (existing.error) return translateError(existing.error);
-  if (!existing.data) return { status: "not_found" };
+  if (existing.error) return translateError(existing.error, undefined, log);
+  if (!existing.data) return notFound("zero_rows", log);
   return { status: "validation", error: DONE_DEFERRAL_ERROR, fieldErrors: {} };
 }
 
@@ -295,13 +315,15 @@ export async function completeOccurrence(
   milestoneId: string,
   taskId: string,
   date: string,
+  ctx?: LogContext,
 ): Promise<TaskResult> {
-  const milestone = await findMilestone(supabase, projectId, milestoneId);
+  const log: LogContext = { ...ctx, op: "completeOccurrence", projectId, milestoneId, taskId };
+  const milestone = await findMilestone(supabase, projectId, milestoneId, log);
   if (milestone.status !== "found") return milestone;
 
   const existing = await supabase.from("tasks").select().eq("id", taskId).eq("milestone_id", milestoneId).maybeSingle();
-  if (existing.error) return translateError(existing.error);
-  if (!existing.data) return { status: "not_found" };
+  if (existing.error) return translateError(existing.error, undefined, log);
+  if (!existing.data) return notFound("target_not_found", log);
 
   const { error } = await supabase.from("task_occurrences").insert({ task_id: taskId, occurrence_date: date });
   if (error?.code === "23505") {
@@ -312,7 +334,7 @@ export async function completeOccurrence(
       .eq("task_id", taskId)
       .eq("occurrence_date", date)
       .maybeSingle();
-    if (row.error) return translateError(row.error);
+    if (row.error) return translateError(row.error, undefined, log);
     if (row.data?.state === "moved") {
       return { status: "validation", error: OCCURRENCE_MOVED_ERROR, fieldErrors: {} };
     }
@@ -322,7 +344,7 @@ export async function completeOccurrence(
     if (error.code === "23514" && error.message.includes("Wystapienie")) {
       return { status: "validation", error: OCCURRENCE_ERROR, fieldErrors: {} };
     }
-    return translateError(error);
+    return translateError(error, undefined, log);
   }
   return { status: "ok", task: toTask(existing.data) };
 }
@@ -338,13 +360,15 @@ export async function moveOccurrenceToTomorrow(
   taskId: string,
   today: string,
   tomorrow: string,
+  ctx?: LogContext,
 ): Promise<TaskResult> {
-  const milestone = await findMilestone(supabase, projectId, milestoneId);
+  const log: LogContext = { ...ctx, op: "moveOccurrenceToTomorrow", projectId, milestoneId, taskId };
+  const milestone = await findMilestone(supabase, projectId, milestoneId, log);
   if (milestone.status !== "found") return milestone;
 
   const existing = await supabase.from("tasks").select().eq("id", taskId).eq("milestone_id", milestoneId).maybeSingle();
-  if (existing.error) return translateError(existing.error);
-  if (!existing.data) return { status: "not_found" };
+  if (existing.error) return translateError(existing.error, undefined, log);
+  if (!existing.data) return notFound("target_not_found", log);
 
   const { error } = await supabase
     .from("task_occurrences")
@@ -358,7 +382,7 @@ export async function moveOccurrenceToTomorrow(
       .eq("task_id", taskId)
       .eq("occurrence_date", today)
       .maybeSingle();
-    if (row.error) return translateError(row.error);
+    if (row.error) return translateError(row.error, undefined, log);
     if (row.data?.state === "moved" && row.data.moved_to === tomorrow) {
       return { status: "ok", task: toTask(existing.data) };
     }
@@ -381,7 +405,7 @@ export async function moveOccurrenceToTomorrow(
       return { status: "validation", error: OCCURRENCE_ERROR, fieldErrors: {} };
     }
   }
-  return translateError(error);
+  return translateError(error, undefined, log);
 }
 
 export async function deleteTask(
@@ -389,8 +413,10 @@ export async function deleteTask(
   projectId: string,
   milestoneId: string,
   taskId: string,
+  ctx?: LogContext,
 ): Promise<TaskDeleteResult> {
-  const milestone = await findMilestone(supabase, projectId, milestoneId);
+  const log: LogContext = { ...ctx, op: "deleteTask", projectId, milestoneId, taskId };
+  const milestone = await findMilestone(supabase, projectId, milestoneId, log);
   if (milestone.status === "not_found") return milestone;
   if (milestone.status === "unavailable") return milestone;
   if (milestone.status === "validation") return { status: "unavailable", error: GENERIC_ERROR };
@@ -402,8 +428,8 @@ export async function deleteTask(
     .eq("milestone_id", milestoneId)
     .select("id");
   if (error) {
-    const result = translateError(error);
+    const result = translateError(error, undefined, log);
     return result.status === "unavailable" ? result : { status: "unavailable", error: GENERIC_ERROR };
   }
-  return data.length > 0 ? { status: "ok" } : { status: "not_found" };
+  return data.length > 0 ? { status: "ok" } : notFound("zero_rows", log);
 }

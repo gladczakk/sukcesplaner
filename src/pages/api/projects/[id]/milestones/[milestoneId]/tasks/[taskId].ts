@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { errorResponse, json, readJsonBody } from "@/lib/api";
 import { deleteTask, setTaskDeferral, setTaskStatus, updateTask, type TaskResult } from "@/lib/services/tasks";
+import { logContextFrom } from "@/lib/log";
 import { createClient } from "@/lib/supabase";
 import { tomorrowInWarsaw } from "@/lib/today";
 import { milestoneIdSchema } from "@/lib/validation/milestone";
@@ -19,7 +20,7 @@ const PROJECT_NOT_FOUND = "Nie znaleziono projektu";
 const MILESTONE_NOT_FOUND = "Nie znaleziono milestona";
 const TASK_NOT_FOUND = "Nie znaleziono zadania";
 
-export const PUT: APIRoute = async ({ request, cookies, params }) => {
+export const PUT: APIRoute = async ({ request, cookies, params, locals }) => {
   const projectId = projectIdSchema.safeParse(params.id);
   if (!projectId.success) return errorResponse(404, PROJECT_NOT_FOUND);
   const milestoneId = milestoneIdSchema.safeParse(params.milestoneId);
@@ -38,7 +39,14 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
     return errorResponse(422, "Popraw zaznaczone pola", flattenTaskErrors(parsed.error));
   }
 
-  const result = await updateTask(supabase, projectId.data, milestoneId.data, id.data, parsed.data);
+  const result = await updateTask(
+    supabase,
+    projectId.data,
+    milestoneId.data,
+    id.data,
+    parsed.data,
+    logContextFrom(locals),
+  );
   switch (result.status) {
     case "ok":
       return json({ task: result.task }, 200);
@@ -51,7 +59,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
   }
 };
 
-export const PATCH: APIRoute = async ({ request, cookies, params }) => {
+export const PATCH: APIRoute = async ({ request, cookies, params, locals }) => {
   const projectId = projectIdSchema.safeParse(params.id);
   if (!projectId.success) return errorResponse(404, PROJECT_NOT_FOUND);
   const milestoneId = milestoneIdSchema.safeParse(params.milestoneId);
@@ -78,13 +86,20 @@ export const PATCH: APIRoute = async ({ request, cookies, params }) => {
       return errorResponse(422, parsed.error.issues.at(0)?.message ?? "Nieprawidłowe dane");
     }
     const until = parsed.data.deferred === "tomorrow" ? tomorrowInWarsaw() : null;
-    result = await setTaskDeferral(supabase, projectId.data, milestoneId.data, id.data, until);
+    result = await setTaskDeferral(supabase, projectId.data, milestoneId.data, id.data, until, logContextFrom(locals));
   } else {
     const parsed = taskStatusSchema.safeParse(body);
     if (!parsed.success) {
       return errorResponse(422, parsed.error.issues.at(0)?.message ?? "Nieprawidłowe dane");
     }
-    result = await setTaskStatus(supabase, projectId.data, milestoneId.data, id.data, parsed.data.status);
+    result = await setTaskStatus(
+      supabase,
+      projectId.data,
+      milestoneId.data,
+      id.data,
+      parsed.data.status,
+      logContextFrom(locals),
+    );
   }
   switch (result.status) {
     case "ok":
@@ -98,7 +113,7 @@ export const PATCH: APIRoute = async ({ request, cookies, params }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ request, cookies, params }) => {
+export const DELETE: APIRoute = async ({ request, cookies, params, locals }) => {
   const projectId = projectIdSchema.safeParse(params.id);
   if (!projectId.success) return errorResponse(404, PROJECT_NOT_FOUND);
   const milestoneId = milestoneIdSchema.safeParse(params.milestoneId);
@@ -109,7 +124,7 @@ export const DELETE: APIRoute = async ({ request, cookies, params }) => {
   const supabase = createClient(request.headers, cookies);
   if (!supabase) return errorResponse(500, "Aplikacja nie jest poprawnie skonfigurowana");
 
-  const result = await deleteTask(supabase, projectId.data, milestoneId.data, id.data);
+  const result = await deleteTask(supabase, projectId.data, milestoneId.data, id.data, logContextFrom(locals));
   switch (result.status) {
     case "ok":
       return new Response(null, { status: 204 });

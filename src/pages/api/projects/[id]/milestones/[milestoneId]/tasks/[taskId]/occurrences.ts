@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { errorResponse, json } from "@/lib/api";
 import { completeOccurrence } from "@/lib/services/tasks";
+import { logContextFrom } from "@/lib/log";
 import { createClient } from "@/lib/supabase";
 import { todayInWarsaw } from "@/lib/today";
 import { milestoneIdSchema } from "@/lib/validation/milestone";
@@ -14,7 +15,7 @@ const MILESTONE_NOT_FOUND = "Nie znaleziono milestona";
 const TASK_NOT_FOUND = "Nie znaleziono zadania";
 
 // No body: the server decides the day, so the client cannot mark any other date.
-export const POST: APIRoute = async ({ request, cookies, params }) => {
+export const POST: APIRoute = async ({ request, cookies, params, locals }) => {
   const projectId = projectIdSchema.safeParse(params.id);
   if (!projectId.success) return errorResponse(404, PROJECT_NOT_FOUND);
   const milestoneId = milestoneIdSchema.safeParse(params.milestoneId);
@@ -25,7 +26,14 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
   const supabase = createClient(request.headers, cookies);
   if (!supabase) return errorResponse(500, "Aplikacja nie jest poprawnie skonfigurowana");
 
-  const result = await completeOccurrence(supabase, projectId.data, milestoneId.data, id.data, todayInWarsaw());
+  const result = await completeOccurrence(
+    supabase,
+    projectId.data,
+    milestoneId.data,
+    id.data,
+    todayInWarsaw(),
+    logContextFrom(locals),
+  );
   switch (result.status) {
     case "ok":
       return json({ task: result.task }, 201);

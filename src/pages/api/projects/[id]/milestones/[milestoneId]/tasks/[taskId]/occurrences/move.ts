@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { errorResponse, json } from "@/lib/api";
 import { moveOccurrenceToTomorrow } from "@/lib/services/tasks";
+import { logContextFrom } from "@/lib/log";
 import { createClient } from "@/lib/supabase";
 import { todayInWarsaw, tomorrowInWarsaw } from "@/lib/today";
 import { milestoneIdSchema } from "@/lib/validation/milestone";
@@ -14,7 +15,7 @@ const MILESTONE_NOT_FOUND = "Nie znaleziono milestona";
 const TASK_NOT_FOUND = "Nie znaleziono zadania";
 
 // No body: the server decides both days, so the client cannot move an occurrence to any other date.
-export const POST: APIRoute = async ({ request, cookies, params }) => {
+export const POST: APIRoute = async ({ request, cookies, params, locals }) => {
   const projectId = projectIdSchema.safeParse(params.id);
   if (!projectId.success) return errorResponse(404, PROJECT_NOT_FOUND);
   const milestoneId = milestoneIdSchema.safeParse(params.milestoneId);
@@ -33,6 +34,7 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
     id.data,
     todayInWarsaw(now),
     tomorrowInWarsaw(now),
+    logContextFrom(locals),
   );
   switch (result.status) {
     case "ok":

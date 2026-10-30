@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } fr
 import type { Database } from "@/db/database.types";
 import {
   completeOccurrence,
+  createTask,
   deleteTask,
   moveOccurrenceToTomorrow,
   setTaskDeferral,
@@ -150,11 +151,17 @@ const input = (overrides: Partial<TaskCreateInput> = {}): TaskCreateInput => ({
 });
 
 let consoleError: MockInstance<(message: string) => void>;
+let consoleWarn: MockInstance<(message: string) => void>;
 
 beforeEach(() => {
   // The generic branch logs the real cause; keep the test output clean (and let a test assert it).
   consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+  consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 });
+
+function warnings(): Record<string, unknown>[] {
+  return consoleWarn.mock.calls.map(([message]) => JSON.parse(message) as Record<string, unknown>);
+}
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -200,6 +207,19 @@ describe("setTaskStatus", () => {
     const { client } = stubClient({ "tasks.update": [reply] });
 
     expect(await setTaskStatus(client, "p1", "m1", "t1", "done")).toMatchObject(expected);
+  });
+
+  it("logs exactly one fk_violation warning when the row is gone (foreign key violation)", async () => {
+    const { client } = stubClient({
+      "tasks.update": [fail("23503", 'insert or update violates foreign key constraint "tasks_milestone_id_fkey"')],
+    });
+
+    await setTaskStatus(client, "p1", "m1", "t1", "done");
+
+    expect(consoleWarn).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(consoleWarn.mock.calls[0][0])).toMatchObject({
+      event: "fk_violation:tasks_milestone_id_fkey",
+    });
   });
 
   it.each([
@@ -651,6 +671,118 @@ describe("deleteTask", () => {
     expect(await deleteTask(client, "p1", "m1", "t1")).toEqual({ status: "not_found" });
     expect(writes).toEqual([]);
   });
+});
+
+describe("observability signals", () => {
+  // Oracle: decisions L1/L4 and the audit: an empty write, a missing parent and a foreign key violation all end as
+  // not_found for the caller, but each leaves a distinct warn entry with the ids; an expired JWT is a session message.
+  const CTX = { userId: "u1", requestId: "r1" };
+  const IDS = { scope: "tasks", level: "warn", projectId: "p1", milestoneId: "m1", taskId: "t1" };
+
+  it("logs zero_rows with ids and request context when the status write touches no row", async () => {
+    const { client } = stubClient({ "tasks.update": [ok([])] });
+
+    expect(await setTaskStatus(client, "p1", "m1", "t1", "done", CTX)).toEqual({ status: "not_found" });
+
+    expect(warnings()).toEqual([{ ...IDS, event: "zero_rows", op: "setTaskStatus", userId: "u1", requestId: "r1" }]);
+  });
+
+  it("logs the same event without user and request ids when no context is passed", async () => {
+    const { client } = stubClient({ "tasks.update": [ok([])] });
+
+    await setTaskStatus(client, "p1", "m1", "t1", "done");
+
+    expect(warnings()).toEqual([{ ...IDS, event: "zero_rows", op: "setTaskStatus" }]);
+  });
+
+  it("logs parent_not_found (not zero_rows) when the milestone is not visible", async () => {
+    const { client } = stubClient({ "milestones.select": [ok(null)] });
+
+    expect(await setTaskStatus(client, "p1", "m1", "t1", "done", CTX)).toEqual({ status: "not_found" });
+
+    expect(warnings()).toEqual([
+      {
+        scope: "tasks",
+        level: "warn",
+        event: "parent_not_found",
+        op: "setTaskStatus",
+        projectId: "p1",
+        milestoneId: "m1",
+        taskId: "t1",
+        ...CTX,
+      },
+    ]);
+  });
+
+  it("logs fk_violation with the constraint name when creating a task hits a foreign key", async () => {
+    const { client } = stubClient({
+      "tasks.insert": [
+        fail("23503", 'insert or update on table "tasks" violates foreign key constraint "tasks_milestone_owner_fkey"'),
+      ],
+    });
+
+    expect(await createTask(client, "p1", "m1", input(), CTX)).toEqual({ status: "not_found" });
+
+    const [entry, ...rest] = warnings();
+    expect(rest).toEqual([]);
+    expect(entry).toMatchObject({
+      event: "fk_violation:tasks_milestone_owner_fkey",
+      op: "createTask",
+      projectId: "p1",
+      milestoneId: "m1",
+      ...CTX,
+    });
+  });
+
+  it("logs a plain fk_violation event when the message names no constraint", async () => {
+    const { client } = stubClient({ "tasks.update": [fail("23503", "violates foreign key")] });
+
+    await setTaskStatus(client, "p1", "m1", "t1", "done", CTX);
+
+    expect(warnings()).toEqual([expect.objectContaining({ event: "fk_violation", op: "setTaskStatus" }) as unknown]);
+  });
+
+  it("logs zero_rows when a delete removes nothing", async () => {
+    const { client } = stubClient({ "tasks.delete": [ok([])] });
+
+    expect(await deleteTask(client, "p1", "m1", "t1", CTX)).toEqual({ status: "not_found" });
+
+    expect(warnings()).toEqual([{ ...IDS, event: "zero_rows", op: "deleteTask", ...CTX }]);
+  });
+
+  it("logs target_not_found when the task read before an occurrence write is empty", async () => {
+    const { client } = stubClient({ "tasks.select": [ok(null)] });
+
+    expect(await completeOccurrence(client, "p1", "m1", "t1", "2026-10-26", CTX)).toEqual({ status: "not_found" });
+
+    expect(warnings()).toEqual([
+      expect.objectContaining({ event: "target_not_found", op: "completeOccurrence" }) as unknown,
+    ]);
+  });
+
+  it("does not log zero_rows for the known rule that a done task cannot be deferred", async () => {
+    const { client } = stubClient({ "tasks.update": [ok([])], "tasks.select": [ok({ id: "t1" })] });
+
+    const result = await setTaskDeferral(client, "p1", "m1", "t1", "2026-10-27", CTX);
+
+    expect(result.status).toBe("validation");
+    expect(warnings()).toEqual([]);
+  });
+
+  it.each([{ code: "PGRST301" }, { code: "PGRST303" }])(
+    "maps an expired JWT ($code) to the session message and logs the cause",
+    async ({ code }) => {
+      const { client } = stubClient({ "tasks.update": [fail(code, "JWT expired")] });
+
+      expect(await setTaskStatus(client, "p1", "m1", "t1", "done", CTX)).toEqual({
+        status: "unavailable",
+        error: "Sesja wygasła. Zaloguj się ponownie.",
+      });
+
+      expect(consoleError).toHaveBeenCalledTimes(1);
+      expect(JSON.parse(consoleError.mock.calls[0][0])).toMatchObject({ message: `${code}: JWT expired`, ...CTX });
+    },
+  );
 });
 
 describe("reading the task before a write", () => {
