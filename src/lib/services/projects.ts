@@ -1,6 +1,6 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/db/database.types";
-import { logError } from "@/lib/log";
+import { logError, logWarn, type LogContext } from "@/lib/log";
 import { GENERIC_ERROR, SESSION_ERROR, readFailure } from "@/lib/services/postgrest";
 import { LIFE_AREAS, type LifeArea, type Project } from "@/types";
 import type { ProjectFieldErrors, ProjectInput } from "@/lib/validation/project";
@@ -30,7 +30,13 @@ function toProject(row: Database["public"]["Tables"]["projects"]["Row"]): Projec
   return { ...row, life_area: row.life_area };
 }
 
-function translateError(error: PostgrestError): Exclude<ProjectCreateResult, { status: "ok" }> {
+/** Logs why an empty result became `not_found` (the caller still just sees `not_found`). */
+function notFound(event: string, ctx: LogContext): { status: "not_found" } {
+  logWarn("projects", event, ctx);
+  return { status: "not_found" };
+}
+
+function translateError(error: PostgrestError, ctx?: LogContext): Exclude<ProjectCreateResult, { status: "ok" }> {
   if (error.code === "23514") {
     if (error.message.includes("Termin projektu")) {
       return { status: "validation", error: DUE_DATE_ERROR, fieldErrors: { due_date: DUE_DATE_ERROR } };
@@ -44,8 +50,9 @@ function translateError(error: PostgrestError): Exclude<ProjectCreateResult, { s
       return { status: "validation", error: message, fieldErrors: { life_area: message } };
     }
   }
-  logError("projects", readFailure(error));
-  if (error.code === "42501") {
+  logError("projects", readFailure(error), ctx);
+  // 42501: RLS/permission; PGRST301/PGRST303: the JWT is missing, invalid or expired.
+  if (error.code === "42501" || error.code === "PGRST301" || error.code === "PGRST303") {
     return { status: "unavailable", error: SESSION_ERROR };
   }
   return { status: "unavailable", error: GENERIC_ERROR };
@@ -84,24 +91,36 @@ export async function getProjectCounts(
   return { milestones: milestones.count ?? 0, tasks: tasks.count ?? 0 };
 }
 
-export async function createProject(supabase: Client, input: ProjectInput): Promise<ProjectCreateResult> {
+export async function createProject(
+  supabase: Client,
+  input: ProjectInput,
+  ctx?: LogContext,
+): Promise<ProjectCreateResult> {
+  const log: LogContext = { ...ctx, op: "createProject" };
   const { data, error } = await supabase.from("projects").insert(input).select().single();
-  if (error) return translateError(error);
+  if (error) return translateError(error, log);
   return { status: "ok", project: toProject(data) };
 }
 
-export async function updateProject(supabase: Client, id: string, input: ProjectInput): Promise<ProjectMutationResult> {
+export async function updateProject(
+  supabase: Client,
+  id: string,
+  input: ProjectInput,
+  ctx?: LogContext,
+): Promise<ProjectMutationResult> {
+  const log: LogContext = { ...ctx, op: "updateProject", projectId: id };
   const { data, error } = await supabase.from("projects").update(input).eq("id", id).select();
-  if (error) return translateError(error);
+  if (error) return translateError(error, log);
   const row = data.at(0);
-  return row ? { status: "ok", project: toProject(row) } : { status: "not_found" };
+  return row ? { status: "ok", project: toProject(row) } : notFound("zero_rows", log);
 }
 
-export async function deleteProject(supabase: Client, id: string): Promise<ProjectDeleteResult> {
+export async function deleteProject(supabase: Client, id: string, ctx?: LogContext): Promise<ProjectDeleteResult> {
+  const log: LogContext = { ...ctx, op: "deleteProject", projectId: id };
   const { data, error } = await supabase.from("projects").delete().eq("id", id).select("id");
   if (error) {
-    const result = translateError(error);
+    const result = translateError(error, log);
     return result.status === "unavailable" ? result : { status: "unavailable", error: GENERIC_ERROR };
   }
-  return data.length > 0 ? { status: "ok" } : { status: "not_found" };
+  return data.length > 0 ? { status: "ok" } : notFound("zero_rows", log);
 }

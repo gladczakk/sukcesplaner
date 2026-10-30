@@ -1,6 +1,6 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/db/database.types";
-import { logError } from "@/lib/log";
+import { logError, logWarn, type LogContext } from "@/lib/log";
 import { GENERIC_ERROR, SESSION_ERROR, readFailure } from "@/lib/services/postgrest";
 import { plural } from "@/lib/format";
 import type { Milestone, MilestoneListItem, TaskStatus } from "@/types";
@@ -31,7 +31,13 @@ function parseOpenTaskCount(message: string): string | null {
   return digits.length > 0 && /^\d+$/.test(digits) ? digits : null;
 }
 
-function translateError(error: PostgrestError): MilestoneFailure {
+/** Logs why an empty result became `not_found` (the caller still just sees `not_found`). */
+function notFound(event: string, ctx: LogContext): { status: "not_found" } {
+  logWarn("milestones", event, ctx);
+  return { status: "not_found" };
+}
+
+function translateError(error: PostgrestError, ctx?: LogContext): MilestoneFailure {
   if (error.code === "23514") {
     if (error.message.includes("Data milestona")) {
       return { status: "validation", error: DUE_DATE_ERROR, fieldErrors: { due_date: DUE_DATE_ERROR } };
@@ -57,10 +63,12 @@ function translateError(error: PostgrestError): MilestoneFailure {
     }
   }
   if (error.code === "23503") {
-    return { status: "not_found" };
+    const constraint = /constraint "([^"]+)"/.exec(error.message)?.[1];
+    return notFound(constraint ? `fk_violation:${constraint}` : "fk_violation", ctx ?? {});
   }
-  logError("milestones", readFailure(error));
-  if (error.code === "42501") {
+  logError("milestones", readFailure(error), ctx);
+  // 42501: RLS/permission; PGRST301/PGRST303: the JWT is missing, invalid or expired.
+  if (error.code === "42501" || error.code === "PGRST301" || error.code === "PGRST303") {
     return { status: "unavailable", error: SESSION_ERROR };
   }
   return { status: "unavailable", error: GENERIC_ERROR };
@@ -86,13 +94,15 @@ export async function createMilestone(
   supabase: Client,
   projectId: string,
   input: MilestoneInput,
+  ctx?: LogContext,
 ): Promise<MilestoneResult> {
+  const log: LogContext = { ...ctx, op: "createMilestone", projectId };
   const { data, error } = await supabase
     .from("milestones")
     .insert({ ...input, project_id: projectId })
     .select()
     .single();
-  if (error) return translateError(error);
+  if (error) return translateError(error, log);
   return { status: "ok", milestone: data };
 }
 
@@ -101,16 +111,18 @@ export async function updateMilestone(
   projectId: string,
   id: string,
   input: MilestoneInput,
+  ctx?: LogContext,
 ): Promise<MilestoneResult> {
+  const log: LogContext = { ...ctx, op: "updateMilestone", projectId, milestoneId: id };
   const { data, error } = await supabase
     .from("milestones")
     .update(input)
     .eq("id", id)
     .eq("project_id", projectId)
     .select();
-  if (error) return translateError(error);
+  if (error) return translateError(error, log);
   const row = data.at(0);
-  return row ? { status: "ok", milestone: row } : { status: "not_found" };
+  return row ? { status: "ok", milestone: row } : notFound("zero_rows", log);
 }
 
 /**
@@ -122,10 +134,12 @@ export async function setMilestoneCompleted(
   projectId: string,
   id: string,
   completed: boolean,
+  ctx?: LogContext,
 ): Promise<MilestoneResult> {
+  const log: LogContext = { ...ctx, op: "setMilestoneCompleted", projectId, milestoneId: id };
   const current = await supabase.from("milestones").select().eq("id", id).eq("project_id", projectId).maybeSingle();
-  if (current.error) return translateError(current.error);
-  if (!current.data) return { status: "not_found" };
+  if (current.error) return translateError(current.error, log);
+  if (!current.data) return notFound("target_not_found", log);
   if ((current.data.completed_at !== null) === completed) return { status: "ok", milestone: current.data };
 
   // Conditional on the state we just read, so a concurrent request cannot overwrite `completed_at`.
@@ -137,17 +151,31 @@ export async function setMilestoneCompleted(
   const { data, error } = await (
     completed ? update.is("completed_at", null) : update.not("completed_at", "is", null)
   ).select();
-  if (error) return translateError(error);
+  if (error) return translateError(error, log);
   const row = data.at(0);
   if (row) return { status: "ok", milestone: row };
 
   // No row matched: someone changed the state between our read and write, so report the current state.
   const latest = await supabase.from("milestones").select().eq("id", id).eq("project_id", projectId).maybeSingle();
-  if (latest.error) return translateError(latest.error);
-  return latest.data ? { status: "ok", milestone: latest.data } : { status: "not_found" };
+  if (latest.error) return translateError(latest.error, log);
+  // Lost race: the result is unchanged; the log says how the re-read compares with the request (no row content).
+  const raceLog: LogContext = { ...log, step: completed ? "close" : "reopen" };
+  if (!latest.data) {
+    logWarn("milestones", "lost_race:deleted", raceLog);
+    return { status: "not_found" };
+  }
+  const matches = (latest.data.completed_at !== null) === completed;
+  logWarn("milestones", matches ? "lost_race:matches_request" : "lost_race:opposite", raceLog);
+  return { status: "ok", milestone: latest.data };
 }
 
-export async function deleteMilestone(supabase: Client, projectId: string, id: string): Promise<MilestoneDeleteResult> {
+export async function deleteMilestone(
+  supabase: Client,
+  projectId: string,
+  id: string,
+  ctx?: LogContext,
+): Promise<MilestoneDeleteResult> {
+  const log: LogContext = { ...ctx, op: "deleteMilestone", projectId, milestoneId: id };
   const { data, error } = await supabase
     .from("milestones")
     .delete()
@@ -155,8 +183,8 @@ export async function deleteMilestone(supabase: Client, projectId: string, id: s
     .eq("project_id", projectId)
     .select("id");
   if (error) {
-    const result = translateError(error);
+    const result = translateError(error, log);
     return result.status === "unavailable" ? result : { status: "unavailable", error: GENERIC_ERROR };
   }
-  return data.length > 0 ? { status: "ok" } : { status: "not_found" };
+  return data.length > 0 ? { status: "ok" } : notFound("zero_rows", log);
 }

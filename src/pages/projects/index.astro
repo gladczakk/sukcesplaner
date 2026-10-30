@@ -4,7 +4,7 @@ import ProjectFormDialog from "@/components/projects/ProjectFormDialog";
 import { InlineError } from "@/components/ui/inline-error";
 import { formatDate } from "@/lib/format";
 import { LIFE_AREA_LABELS } from "@/lib/life-areas";
-import { logError } from "@/lib/log";
+import { logContextFrom, logError } from "@/lib/log";
 import { listProjects } from "@/lib/services/projects";
 import { createClient } from "@/lib/supabase";
 import type { Project } from "@/types";
@@ -21,7 +21,7 @@ if (!supabase) {
   try {
     projects = await listProjects(supabase);
   } catch (error) {
-    logError("projects-list", error);
+    logError("projects-list", error, logContextFrom(Astro.locals));
     unavailable = "Nie udało się wczytać projektów. Odśwież stronę za chwilę.";
   }
 }

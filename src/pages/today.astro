@@ -11,7 +11,7 @@ import TodayTaskActions from "@/components/today/TodayTaskActions";
 import { InlineError } from "@/components/ui/inline-error";
 import AppLayout from "@/layouts/AppLayout.astro";
 import { formatDate, formatRecurrence, plural } from "@/lib/format";
-import { logError } from "@/lib/log";
+import { logContextFrom, logError } from "@/lib/log";
 import { getTaskTargets, getToday } from "@/lib/services/today";
 import { createClient } from "@/lib/supabase";
 import { dueChip, formatTodayHeading, todayInWarsaw } from "@/lib/today";
@@ -35,7 +35,7 @@ if (!supabase) {
   try {
     [view, targets] = await Promise.all([getToday(supabase, today), getTaskTargets(supabase)]);
   } catch (error) {
-    logError("today-list", error);
+    logError("today-list", error, logContextFrom(Astro.locals));
     unavailable = "Nie udało się wczytać listy na dziś. Odśwież stronę za chwilę.";
   }
 }

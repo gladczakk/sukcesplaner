@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { errorResponse, json, readJsonBody } from "@/lib/api";
+import { logContextFrom } from "@/lib/log";
 import { deleteProject, updateProject } from "@/lib/services/projects";
 import { createClient } from "@/lib/supabase";
 import { flattenProjectErrors, projectIdSchema, projectInputSchema } from "@/lib/validation/project";
@@ -8,7 +9,7 @@ export const prerender = false;
 
 const NOT_FOUND = "Nie znaleziono projektu";
 
-export const PUT: APIRoute = async ({ request, cookies, params }) => {
+export const PUT: APIRoute = async ({ request, cookies, params, locals }) => {
   const id = projectIdSchema.safeParse(params.id);
   if (!id.success) return errorResponse(404, NOT_FOUND);
 
@@ -23,7 +24,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
     return errorResponse(422, "Popraw zaznaczone pola", flattenProjectErrors(parsed.error));
   }
 
-  const result = await updateProject(supabase, id.data, parsed.data);
+  const result = await updateProject(supabase, id.data, parsed.data, logContextFrom(locals));
   switch (result.status) {
     case "ok":
       return json({ project: result.project }, 200);
@@ -36,14 +37,14 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ request, cookies, params }) => {
+export const DELETE: APIRoute = async ({ request, cookies, params, locals }) => {
   const id = projectIdSchema.safeParse(params.id);
   if (!id.success) return errorResponse(404, NOT_FOUND);
 
   const supabase = createClient(request.headers, cookies);
   if (!supabase) return errorResponse(500, "Aplikacja nie jest poprawnie skonfigurowana");
 
-  const result = await deleteProject(supabase, id.data);
+  const result = await deleteProject(supabase, id.data, logContextFrom(locals));
   switch (result.status) {
     case "ok":
       return new Response(null, { status: 204 });

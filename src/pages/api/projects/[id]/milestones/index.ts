@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { errorResponse, json, readJsonBody } from "@/lib/api";
+import { logContextFrom } from "@/lib/log";
 import { createMilestone } from "@/lib/services/milestones";
 import { createClient } from "@/lib/supabase";
 import { flattenMilestoneErrors, milestoneInputSchema } from "@/lib/validation/milestone";
@@ -9,7 +10,7 @@ export const prerender = false;
 
 const NOT_FOUND = "Nie znaleziono projektu";
 
-export const POST: APIRoute = async ({ request, cookies, params }) => {
+export const POST: APIRoute = async ({ request, cookies, params, locals }) => {
   const projectId = projectIdSchema.safeParse(params.id);
   if (!projectId.success) return errorResponse(404, NOT_FOUND);
 
@@ -24,7 +25,7 @@ export const POST: APIRoute = async ({ request, cookies, params }) => {
     return errorResponse(422, "Popraw zaznaczone pola", flattenMilestoneErrors(parsed.error));
   }
 
-  const result = await createMilestone(supabase, projectId.data, parsed.data);
+  const result = await createMilestone(supabase, projectId.data, parsed.data, logContextFrom(locals));
   switch (result.status) {
     case "ok":
       return json({ milestone: result.milestone }, 201);

@@ -12,7 +12,7 @@ import TaskRowActions from "@/components/projects/TaskRowActions";
 import { InlineError } from "@/components/ui/inline-error";
 import { formatDate, formatRecurrence, formatTimestamp, plural } from "@/lib/format";
 import { LIFE_AREA_LABELS } from "@/lib/life-areas";
-import { logError } from "@/lib/log";
+import { logContextFrom, logError } from "@/lib/log";
 import { listMilestones } from "@/lib/services/milestones";
 import { getProject, getProjectCounts } from "@/lib/services/projects";
 import { createClient } from "@/lib/supabase";
@@ -36,14 +36,14 @@ if (!supabase) {
     project = await getProject(supabase, parsedId.data);
     if (project) counts = await getProjectCounts(supabase, project.id);
   } catch (error) {
-    logError("project-view", error);
+    logError("project-view", error, { ...logContextFrom(Astro.locals), projectId: parsedId.data });
     unavailable = "Nie udało się wczytać projektu. Odśwież stronę za chwilę.";
   }
   if (project) {
     try {
       milestones = await listMilestones(supabase, project.id);
     } catch (error) {
-      logError("project-milestones", error);
+      logError("project-milestones", error, { ...logContextFrom(Astro.locals), projectId: project.id });
       milestonesError = "Nie udało się wczytać milestonów. Odśwież stronę za chwilę.";
     }
   }

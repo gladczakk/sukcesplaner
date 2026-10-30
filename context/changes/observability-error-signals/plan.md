@@ -361,27 +361,27 @@ Brak migracji i brak zmian schematu. Wycofanie: przywrócenie `log.ts`, `postgre
 
 #### Automated
 
-- [x] 3.1 Nowe testy usług zadań były czerwone przed zmianą i są zielone po: `npx vitest run src/lib/services/tasks.test.ts`
-- [x] 3.2 Zachowanie 404/422/500 bez zmian: istniejące testy zadań zielone i smoke bez zmian oczekiwań
-- [x] 3.3 Break-check: usunięcie logu `zero_rows` w `setTaskStatus` albo zmiany mapowania `PGRST303` zaczerwienia odpowiedni test; po przywróceniu zielone
-- [x] 3.4 Typy, lint, testy aplikacji: `npx astro check`, `npm run lint`, `npm run test:app`
+- [x] 3.1 Nowe testy usług zadań były czerwone przed zmianą i są zielone po: `npx vitest run src/lib/services/tasks.test.ts` — ff51b75
+- [x] 3.2 Zachowanie 404/422/500 bez zmian: istniejące testy zadań zielone i smoke bez zmian oczekiwań — ff51b75
+- [x] 3.3 Break-check: usunięcie logu `zero_rows` w `setTaskStatus` albo zmiany mapowania `PGRST303` zaczerwienia odpowiedni test; po przywróceniu zielone — ff51b75
+- [x] 3.4 Typy, lint, testy aplikacji: `npx astro check`, `npm run lint`, `npm run test:app` — ff51b75
 
 #### Manual
 
-- [x] 3.5 PATCH na nieistniejące zadanie zwraca 404, a w logu serwera jest `zero_rows` lub `parent_not_found` z `userId` i `requestId`
+- [x] 3.5 PATCH na nieistniejące zadanie zwraca 404, a w logu serwera jest `zero_rows` lub `parent_not_found` z `userId` i `requestId` — ff51b75
 
 ### Phase 4: Usługi milestone'ów i projektów oraz strony
 
 #### Automated
 
-- [ ] 4.1 Nowe testy milestone'ów i projektów oraz wyciągnięta atrapa zielone, testy zadań nadal zielone: `npx vitest run`
-- [ ] 4.2 Break-check „lost race”: usunięcie logu z gałęzi ponownego odczytu w `setMilestoneCompleted` zaczerwieni test; po przywróceniu zielone
-- [ ] 4.3 Smoke z oczekiwaniami 404 i auth bez zmian: build, preview w tle, `npm run smoke`
-- [ ] 4.4 Typy, lint i pozostałe zestawy: `npx astro check`, `npm run lint`, `npm run test:app`, `npm run test:unit`
+- [x] 4.1 Nowe testy milestone'ów i projektów oraz wyciągnięta atrapa zielone, testy zadań nadal zielone: `npx vitest run`
+- [x] 4.2 Break-check „lost race”: usunięcie logu z gałęzi ponownego odczytu w `setMilestoneCompleted` zaczerwieni test; po przywróceniu zielone
+- [x] 4.3 Smoke z oczekiwaniami 404 i auth bez zmian: build, preview w tle, `npm run smoke`
+- [x] 4.4 Typy, lint i pozostałe zestawy: `npx astro check`, `npm run lint`, `npm run test:app`, `npm run test:unit`
 
 #### Manual
 
-- [ ] 4.5 Przegląd różnicy kodu: żadna trasa ani strona nie wywołuje usługi zapisu ani `logError` bez kontekstu tam, gdzie `locals` jest dostępne
+- [x] 4.5 Przegląd różnicy kodu: żadna trasa ani strona nie wywołuje usługi zapisu ani `logError` bez kontekstu tam, gdzie `locals` jest dostępne
 
 ### Phase 5: Weryfikacja i dokumentacja
 

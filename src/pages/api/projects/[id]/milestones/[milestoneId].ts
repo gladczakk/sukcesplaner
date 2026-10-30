@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { errorResponse, json, readJsonBody } from "@/lib/api";
+import { logContextFrom } from "@/lib/log";
 import { deleteMilestone, setMilestoneCompleted, updateMilestone } from "@/lib/services/milestones";
 import { createClient } from "@/lib/supabase";
 import {
@@ -15,7 +16,7 @@ export const prerender = false;
 const PROJECT_NOT_FOUND = "Nie znaleziono projektu";
 const MILESTONE_NOT_FOUND = "Nie znaleziono milestona";
 
-export const PUT: APIRoute = async ({ request, cookies, params }) => {
+export const PUT: APIRoute = async ({ request, cookies, params, locals }) => {
   const projectId = projectIdSchema.safeParse(params.id);
   if (!projectId.success) return errorResponse(404, PROJECT_NOT_FOUND);
   const id = milestoneIdSchema.safeParse(params.milestoneId);
@@ -32,7 +33,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
     return errorResponse(422, "Popraw zaznaczone pola", flattenMilestoneErrors(parsed.error));
   }
 
-  const result = await updateMilestone(supabase, projectId.data, id.data, parsed.data);
+  const result = await updateMilestone(supabase, projectId.data, id.data, parsed.data, logContextFrom(locals));
   switch (result.status) {
     case "ok":
       return json({ milestone: result.milestone }, 200);
@@ -45,7 +46,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
   }
 };
 
-export const PATCH: APIRoute = async ({ request, cookies, params }) => {
+export const PATCH: APIRoute = async ({ request, cookies, params, locals }) => {
   const projectId = projectIdSchema.safeParse(params.id);
   if (!projectId.success) return errorResponse(404, PROJECT_NOT_FOUND);
   const id = milestoneIdSchema.safeParse(params.milestoneId);
@@ -62,7 +63,13 @@ export const PATCH: APIRoute = async ({ request, cookies, params }) => {
     return errorResponse(422, parsed.error.issues.at(0)?.message ?? "Nieprawidłowe dane");
   }
 
-  const result = await setMilestoneCompleted(supabase, projectId.data, id.data, parsed.data.completed);
+  const result = await setMilestoneCompleted(
+    supabase,
+    projectId.data,
+    id.data,
+    parsed.data.completed,
+    logContextFrom(locals),
+  );
   switch (result.status) {
     case "ok":
       return json({ milestone: result.milestone }, 200);
@@ -75,7 +82,7 @@ export const PATCH: APIRoute = async ({ request, cookies, params }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ request, cookies, params }) => {
+export const DELETE: APIRoute = async ({ request, cookies, params, locals }) => {
   const projectId = projectIdSchema.safeParse(params.id);
   if (!projectId.success) return errorResponse(404, PROJECT_NOT_FOUND);
   const id = milestoneIdSchema.safeParse(params.milestoneId);
@@ -84,7 +91,7 @@ export const DELETE: APIRoute = async ({ request, cookies, params }) => {
   const supabase = createClient(request.headers, cookies);
   if (!supabase) return errorResponse(500, "Aplikacja nie jest poprawnie skonfigurowana");
 
-  const result = await deleteMilestone(supabase, projectId.data, id.data);
+  const result = await deleteMilestone(supabase, projectId.data, id.data, logContextFrom(locals));
   switch (result.status) {
     case "ok":
       return new Response(null, { status: 204 });

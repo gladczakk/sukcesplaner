@@ -1,7 +1,5 @@
-import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from "vitest";
 
-import type { Database } from "@/db/database.types";
 import {
   completeOccurrence,
   createTask,
@@ -11,30 +9,8 @@ import {
   setTaskStatus,
   updateTask,
 } from "@/lib/services/tasks";
+import { fail, ok, stubClient, type Client, type Ctx } from "@/lib/services/testing/stub-client";
 import type { TaskCreateInput } from "@/lib/validation/task";
-
-type Client = SupabaseClient<Database>;
-type Op = "select" | "insert" | "update" | "delete";
-interface Reply {
-  data: unknown;
-  error: PostgrestError | null;
-}
-interface Ctx {
-  payload: unknown;
-  neq: [string, unknown][];
-}
-type Responder = Reply | ((ctx: Ctx) => Reply);
-interface Write {
-  table: string;
-  op: Op;
-  payload: unknown;
-  neq: [string, unknown][];
-}
-interface Call {
-  table: string;
-  op: Op;
-  eq: [string, unknown][];
-}
 
 // Oracle: expected results come from PRD Business Logic and the decisions S-05 (actions on the list), not from reading
 // the service. The S-05 rules pinned here are design rules, not PRD: a done task is not deferred or reopened (validation
@@ -50,12 +26,6 @@ const MOVE_PAST_MILESTONE =
   "Przeniesienie wystapienia (2026-10-30) na dzien (2026-10-31) wykracza poza date milestona (2026-10-30)";
 const MOVE_TO_RHYTHM_DAY =
   "Przeniesienie wystapienia (2026-10-21) na dzien (2026-10-23) nie jest mozliwe: to dzien rytmu zadania";
-
-const ok = (data: unknown): Reply => ({ data, error: null });
-const fail = (code: string, message: string): Reply => ({
-  data: null,
-  error: { code, message, details: "", hint: "", name: "PostgrestError" } as PostgrestError,
-});
 
 function taskRow(overrides: Record<string, unknown> = {}) {
   return {
@@ -76,71 +46,7 @@ function taskRow(overrides: Record<string, unknown> = {}) {
   };
 }
 
-const MILESTONE_FOUND = ok({ id: "m1" });
 const doneGuardApplied = (ctx: Ctx) => ctx.neq.some(([column, value]) => column === "status" && value === "done");
-
-/**
- * Stub of the Supabase query builder: every chained call returns the same builder, awaiting it (or `maybeSingle`)
- * takes the next programmed reply for `table.operation`. Writes are recorded with the `neq` filters applied to them,
- * every call (reads included) with its `eq` filters.
- */
-function stubClient(queues: Partial<Record<`${string}.${Op}`, Responder[]>> = {}) {
-  const remaining = { ...queues };
-  const writes: Write[] = [];
-  const calls: Call[] = [];
-
-  function from(table: string) {
-    let op: Op = "select";
-    let payload: unknown;
-    const neq: [string, unknown][] = [];
-    const eq: [string, unknown][] = [];
-    const run = () => {
-      calls.push({ table, op, eq: [...eq] });
-      if (op !== "select") writes.push({ table, op, payload, neq: [...neq] });
-      const key = `${table}.${op}` as const;
-      const queue = remaining[key] ?? (key === "milestones.select" ? [MILESTONE_FOUND] : []);
-      const next = queue.shift();
-      if (next === undefined) throw new Error(`stub: no reply programmed for ${key}`);
-      remaining[key] = queue.length > 0 || key === "milestones.select" ? queue : undefined;
-      return Promise.resolve(typeof next === "function" ? next({ payload, neq }) : next);
-    };
-    const builder = {
-      select: () => builder,
-      update: (patch: unknown) => {
-        op = "update";
-        payload = patch;
-        return builder;
-      },
-      insert: (row: unknown) => {
-        op = "insert";
-        payload = row;
-        return builder;
-      },
-      delete: () => {
-        op = "delete";
-        return builder;
-      },
-      eq: (column: string, value: unknown) => {
-        eq.push([column, value]);
-        return builder;
-      },
-      neq: (column: string, value: unknown) => {
-        neq.push([column, value]);
-        return builder;
-      },
-      maybeSingle: run,
-      then: (resolve: (value: Reply) => unknown, reject: (reason: unknown) => unknown) => run().then(resolve, reject),
-    };
-    return builder;
-  }
-
-  return {
-    client: { from } as unknown as Client,
-    writes,
-    calls,
-    lastWrite: (table: string, op: Op) => writes.filter((write) => write.table === table && write.op === op).at(-1),
-  };
-}
 
 const input = (overrides: Partial<TaskCreateInput> = {}): TaskCreateInput => ({
   title: "Nowy tytuł",
