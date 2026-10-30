@@ -14,6 +14,7 @@
     "check:values": "node scripts/check-hardcoded-values.mjs",
     "test:unit": "node --experimental-strip-types --test scripts/weekdays.test.mjs scripts/auth-errors.test.mjs scripts/check-hardcoded-values.test.mjs",
     "test:app": "vitest run",
+    "test:e2e": "playwright test",
     "test:db": "supabase test db"
   },
   "dependencies": {
@@ -42,6 +43,7 @@
   "devDependencies": {
     "@eslint/compat": "^2.1.1",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
     "eslint": "^10.10.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-astro": "^3.1.0",
