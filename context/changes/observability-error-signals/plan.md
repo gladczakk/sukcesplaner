@@ -374,25 +374,25 @@ Brak migracji i brak zmian schematu. Wycofanie: przywrócenie `log.ts`, `postgre
 
 #### Automated
 
-- [x] 4.1 Nowe testy milestone'ów i projektów oraz wyciągnięta atrapa zielone, testy zadań nadal zielone: `npx vitest run`
-- [x] 4.2 Break-check „lost race”: usunięcie logu z gałęzi ponownego odczytu w `setMilestoneCompleted` zaczerwieni test; po przywróceniu zielone
-- [x] 4.3 Smoke z oczekiwaniami 404 i auth bez zmian: build, preview w tle, `npm run smoke`
-- [x] 4.4 Typy, lint i pozostałe zestawy: `npx astro check`, `npm run lint`, `npm run test:app`, `npm run test:unit`
+- [x] 4.1 Nowe testy milestone'ów i projektów oraz wyciągnięta atrapa zielone, testy zadań nadal zielone: `npx vitest run` — 057c874
+- [x] 4.2 Break-check „lost race”: usunięcie logu z gałęzi ponownego odczytu w `setMilestoneCompleted` zaczerwieni test; po przywróceniu zielone — 057c874
+- [x] 4.3 Smoke z oczekiwaniami 404 i auth bez zmian: build, preview w tle, `npm run smoke` — 057c874
+- [x] 4.4 Typy, lint i pozostałe zestawy: `npx astro check`, `npm run lint`, `npm run test:app`, `npm run test:unit` — 057c874
 
 #### Manual
 
-- [x] 4.5 Przegląd różnicy kodu: żadna trasa ani strona nie wywołuje usługi zapisu ani `logError` bez kontekstu tam, gdzie `locals` jest dostępne
+- [x] 4.5 Przegląd różnicy kodu: żadna trasa ani strona nie wywołuje usługi zapisu ani `logError` bez kontekstu tam, gdzie `locals` jest dostępne — 057c874
 
 ### Phase 5: Weryfikacja i dokumentacja
 
 #### Automated
 
-- [ ] 5.1 Pełny zestaw zielony: `npm run lint`, `npx astro check`, `npm run test:unit`, `npm run test:app`, `npm run test:db`
-- [ ] 5.2 E2E zielone: `npm run test:e2e`
-- [ ] 5.3 Smoke zielony na buildzie: build, preview w tle, `npm run smoke`
-- [ ] 5.4 Notka w test-planie jest obecna: `grep -n "observability-error-signals" context/foundation/test-plan.md`
+- [x] 5.1 Pełny zestaw zielony: `npm run lint`, `npx astro check`, `npm run test:unit`, `npm run test:app`, `npm run test:db`
+- [x] 5.2 E2E zielone: `npm run test:e2e`
+- [x] 5.3 Smoke zielony na buildzie: build, preview w tle, `npm run smoke`
+- [x] 5.4 Notka w test-planie jest obecna: `grep -n "observability-error-signals" context/foundation/test-plan.md`
 
 #### Manual
 
-- [ ] 5.5 Raport audytu `--verify` oznacza P1, P2, P3, P4, A5, L4 i W4 jako `fixed`, a L1 jako zawężone do prawdziwych przyczyn
-- [ ] 5.6 Notka w §6.1/§6.7 zgadza się z wynikiem zmiany
+- [x] 5.5 Raport audytu `--verify` oznacza P1, P2, P3, P4, A5, L4 i W4 jako `fixed`, a L1 jako zawężone do prawdziwych przyczyn
+- [x] 5.6 Notka w §6.1/§6.7 zgadza się z wynikiem zmiany

@@ -127,6 +127,8 @@ the relevant rollout phase ships; before that, the sub-section reads
 - **Naming**: `<module>.test.ts`.
 - **Reference test**: `src/lib/today.test.ts`.
 - **Run locally**: `npm run test:app`.
+- **Testy logowania i obserwowalności** (usługi, middleware, trasy): usługi w `src/lib/services/<moduł>.test.ts` ze wspólną atrapą klienta `src/lib/services/testing/stub-client.ts` (kolejki po kluczu `tabela.operacja`, `ok`, `fail`); testy middleware i tras w `src/lib/__tests__/`, nie w `src/pages/` (plik `*.test.ts` w `pages` Astro uznałby za trasę). Moduły `astro:*` nie importują się w vitest, więc w pliku testu `vi.mock("astro:middleware", …)`, `vi.mock("astro:env/server", …)` albo `vi.mock("@/lib/supabase", …)`; alias w `vitest.config.ts` nie był potrzebny.
+- **Asercja na wpis logu**: `vi.spyOn(console, "warn" | "error")`, jedna linia JSON sparsowana w teście, oczekiwane nazwy zdarzeń i ids wpisane ręcznie z decyzji (nie z kodu): `zero_rows`, `parent_not_found`, `target_not_found`, `fk_violation:<constraint>`, `lost_race:<deleted|matches_request|opposite>`, `invalid_session`; plus przypadek bez `ctx` (wpis bez `userId`/`requestId`) i asercja, że wynik usługi się nie zmienił (`not_found` nadal 404, wymaga tego smoke). Break-check: usunięcie wywołania logu ma zaczerwienić test, a w gałęziach będących znaną regułą (np. zrobione zadanie) log nie może się pojawić.
 
 ### 6.2 Adding a database / integration test
 
@@ -197,6 +199,8 @@ here capturing anything surprising the rollout phase taught.)
 
 - **Faza 4 (testing-e2e-flow-and-gates)**: wspólny `storageState` jednego użytkownika dawał wyścigi (`--repeat-each=3` padało 3 z 3: równoległe przebiegi widziały nawzajem milestony i przeniesione zadania), więc każdy test mutujący dane rejestruje własnego użytkownika. Pierwszy break-check z `throw` w sygnaturze komponentu był fałszywy (błąd builda, nie czerwona asercja): `throw` musi być w ciele. Hooki agenta napisano w Node (`.claude/hooks/*.mjs`), bo na maszynie nie ma `jq`; dowód to `scripts/agent-hooks.test.mjs` w `test:unit`.
 
+- **Zmiana observability-error-signals (poprawki z audytu obserwowalności)**: założenie audytu „wygasły JWT daje zero wierszy” było fałszywe; sprawdzenie na lokalnym PostgREST: `anon` → 401 `42501`, wygasły JWT → 401 `PGRST303`, ciche zero wierszy (200 `[]`) tylko przy ważnym JWT i wierszu brakującym lub ukrytym przez RLS. `vi.mock("astro:middleware")` działa w vitest bez aliasu. Podagent zazielenił test o `details`/`hint` w `cause` bez tych pól w oczekiwaniu: wzmocniono asercję (czerwona), potem kod. Astro 7 uruchamia `astro preview` jako demona, a logi serwera są w `.astro/preview.log`, nie w stdout procesu.
+
 ## 7. What We Deliberately Don't Test
 
 Exclusions agreed during the rollout (Phase 2 interview, Q5). Future
@@ -223,6 +227,7 @@ contributors should respect these unless the underlying assumption changes.
 - **Weryfikacja kroku e2e w CI do pierwszego pusha na zdalne repozytorium** — krok w jobie `smoke` (wiersz 3.5 planu) był sprawdzony tylko lokalnie, brak zdalnego repozytorium. Re-evaluate at the first push. (Source: Phase 3 of change testing-e2e-flow-and-gates.)
 - **e2e tylko w Chromium** — projekt `chromium` wystarcza dla aplikacji z jednym użytkownikiem. Re-evaluate if pojawi się błąd specyficzny dla przeglądarki (Safari/Firefox) lub szerszy krąg użytkowników. (Source: plan of change testing-e2e-flow-and-gates.)
 - **e2e poza hookami agenta** — za wolne (build + preview + przeglądarka); hooki to eslint, `astro check` i `vitest run`, e2e działa lokalnie na żądanie i w CI. Re-evaluate if e2e skróci się do kilkunastu sekund albo agent zacznie często łamać przepływ bez wykrycia lokalnie. (Source: Phase 3 of change testing-e2e-flow-and-gates.)
+- **Obserwowalność po stronie klienta i w produkcji (raportowanie błędów z przeglądarki, prezentacja linii JSON w Workers Logs, `cf-ray`)** — zmiana observability-error-signals dowodzi tylko kodu serwera (wpisy logu, 503, mapowania); klient nie ma kanału raportowania, a lokalnie `requestId` to `crypto.randomUUID()`, bo `cf-ray` istnieje tylko na Cloudflare. Re-evaluate przy pierwszym wdrożeniu (sprawdzić, jak Workers Logs pokazują linię JSON i czy wpis niesie `cf-ray`) albo gdy powstanie kanał raportowania z klienta. (Source: plan of change observability-error-signals.)
 
 ## 8. Freshness Ledger
 
