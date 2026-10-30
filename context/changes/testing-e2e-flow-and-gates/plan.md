@@ -292,25 +292,25 @@ Brak migracji i brak zmian schematu. Wycofanie: usunięcie `tests/e2e/`, `playwr
 
 #### Automated
 
-- [x] 3.1 Workflow zawiera kroki e2e i jest poprawnie sformatowany: `grep -n "playwright" .github/workflows/ci.yml` oraz `npx prettier --check .github/workflows/ci.yml`
-- [x] 3.2 Hook udowodniony na celowo zepsutym pliku: sygnał dla błędu, cisza dla czystego pliku
-- [x] 3.3 Brak regresji: `npm run lint`
+- [x] 3.1 Workflow zawiera kroki e2e i jest poprawnie sformatowany: `grep -n "playwright" .github/workflows/ci.yml` oraz `npx prettier --check .github/workflows/ci.yml` — b8bc944
+- [x] 3.2 Hook udowodniony na celowo zepsutym pliku: sygnał dla błędu, cisza dla czystego pliku — b8bc944
+- [x] 3.3 Brak regresji: `npm run lint` — b8bc944
 
 #### Manual
 
-- [x] 3.4 Agent w prawdziwej sesji widzi błąd z hooka na celowym błędzie i go naprawia, a hook końca tury nie zapętla się
+- [x] 3.4 Agent w prawdziwej sesji widzi błąd z hooka na celowym błędzie i go naprawia, a hook końca tury nie zapętla się — b8bc944
 - [ ] 3.5 Krok e2e przechodzi na CI przy pierwszym pushu na zdalne repozytorium (odroczone: brak zdalnego repozytorium)
 
 ### Phase 4: Cookbook i synchronizacja planu testów
 
 #### Automated
 
-- [ ] 4.1 Cookbook nie zawiera już `TBD` dla e2e: `grep -c "TBD — see §3 Phase 4" context/foundation/test-plan.md` zwraca 0
-- [ ] 4.2 Wiersz e2e w §4 nie mówi już „none yet": `grep -c "e2e | none yet" context/foundation/test-plan.md` zwraca 0
-- [ ] 4.3 Pliki wskazane w §6.6 istnieją: `ls tests/e2e/today-flow.spec.ts playwright.config.ts`
-- [ ] 4.4 `npx prettier --check context/foundation/test-plan.md` nie pogarsza stanu bazowego
+- [x] 4.1 Cookbook nie zawiera już `TBD` dla e2e: `grep -c "TBD — see §3 Phase 4" context/foundation/test-plan.md` zwraca 0
+- [x] 4.2 Wiersz e2e w §4 nie mówi już „none yet": `grep -c "e2e | none yet" context/foundation/test-plan.md` zwraca 0
+- [x] 4.3 Pliki wskazane w §6.6 istnieją: `ls tests/e2e/today-flow.spec.ts playwright.config.ts`
+- [x] 4.4 `npx prettier --check context/foundation/test-plan.md` nie pogarsza stanu bazowego
 
 #### Manual
 
-- [ ] 4.5 Osoba nieznająca zmiany potrafi z §6.6 dodać nowy test e2e bez czytania research
-- [ ] 4.6 Korekty §2 #4 i §5 zgadzają się z wynikiem badania i faktycznym stanem hooków oraz CI
+- [x] 4.5 Osoba nieznająca zmiany potrafi z §6.6 dodać nowy test e2e bez czytania research
+- [x] 4.6 Korekty §2 #4 i §5 zgadzają się z wynikiem badania i faktycznym stanem hooków oraz CI

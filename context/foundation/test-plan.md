@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-10-29
+> Last updated: 2026-10-30
 
 ## 1. Strategy
 
@@ -55,7 +55,7 @@ research's job, see §1 principle #3).
 | #1 | Każde niedokończone zadanie spełniające regułę kwalifikacji z PRD jest na liście; żadne nie znika po akcji ani zmianie dnia | „Lista się renderuje, więc jest kompletna" | gdzie powstaje lista, jakie ma wejścia, co już pokrywa istniejący test bazy dla listy na dziś | integration (prawdziwa baza) | implementation mirror; happy-path-only |
 | #2 | Zadania są uporządkowane po bliskości deadline'u (własnego lub milestona); zadanie bez terminu jest na końcu, ale widoczne | „Sortowanie po dacie wystarcza do sygnalizacji z wyprzedzeniem" | skąd bierze się deadline do sortowania; czy guardrail 2 jest w ogóle zaimplementowany | integration plus test parametryczny | oczekiwana kolejność liczona tą samą logiką co kod |
 | #3 | Wynik zależy od „dzisiejszej daty" z jednego spójnego źródła; granice (północ, ostatni dzień, strefa) dają dokładnie oczekiwany dzień | „Data to po prostu data" | skąd bierze się „dziś" (serwer, baza, klient) i w jakiej strefie; jak dziś wstrzyknąć datę | unit/integration parametryczny z wstrzykniętą datą | zegar systemowy w teście; jedna data zamiast granic |
-| #4 | Po każdej akcji stan zadania i lista następnego dnia zgadzają się z PRD | „Akcja zwróciła sukces, więc stan jest poprawny" | czy sekwencja zapisów jest atomowa; obsługa częściowego błędu | integration plus hermetyczny stub częściowego błędu | over-mocking wnętrzności zamiast sprawdzania stanu końcowego |
+| #4 | Po każdej akcji stan zadania i lista następnego dnia zgadzają się z PRD; w przeglądarce „domknięcie" = stan po przeładowaniu tego samego dnia (lista następnego dnia zostaje w pgTAP: PRD nie ma takiego widoku, a serwerowego „dziś" nie da się przesunąć) | „Akcja zwróciła sukces, więc stan jest poprawny" | czy sekwencja zapisów jest atomowa; obsługa częściowego błędu | integration plus hermetyczny stub częściowego błędu | over-mocking wnętrzności zamiast sprawdzania stanu końcowego |
 | #5 | Po zmianie rytmu odhaczenia „zrobione" zostają, a przyszłe wystąpienia wynikają z nowego rytmu | „Zmiana rytmu to edycja jednego pola" | los przeniesień i pominięć przy zmianie rytmu (otwarta niewiadoma z roadmapy) | integration (prawdziwa baza) | nadmiarowe kopie testów tego samego przypadku |
 | #6 | Po usunięciu lub edycji lista pokazuje właściwy, najbliższy niezamknięty milestone i zgodne zadania | „Usunięcie kaskadowe jest bezpieczne" | reguły zamykania i kaskady po stronie bazy | integration (prawdziwa baza) | mock bazy, który kłamie o kaskadach |
 | #7 | Użytkownik B nie czyta ani nie zmienia danych użytkownika A, także przez bezpośrednie wywołanie API | „Zalogowany to uprawniony" | warstwa wymuszająca własność i to, czy zwykły klient może ją ominąć | integration (rozszerzenie istniejącego testu RLS) | test tylko na jednym koncie |
@@ -70,17 +70,19 @@ orchestrator updates Status as artifacts appear on disk.
 |---|------------|-----------------|---------------|------------|--------|---------------|
 | 1 | Poprawność listy na dziś | Dowieść, że lista jest kompletna, uporządkowana i stabilna na granicach dat; zainicjować runner testów aplikacji i podpiąć testy bazy do CI | #1, #2, #3 | integration, parametryczne granice dat | complete | context/archive/2026-10-26-testing-today-list-correctness/ |
 | 2 | Akcje i rytmy | Dowieść, że akcje na liście i zmiana rytmu nie gubią zadań ani odhaczeń | #4, #5 | integration, hermetyczne stuby częściowych błędów | complete | context/archive/2026-10-26-testing-list-actions-and-rhythms/ |
-| 3 | Spójność danych i izolacja | Dowieść poprawności reguły milestona po edycji i usunięciu oraz granicy własności danych | #6, #7 | integration (rozszerzenie testów bazy i RLS) | complete | context/changes/testing-data-integrity-isolation/ |
-| 4 | Jeden przepływ e2e i bramki | Domknąć krytyczny przepływ w przeglądarce i utrwalić bramki w CI i hooku | #1, #4 (domknięcie) | 1 test e2e, bramki jakości | not started | — |
+| 3 | Spójność danych i izolacja | Dowieść poprawności reguły milestona po edycji i usunięciu oraz granicy własności danych | #6, #7 | integration (rozszerzenie testów bazy i RLS) | complete | context/archive/2026-10-27-testing-data-integrity-isolation/ |
+| 4 | Jeden przepływ e2e i bramki | Domknąć krytyczny przepływ w przeglądarce i utrwalić bramki w CI i hooku | #1, #4 (domknięcie) | 1 test e2e, bramki jakości | change opened | context/changes/testing-e2e-flow-and-gates/ |
 
 Faza 1 zamknięta z dwoma świadomie otwartymi wierszami Progress: 3.6 (job `smoke` z `supabase test db` nie był uruchomiony na CI, brak zdalnego repozytorium) i 4.3 (`prettier --check` dla tego pliku i `CLAUDE.md` nie przechodził już przed zmianą). Zweryfikować 3.6 przy pierwszym pushu.
+
+Faza 4 ma świadomie otwarty wiersz 3.5 (krok e2e w jobie `smoke` nie był uruchomiony na CI, brak zdalnego repozytorium); zweryfikować przy pierwszym pushu.
 
 ## 4. Stack
 
 The classic test base for this project. Profil bazy testów: `sparse` na starcie rolloutu; po Fazie 1 są
-testy `node --test` (3 pliki w `scripts/`), testy `vitest` dla warstwy aplikacji (`src/**/*.test.ts`),
-11 plików pgTAP w `supabase/tests/database/` (w CI) oraz smoke auth; serwisy, endpointy i widoki
-poza logiką dat nadal bez testów.
+testy `node --test` (4 pliki w `scripts/`, w tym test hooków agenta), testy `vitest` dla warstwy aplikacji (`src/**/*.test.ts`),
+11 plików pgTAP w `supabase/tests/database/` (w CI), smoke auth oraz (po Fazie 4) e2e Playwright
+(1 test przepływu + seed w `tests/e2e/`); serwisy, endpointy i widoki poza logiką dat nadal bez testów jednostkowych.
 
 | Layer | Tool | Version | Notes |
 |-------|------|---------|-------|
@@ -88,13 +90,13 @@ poza logiką dat nadal bez testów.
 | database / integration | pgTAP przez Supabase CLI (`supabase/tests/database/`) | Supabase CLI latest (z CI) | 11 plików reguł domeny i RLS (`npm run test:db`); krok w jobie `smoke` w CI |
 | app-level unit + integration | `vitest` | 5.0.5 (checked: 2026-10-26) | `npm run test:app`, `src/**/*.test.ts` (alias `@/`); krok w jobie `ci` w CI |
 | smoke | `scripts/smoke.mjs` (job `smoke` w CI) | — | Tylko przepływ auth; sprawdza treść wysp React, nie tylko status (lessons.md) |
-| e2e | none yet — see Phase 4 | — | Najwyżej 1 przepływ krytyczny |
+| e2e | Playwright Test (`@playwright/test`, `npm run test:e2e`) | 1.64.1 (checked: 2026-10-30) | 1 przepływ krytyczny + seed, tylko Chromium; krok w jobie `smoke` w CI |
 | accessibility | none | — | Poza zakresem (patrz §7) |
 
 **Stack grounding tools (current session):**
 - Docs: none — Context7 / docs MCP not available in current session; checked: 2026-10-26
 - Search: none — Exa.ai / web search MCP not available in current session; checked: 2026-10-26
-- Runtime/browser: none — Playwright MCP not available in current session; not used; checked: 2026-10-26
+- Runtime/browser: `playwright-cli` (powłoka) zainstalowane i użyte do eksploracji aplikacji; MCP Playwright nadal niedostępne; checked: 2026-10-30
 - Provider/platform: none — GitHub/Cloudflare/Supabase MCP not available in current session; checked: 2026-10-26
 
 Rekomendacje wynikają wyłącznie z lokalnych manifestów i konfiguracji. Przed wyborem
@@ -104,13 +106,13 @@ runnera aplikacji `/10x-research` powinien sprawdzić aktualną dokumentację.
 
 | Gate | Where | Required? | Catches |
 |------|-------|-----------|---------|
-| lint + typecheck (`eslint`, `astro check`) | local (husky pre-commit) + CI | required (wired) | syntactic / type drift |
+| lint + typecheck (`eslint`, `astro check`) | local: husky pre-commit uruchamia `lint-staged` (`eslint --fix`, `prettier`, `check-hardcoded-values`), bez typechecku; `astro check` w hooku końca tury agenta; CI: lint i `astro check` | required (wired) | syntactic / type drift |
 | unit (`npm run test:unit`) | local + CI | required (wired) | regresje w skryptach pomocniczych |
 | smoke auth | CI (job `smoke`) | required (wired) | zepsuty przepływ logowania, wyspy React nierenderujące się |
 | database tests (pgTAP) | local + CI | required (wired) | regresje reguł domeny, listy na dziś i RLS |
 | app-level unit + integration | local + CI | required (wired) | błędy logiki serwisów i walidacji |
-| e2e on critical flow | CI on PR | required after §3 Phase 4 | zepsuty krytyczny przepływ (login → zadanie → lista → odhaczenie) |
-| post-edit hook | local (agent loop) | recommended after §3 Phase 4 | regresje w czasie edycji |
+| e2e on critical flow | CI on PR (job `smoke`, `E2E_PORT=4322`) + local (`npm run test:e2e`) | required (wired); pierwszy zdalny przebieg do zweryfikowania (3.5) | zepsuty krytyczny przepływ (login → zadanie → lista → odhaczenie) |
+| post-edit hook | local (agent loop, `.claude/settings.json`) | recommended (wired locally) | regresje w czasie edycji: PostToolUse ESLint edytowanego pliku; Stop: eslint + `astro check` + `vitest run`, jedna próba ponowienia; dowód `scripts/agent-hooks.test.mjs` w `test:unit` |
 | mutation testing (Stryker) | local, ad hoc | optional, selektywnie po fazie ryzyka | testy, które nie wykryłyby zepsucia reguły |
 
 ## 6. Cookbook Patterns
@@ -170,7 +172,17 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.6 Adding an e2e test
 
-- TBD — see §3 Phase 4.
+- **Warstwa**: e2e dowodzi tylko tego, czego pgTAP i vitest nie widzą: sesji cookie, hydracji wysp React i ścieżki kliknięcie → zapis → przeładowanie renderu serwerowego. Reguły listy i akcji zostają w pgTAP (§6.3–§6.4); nowy test e2e dodajemy tylko dla ryzyka, którego nie pokrywa tańsza warstwa.
+- **Location**: `tests/e2e/` (`*.spec.ts`; `*.setup.ts` to projekt `setup`; wspólne helpery w `tests/e2e/helpers/`). **Naming**: `<flow>.spec.ts`, w nagłówku ryzyko z §2 i źródło oczekiwań.
+- **Reference tests**: `tests/e2e/today-flow.spec.ts` (jeden test, dwa zadania: A „Częściowo" → B „Na jutro" → A „Zrobione", asercje stanu po przeładowaniu), `tests/e2e/seed.spec.ts` (stan pusty `/today`, wyspa renderuje „Dodaj zadanie" z `aria-disabled`), `tests/e2e/helpers/auth.ts` (`registerAndSignIn`).
+- **Run locally**: `npm run test:e2e`; jedna specyfikacja: `npx playwright test today-flow`. Konfiguracja: `playwright.config.ts` (projekt `setup` + projekt `chromium` ze `storageState: playwright/.auth/user.json`; `webServer` sam robi `npm run build && npm run preview -- --port <PORT>` z `ASTRO_PREVIEW_BACKGROUND=1`, port z `E2E_PORT`, domyślnie 4321). Pełny opis w `context/foundation/test-stack.md`.
+- **Wymagania lokalne**: Docker i `npx supabase start`; `.dev.vars` (i `.env`) z lokalnym Supabase; port wolny (nic nie nasłuchuje na `E2E_PORT`, inaczej lokalnie testujesz po cichu cudzy serwer; lokalnie `E2E_PORT=4322` w `.env`, bo 4321 bywa zajęty przez `astro dev`). Nie commituj `playwright/.auth/` ani `.env`. W CI: krok w jobie `smoke` z `E2E_PORT: 4322` (smoke zostawia preview na 4321; `reuseExistingServer` = false).
+- **Lokatory**: `getByRole` / `getByLabel` / `getByText`; `data-testid` nie istnieje i nie dodajemy go bez potrzeby. Przyciski akcji mają `aria-label` `Zrobione: <tytuł>`, `Częściowo: <tytuł>`, `Na jutro: <tytuł>`; hasło: `getByLabel("Hasło", { exact: true })` (przełącznik „Pokaż hasło" ma też label). Nigdy CSS, XPath ani struktura DOM.
+- **Oczekiwanie**: nigdy `page.waitForTimeout()`; `expect(...)` czeka na stan (`toBeVisible`, `toHaveCount`, `waitForURL`). Wyspy `client:load` gubią kliknięcia przed hydracją: czekaj na zniknięcie `astro-island[ssr]`. Po akcji strona robi `window.location.reload()`, więc asertuj stan po przeładowaniu, nie odpowiedź sieciową.
+- **Dane i niezależność**: każdy test, który mutuje dane, rejestruje własnego użytkownika (`e2e-<Date.now()>-<losowy>@example.com`) przez `registerAndSignIn`; tytuły z sufiksem czasu. Bez osobnego cleanupu, bo dane należą do świeżego użytkownika (RLS); adnotacja `test-data` niesie tytuły. Zadania bez terminu i odległe daty (serwer liczy „dziś" w Europe/Warsaw, `page.clock` go nie przesunie); dokładnie jeden milestone na projekt (lista pokazuje tylko najbliższy). „Przeniesione na później" jest domyślnie zwinięte: rozwiń przed asercją.
+- **Oracle**: oczekiwania wpisane ręcznie z PRD (`today-flow.spec.ts` cytuje linie PRD w nagłówku), nigdy liczone z kodu; nie asertuj dat, chipów terminów, nagłówka dnia ani komunikatów spoza PRD. Asertuj treść renderowaną przez wyspę, nie tylko status strony (lessons.md, lekcja nr 1).
+- **Break-check** (jak §6.4, w working tree): `throw` w ciele komponentu wyspy (NIE w sygnaturze: to daje błąd builda, nie czerwoną asercję), `done` → `todo` w zapisie statusu, ukryty blok `view.deferred` w `today.astro`; ma zaczerwienić asercję ryzyka, nie timeout ani logowanie; przywrócenie `git checkout --`. Przed każdym break-checkiem port E2E musi być wolny, żeby `webServer` przebudował aplikację z uszkodzeniem.
+- **Znane luki**: lista następnego dnia i „Pominięte wczoraj" w przeglądarce, drugi test e2e, dwa konta, inne przeglądarki i e2e w hookach — patrz §7.
 
 ### 6.7 Per-rollout-phase notes
 
@@ -182,6 +194,8 @@ here capturing anything surprising the rollout phase taught.)
 - **Faza 2 (testing-list-actions-and-rhythms)**: research błędnie twierdził, że kolejność gałęzi komunikatów błędu w `moveOccurrenceToTomorrow` ma znaczenie; sprawdzenie pokazało, że gałęzie są rozłączne, więc break-check 1.5 psuje podciąg komunikatu, nie kolejność. Wszystkie ręcznie wpisane oczekiwania pgTAP zgodziły się z bazą od razu poza jednym (asercja 11 w `edges`: przeniesienie sprzed nowego startu nie pojawia się na liście, bo `today_list` obejmuje dni od startu rytmu; wiersz zostaje w tabeli).
 
 - **Faza 3 (testing-data-integrity-isolation)**: oba pliki pgTAP zgodziły się z ręczną wyrocznią; jedyna korekta break-checku dotyczyła „remisu" dat (łapie go wariant `seq desc`, nie `due_date desc`). Wariant klucza w teście izolacji (odhaczenie z `task_id` zadania ofiary, istniejącą datą i `user_id` aktora) daje `23505` (`task_occurrences_pkey`) w obu kierunkach: wyciek istnienia wiersza przy znajomości UUID zadania, przypięty w teście i opisany w §7, bez zmiany schematu. Polityka `delete` nie jest osobno obserwowalna bez zepsucia `select` (patrz §6.5).
+
+- **Faza 4 (testing-e2e-flow-and-gates)**: wspólny `storageState` jednego użytkownika dawał wyścigi (`--repeat-each=3` padało 3 z 3: równoległe przebiegi widziały nawzajem milestony i przeniesione zadania), więc każdy test mutujący dane rejestruje własnego użytkownika. Pierwszy break-check z `throw` w sygnaturze komponentu był fałszywy (błąd builda, nie czerwona asercja): `throw` musi być w ciele. Hooki agenta napisano w Node (`.claude/hooks/*.mjs`), bo na maszynie nie ma `jq`; dowód to `scripts/agent-hooks.test.mjs` w `test:unit`.
 
 ## 7. What We Deliberately Don't Test
 
@@ -201,13 +215,19 @@ contributors should respect these unless the underlying assumption changes.
 - **Reguły S-05 (422 dla zrobionego zadania, zapis statusu zeruje przeniesienie, częściowo + na jutro zostawia status)** — pinowane jako reguły projektowe, nie wymagania PRD; zmiana decyzji S-05 powinna zmienić te testy świadomie. (Source: plan of change testing-list-actions-and-rhythms.)
 
 - **Współbieżność usunięcia milestona i zapisu zadania (deadlock `40P01`)** — pgTAP jest jednosesyjny, a wyścig wymagałby osobnej infrastruktury; reguła jest tylko opisana w migracji. Re-evaluate if pojawi się współdzielenie danych lub użycie z kilku urządzeń naraz albo deadlock zostanie zaobserwowany w produkcji. (Source: plan of change testing-data-integrity-isolation.)
-- **HTTP/API na dwóch kontach (e2e w Fazie 4)** — izolację dowodzimy na poziomie bazy (RLS i funkcje `security invoker`), nie przez endpointy. Re-evaluate if Faza 4 doda infrastrukturę e2e z dwoma kontami albo aplikacja zacznie używać klucza innego niż anon po stronie serwera. (Source: plan of change testing-data-integrity-isolation.)
+- **HTTP/API na dwóch kontach (e2e)** — izolację dowodzimy na poziomie bazy (RLS i funkcje `security invoker`), nie przez endpointy; Faza 4 nie dodała e2e z dwoma kontami. Re-evaluate if pojawi się infrastruktura e2e z dwoma kontami albo aplikacja zacznie używać klucza innego niż anon po stronie serwera. (Source: plan of change testing-data-integrity-isolation; Phase 4 of change testing-e2e-flow-and-gates.)
 - **Znane ryzyko: wyciek istnienia wiersza `task_occurrences` (`23505`)** — wstawienie odhaczenia z kluczem zadania innego konta i istniejącą datą zwraca `23505` zamiast `23503`, co zdradza istnienie wiersza; wymaga znajomości UUID zadania. Test `core_domain_account_isolation.test.sql` pinuje wynik jako obserwację, nie wymaganie; schemat bez zmian. Re-evaluate if UUID zadań staną się odgadywalne lub ujawniane albo przed publicznym udostępnieniem API. (Source: Phase 2 of change testing-data-integrity-isolation.)
+
+- **Lista następnego dnia i „Pominięte wczoraj" w przeglądarce** — PRD nie definiuje takiego widoku, a serwerowego „dziś" (Europe/Warsaw) nie da się przesunąć w teście e2e; te reguły zostają w pgTAP z wstrzykniętą datą. Re-evaluate if PRD doda widok następnego dnia albo pojawi się wstrzykiwalny zegar serwera. (Source: research/plan of change testing-e2e-flow-and-gates.)
+- **Drugi test e2e i e2e z dwoma kontami** — jeden przepływ krytyczny wystarcza (cost × signal), izolacja kont zostaje w pgTAP. Re-evaluate if regresja przeglądarkowa ominie obecny test albo pojawi się współdzielenie danych. (Source: plan of change testing-e2e-flow-and-gates.)
+- **Weryfikacja kroku e2e w CI do pierwszego pusha na zdalne repozytorium** — krok w jobie `smoke` (wiersz 3.5 planu) był sprawdzony tylko lokalnie, brak zdalnego repozytorium. Re-evaluate at the first push. (Source: Phase 3 of change testing-e2e-flow-and-gates.)
+- **e2e tylko w Chromium** — projekt `chromium` wystarcza dla aplikacji z jednym użytkownikiem. Re-evaluate if pojawi się błąd specyficzny dla przeglądarki (Safari/Firefox) lub szerszy krąg użytkowników. (Source: plan of change testing-e2e-flow-and-gates.)
+- **e2e poza hookami agenta** — za wolne (build + preview + przeglądarka); hooki to eslint, `astro check` i `vitest run`, e2e działa lokalnie na żądanie i w CI. Re-evaluate if e2e skróci się do kilkunastu sekund albo agent zacznie często łamać przepływ bez wykrycia lokalnie. (Source: Phase 3 of change testing-e2e-flow-and-gates.)
 
 ## 8. Freshness Ledger
 
 - Strategy (§1–§5) last reviewed: 2026-10-26
-- Stack versions last verified: 2026-10-27 (bez zmian wersji; `vitest` 5.0.5)
+- Stack versions last verified: 2026-10-30 (Playwright 1.64.1; bez zmian pozostałych wersji, `vitest` 5.0.5)
 - AI-native tool references last verified: 2026-10-26 (brak narzędzi AI-native w planie)
 
 Refresh (`/10x-test-plan --refresh`) when:
