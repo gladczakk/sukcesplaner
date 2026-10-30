@@ -1,7 +1,7 @@
 ---
 change_id: testing-data-integrity-isolation
 title: Testy spójności danych i izolacji kont (Faza 3 rolloutu)
-status: implemented
+status: impl_reviewed
 created: 2026-10-27
 updated: 2026-10-30
 archived_at: null

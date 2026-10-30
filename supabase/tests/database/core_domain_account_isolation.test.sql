@@ -196,19 +196,19 @@ begin
   return next throws_ok(
     public.zz_iso_q($q$insert into public.projects (user_id, name, life_area, due_date)
       values ('{yu}', 'podszywka', 'dom', '2026-12-31')$q$, x, y),
-    '42501', null, xl || ': nie wstawi projektu z user_id konta ' || yl);
+    '42501', 'new row violates row-level security policy for table "projects"', xl || ': nie wstawi projektu z user_id konta ' || yl);
   return next throws_ok(
     public.zz_iso_q($q$insert into public.milestones (user_id, project_id, name, due_date)
       values ('{yu}', '{yp}', 'podszywka', '2026-10-20')$q$, x, y),
-    '42501', null, xl || ': nie wstawi milestona z user_id konta ' || yl);
+    '42501', 'new row violates row-level security policy for table "milestones"', xl || ': nie wstawi milestona z user_id konta ' || yl);
   return next throws_ok(
     public.zz_iso_q($q$insert into public.tasks (user_id, milestone_id, title)
       values ('{yu}', '{ym}', 'podszywka')$q$, x, y),
-    '42501', null, xl || ': nie wstawi zadania z user_id konta ' || yl);
+    '42501', 'new row violates row-level security policy for table "tasks"', xl || ': nie wstawi zadania z user_id konta ' || yl);
   return next throws_ok(
     public.zz_iso_q($q$insert into public.task_occurrences (task_id, user_id, occurrence_date, state)
       values ('{yr1}', '{yu}', '2026-10-21', 'done')$q$, x, y),
-    '42501', null, xl || ': nie wstawi wystapienia z user_id konta ' || yl);
+    '42501', 'new row violates row-level security policy for table "task_occurrences"', xl || ': nie wstawi wystapienia z user_id konta ' || yl);
 
   -- ---- Wlasne dziecko pod cudzym rodzicem (4): 23503 ----
   return next throws_ok(
@@ -229,6 +229,8 @@ begin
     '23503', null, xl || ': wlasne wystapienie moved pod zadaniem konta ' || yl || ' odrzucone (klucz obcy)');
 
   -- ---- Wariant klucza: istniejaca u ofiary data (1), kod zaobserwowany ----
+  -- EXPECTED TO CHANGE: obserwacja znanego ryzyka (test-plan.md §7), nie wymaganie;
+  -- utwardzenie klucza (np. user_id w kluczu unikalnym) ma prawo zmienic ten kod na 23503.
   return next throws_ok(
     public.zz_iso_q($q$insert into public.task_occurrences (task_id, user_id, occurrence_date, state)
       values ('{yr1}', '{xu}', '2026-10-14', 'done')$q$, x, y),
@@ -237,13 +239,13 @@ begin
   -- ---- Przepiecie wlasnego wiersza na cudze konto (3): 42501 ----
   return next throws_ok(
     public.zz_iso_q($q$update public.projects set user_id = '{yu}' where id = '{xp}'$q$, x, y),
-    '42501', null, xl || ': nie przepnie wlasnego projektu na konto ' || yl);
+    '42501', 'new row violates row-level security policy for table "projects"', xl || ': nie przepnie wlasnego projektu na konto ' || yl);
   return next throws_ok(
     public.zz_iso_q($q$update public.milestones set user_id = '{yu}' where id = '{xm}'$q$, x, y),
-    '42501', null, xl || ': nie przepnie wlasnego milestona na konto ' || yl);
+    '42501', 'new row violates row-level security policy for table "milestones"', xl || ': nie przepnie wlasnego milestona na konto ' || yl);
   return next throws_ok(
     public.zz_iso_q($q$update public.tasks set user_id = '{yu}' where id = '{xt}'$q$, x, y),
-    '42501', null, xl || ': nie przepnie wlasnego zadania na konto ' || yl);
+    '42501', 'new row violates row-level security policy for table "tasks"', xl || ': nie przepnie wlasnego zadania na konto ' || yl);
 
   -- ---- Kontrola pozytywna: wlasny rekord mozna zmienic (2) ----
   return next lives_ok(

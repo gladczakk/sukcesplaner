@@ -161,7 +161,7 @@ the relevant rollout phase ships; before that, the sub-section reads
 - **Warstwa**: wyłącznie pgTAP na prawdziwej bazie. `vitest` ze stubem klienta nie nadaje się do #6 i #7: stub nie ma RLS ani kaskad, więc kłamałby dokładnie o tym, co chcemy dowieść (§2, „mock bazy, który kłamie o kaskadach").
 - **Location**: `supabase/tests/database/`; **Naming**: `core_domain_<topic>.test.sql`; **Run locally**: `npm run test:db` (wymaga `npx supabase start` i Dockera).
 - **Reference tests**: `supabase/tests/database/core_domain_milestone_list_integrity.test.sql` (reguła milestona po edycji/usunięciu, kaskady) i `supabase/tests/database/core_domain_account_isolation.test.sql` (izolacja dwóch kont).
-- **Reguła milestona (#6)**: scenariusz to sekwencja stan → mutacja jako `authenticated` (ten sam `update`/`delete` co aplikacja) → `today_list(p_today)` dla stałej daty → `results_eq` z wierszami wpisanymi ręcznie. Każdy scenariusz ma własny projekt, a asercje filtrują po `project_id`; projekt kontrolny z identyczną strukturą dowodzi, że mutacja nie dotknęła cudzego poddrzewa. Kaskady sprawdzamy licznością `task_occurrences` (w tym stan `moved`) dla usuniętego poddrzewa i dla kontrolnego.
+- **Reguła milestona (#6)**: scenariusz to sekwencja stan → mutacja jako `authenticated` (ten sam `update`/`delete` co aplikacja) → `today_list(p_today)` dla stałej daty → `results_eq` z wierszami wpisanymi ręcznie. Każdy scenariusz ma własny projekt, a asercje filtrują po `project_id`; w scenariuszach usunięć projekt kontrolny z identyczną strukturą dowodzi, że mutacja nie dotknęła cudzego poddrzewa. Kaskady sprawdzamy licznością `task_occurrences` (w tym stan `moved`) dla usuniętego poddrzewa i dla kontrolnego.
 - **Oracle**: z PRD (FR-003, FR-005, Business Logic, Access Control), nigdy z ciała `today_list`; reguły projektowe (np. „najbliższy = niezamknięty o najmniejszym `due_date`, `seq`") oznacz w nagłówku jako decyzje, nie PRD.
 - **Izolacja (#7)**: symetryczne drzewo danych na konto i ten sam zestaw prób A→B oraz B→A (jedna funkcja prób w pliku wołana dwa razy z zamienionymi aktorami, bez kopiowania asercji; funkcje pomocnicze znikają z `rollback`). Odczyty ofiary muszą być puste, także dla `today_list` (dzień dobrany tak, by dane ofiary dawały wiersze, gdyby były widoczne).
 - **Stan ofiary jako `postgres`**: RLS milczy przy `update`/`delete` cudzego wiersza (0 wierszy, brak błędu), więc sam brak błędu niczego nie dowodzi. Po serii ataków `reset role` i sprawdź jako `postgres` nazwy, `user_id` i liczność dzieci ofiary (np. delete projektu przez obce konto zostawia milestony, zadania i odhaczenia bez zmian). Zapisy z cudzym `user_id` dają `42501`, a własne dziecko pod cudzym rodzicem `23503`.
@@ -207,7 +207,7 @@ contributors should respect these unless the underlying assumption changes.
 ## 8. Freshness Ledger
 
 - Strategy (§1–§5) last reviewed: 2026-10-26
-- Stack versions last verified: 2026-10-29 (bez zmian wersji; `vitest` 5.0.5)
+- Stack versions last verified: 2026-10-27 (bez zmian wersji; `vitest` 5.0.5)
 - AI-native tool references last verified: 2026-10-26 (brak narzędzi AI-native w planie)
 
 Refresh (`/10x-test-plan --refresh`) when:

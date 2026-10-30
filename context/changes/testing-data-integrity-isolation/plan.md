@@ -67,7 +67,7 @@ Asercje jako `results_eq` z jawnie wpisanymi wierszami (bez porównywania z zapy
 #### Automated Verification:
 
 - Nowy plik przechodzi: `npm run test:db` (cały katalog zielony, plik widoczny w wyniku)
-- Break-check reguły wyboru: wariant `today_list` z `order by m.project_id, m.due_date desc, m.seq` powoduje czerwone asercje „przesunięcie daty" i „remis"; po przywróceniu zielone
+- Break-check reguły wyboru: wariant `today_list` z `order by m.project_id, m.due_date desc, m.seq` powoduje czerwone asercje „przesunięcie daty"; „remis" łapie dopiero wariant `m.seq desc`; po przywróceniu zielone
 - Break-check filtra zamkniętych: wariant `today_list` bez `where m.completed_at is null` powoduje czerwone asercje „zamknięcie/ponowne otwarcie"; po przywróceniu zielone
 - Break-check kaskady: wariant FK `task_occurrences_task_owner_fkey` bez `on delete cascade` (lub `on delete restrict`) powoduje czerwone asercje kaskady; po przywróceniu zielone
 - Lint/format nie dotyczą SQL; `npm run lint` i `npm run test:app` pozostają zielone (brak zmian w `src`)
@@ -206,7 +206,7 @@ Brak migracji i brak zmian schematu. Wycofanie: usunięcie dwóch plików testow
 #### Automated
 
 - [x] 1.1 Nowy plik przechodzi: `npm run test:db` (cały katalog zielony, plik widoczny w wyniku) — 6ab0ff3
-- [x] 1.2 Break-check reguły wyboru: wariant `today_list` z `order by m.project_id, m.due_date desc, m.seq` powoduje czerwone asercje „przesunięcie daty" i „remis"; po przywróceniu zielone — 6ab0ff3
+- [x] 1.2 Break-check reguły wyboru: wariant `today_list` z `order by m.project_id, m.due_date desc, m.seq` powoduje czerwone asercje „przesunięcie daty"; „remis" łapie dopiero wariant `m.seq desc`; po przywróceniu zielone — 6ab0ff3
 - [x] 1.3 Break-check filtra zamkniętych: wariant `today_list` bez `where m.completed_at is null` powoduje czerwone asercje „zamknięcie/ponowne otwarcie"; po przywróceniu zielone — 6ab0ff3
 - [x] 1.4 Break-check kaskady: wariant FK `task_occurrences_task_owner_fkey` bez `on delete cascade` powoduje czerwone asercje kaskady; po przywróceniu zielone — 6ab0ff3
 - [x] 1.5 `npm run lint` i `npm run test:app` pozostają zielone (brak zmian w `src`) — 6ab0ff3
