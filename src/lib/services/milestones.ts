@@ -1,7 +1,7 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/db/database.types";
 import { logError, logWarn, type LogContext } from "@/lib/log";
-import { GENERIC_ERROR, SESSION_ERROR, readFailure } from "@/lib/services/postgrest";
+import { GENERIC_ERROR, SESSION_ERROR, notFound, readFailure } from "@/lib/services/postgrest";
 import { plural } from "@/lib/format";
 import type { Milestone, MilestoneListItem, TaskStatus } from "@/types";
 import type { MilestoneFieldErrors, MilestoneInput } from "@/lib/validation/milestone";
@@ -31,12 +31,6 @@ function parseOpenTaskCount(message: string): string | null {
   return digits.length > 0 && /^\d+$/.test(digits) ? digits : null;
 }
 
-/** Logs why an empty result became `not_found` (the caller still just sees `not_found`). */
-function notFound(event: string, ctx: LogContext): { status: "not_found" } {
-  logWarn("milestones", event, ctx);
-  return { status: "not_found" };
-}
-
 function translateError(error: PostgrestError, ctx?: LogContext): MilestoneFailure {
   if (error.code === "23514") {
     if (error.message.includes("Data milestona")) {
@@ -64,7 +58,7 @@ function translateError(error: PostgrestError, ctx?: LogContext): MilestoneFailu
   }
   if (error.code === "23503") {
     const constraint = /constraint "([^"]+)"/.exec(error.message)?.[1];
-    return notFound(constraint ? `fk_violation:${constraint}` : "fk_violation", ctx ?? {});
+    return notFound("milestones", constraint ? `fk_violation:${constraint}` : "fk_violation", ctx ?? {});
   }
   logError("milestones", readFailure(error), ctx);
   // 42501: RLS/permission; PGRST301/PGRST303: the JWT is missing, invalid or expired.
@@ -122,7 +116,7 @@ export async function updateMilestone(
     .select();
   if (error) return translateError(error, log);
   const row = data.at(0);
-  return row ? { status: "ok", milestone: row } : notFound("zero_rows", log);
+  return row ? { status: "ok", milestone: row } : notFound("milestones", "zero_rows", log);
 }
 
 /**
@@ -139,7 +133,7 @@ export async function setMilestoneCompleted(
   const log: LogContext = { ...ctx, op: "setMilestoneCompleted", projectId, milestoneId: id };
   const current = await supabase.from("milestones").select().eq("id", id).eq("project_id", projectId).maybeSingle();
   if (current.error) return translateError(current.error, log);
-  if (!current.data) return notFound("target_not_found", log);
+  if (!current.data) return notFound("milestones", "target_not_found", log);
   if ((current.data.completed_at !== null) === completed) return { status: "ok", milestone: current.data };
 
   // Conditional on the state we just read, so a concurrent request cannot overwrite `completed_at`.
@@ -186,5 +180,5 @@ export async function deleteMilestone(
     const result = translateError(error, log);
     return result.status === "unavailable" ? result : { status: "unavailable", error: GENERIC_ERROR };
   }
-  return data.length > 0 ? { status: "ok" } : notFound("zero_rows", log);
+  return data.length > 0 ? { status: "ok" } : notFound("milestones", "zero_rows", log);
 }

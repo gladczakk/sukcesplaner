@@ -72,22 +72,58 @@ describe("logError", () => {
     ]);
   });
 
-  it("keeps status, code, details and hint of the error itself", () => {
+  it("keeps status, code and hint of the error itself", () => {
     const error = Object.assign(new Error("Invalid login"), {
       status: 400,
       code: "invalid_credentials",
-      details: "some details",
       hint: "some hint",
     });
 
     logError("auth", error);
 
-    expect(lastLine(consoleError)).toMatchObject({
-      status: 400,
-      code: "invalid_credentials",
-      details: "some details",
-      hint: "some hint",
-    });
+    expect(lastLine(consoleError)).toMatchObject({ status: 400, code: "invalid_credentials", hint: "some hint" });
+  });
+
+  // PostgREST `details` of a constraint violation quotes the row ("Key (name)=(Moj projekt) already exists"), so it is
+  // user content: only codes whose details carry no row values may keep it.
+  it.each([
+    { code: "23505", details: "Key (name)=(Moj projekt) already exists." },
+    { code: "23514", details: "Failing row contains (3f2a, 9c1d, Kupić mleko)." },
+    { code: "23503", details: "Key (project_id)=(3f2a) is not present in table projects." },
+    { code: undefined, details: "Key (email)=(ala@example.com) already exists." },
+  ])("drops details of a row-quoting error (code $code), at the top level and in the cause", ({ code, details }) => {
+    const postgrest = { name: "PostgrestError", message: "violation", code, details };
+    logError("db", Object.assign(new Error("violation", { cause: postgrest }), { code, details }));
+
+    const entry = lastLine(consoleError);
+    expect(entry).not.toHaveProperty("details");
+    expect((entry.cause as Record<string, unknown>[])[0]).not.toHaveProperty("details");
+    expect(JSON.stringify(entry)).not.toContain("Moj projekt");
+  });
+
+  it.each(["42501", "PGRST303", "PGRST301"])("keeps details of code %s, which carries no row values", (code) => {
+    logError("db", Object.assign(new Error("denied"), { code, details: "JWT expired" }));
+
+    expect(lastLine(consoleError)).toMatchObject({ code, details: "JWT expired" });
+  });
+
+  it("clips an oversized stack and message so the line stays small, valid JSON", () => {
+    const error = new Error("m".repeat(10_000), { cause: new Error("c".repeat(10_000)) });
+    error.stack = "s".repeat(10_000);
+
+    logError("big", error);
+
+    const entry = lastLine(consoleError);
+    expect((entry.message as string).length).toBeLessThanOrEqual(2000);
+    expect((entry.stack as string).length).toBeLessThanOrEqual(2000);
+    expect(((entry.cause as Record<string, string>[])[0]?.message ?? "").length).toBeLessThanOrEqual(2000);
+    expect(JSON.stringify(entry).length).toBeLessThan(8000);
+  });
+
+  it("clips an oversized non-Error value", () => {
+    logError("big", "x".repeat(10_000));
+
+    expect((lastLine(consoleError).message as string).length).toBeLessThanOrEqual(2000);
   });
 
   it.each([

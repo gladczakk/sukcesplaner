@@ -1,7 +1,7 @@
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/db/database.types";
-import { logError, logWarn, type LogContext } from "@/lib/log";
-import { GENERIC_ERROR, SESSION_ERROR, readFailure } from "@/lib/services/postgrest";
+import { logError, type LogContext } from "@/lib/log";
+import { GENERIC_ERROR, SESSION_ERROR, notFound, readFailure } from "@/lib/services/postgrest";
 import { LIFE_AREAS, type LifeArea, type Project } from "@/types";
 import type { ProjectFieldErrors, ProjectInput } from "@/lib/validation/project";
 
@@ -28,12 +28,6 @@ function toProject(row: Database["public"]["Tables"]["projects"]["Row"]): Projec
     throw new Error(`Unexpected life_area value: ${row.life_area}`);
   }
   return { ...row, life_area: row.life_area };
-}
-
-/** Logs why an empty result became `not_found` (the caller still just sees `not_found`). */
-function notFound(event: string, ctx: LogContext): { status: "not_found" } {
-  logWarn("projects", event, ctx);
-  return { status: "not_found" };
 }
 
 function translateError(error: PostgrestError, ctx?: LogContext): Exclude<ProjectCreateResult, { status: "ok" }> {
@@ -112,7 +106,7 @@ export async function updateProject(
   const { data, error } = await supabase.from("projects").update(input).eq("id", id).select();
   if (error) return translateError(error, log);
   const row = data.at(0);
-  return row ? { status: "ok", project: toProject(row) } : notFound("zero_rows", log);
+  return row ? { status: "ok", project: toProject(row) } : notFound("projects", "zero_rows", log);
 }
 
 export async function deleteProject(supabase: Client, id: string, ctx?: LogContext): Promise<ProjectDeleteResult> {
@@ -122,5 +116,5 @@ export async function deleteProject(supabase: Client, id: string, ctx?: LogConte
     const result = translateError(error, log);
     return result.status === "unavailable" ? result : { status: "unavailable", error: GENERIC_ERROR };
   }
-  return data.length > 0 ? { status: "ok" } : notFound("zero_rows", log);
+  return data.length > 0 ? { status: "ok" } : notFound("projects", "zero_rows", log);
 }

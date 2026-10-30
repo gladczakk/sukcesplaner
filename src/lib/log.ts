@@ -15,6 +15,11 @@ export interface LogContext {
 
 const CONTEXT_KEYS = ["userId", "requestId", "projectId", "milestoneId", "taskId", "op", "step"] as const;
 const MAX_CAUSE_DEPTH = 3;
+const MAX_FIELD_LENGTH = 2000; // a line Workers truncates is no longer valid JSON
+
+function clip(value: string): string {
+  return value.length > MAX_FIELD_LENGTH ? value.slice(0, MAX_FIELD_LENGTH) : value;
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -22,7 +27,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function readString(source: Record<string, unknown>, key: string): string | undefined {
   const value = source[key];
-  return typeof value === "string" ? value : undefined;
+  return typeof value === "string" ? clip(value) : undefined;
 }
 
 function readStatus(source: Record<string, unknown>): number | string | undefined {
@@ -35,18 +40,25 @@ function isErrorLike(value: unknown): value is Record<string, unknown> {
 }
 
 function describeValue(value: unknown): string {
-  if (typeof value === "string") return value;
+  if (typeof value === "string") return clip(value);
   try {
     const json = JSON.stringify(value) as string | undefined; // undefined for undefined/functions/symbols
-    return json ?? String(value);
+    return clip(json ?? String(value));
   } catch {
     return Object.prototype.toString.call(value);
   }
 }
 
+/** `details` of a constraint violation quotes the row (user content and ids), so only these codes may keep it. */
+function detailsAreSafe(source: Record<string, unknown>): boolean {
+  const code = readString(source, "code");
+  return code === "42501" || (code?.startsWith("PGRST") ?? false);
+}
+
 function pick(source: Record<string, unknown>, keys: readonly string[]): Record<string, unknown> {
   const picked: Record<string, unknown> = {};
   for (const key of keys) {
+    if (key === "details" && !detailsAreSafe(source)) continue;
     const value = key === "status" ? readStatus(source) : readString(source, key);
     if (value !== undefined) picked[key] = value;
   }

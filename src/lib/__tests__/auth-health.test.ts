@@ -24,6 +24,8 @@ describe("classifyAuthError", () => {
     ["retryable error without status", { name: "AuthRetryableFetchError", message: "fetch failed" }],
     ["HTTP 500", { name: "AuthApiError", status: 500, message: "boom" }],
     ["HTTP 503", { name: "AuthUnknownError", status: 503, message: "unavailable" }],
+    // Supabase Auth throttling signed-in users must not look like a sign-out.
+    ["rate limit (429)", { name: "AuthApiError", status: 429, code: "over_request_rate_limit", message: "rate limit" }],
   ])("treats %s as an outage", (_label, error) => {
     expect(classifyAuthError(error)).toBe("outage");
   });
