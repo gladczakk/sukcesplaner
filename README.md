@@ -1,192 +1,69 @@
-# 10x Astro Starter
+# SukcesPlaner
 
-![](./public/template.png)
+Planer dla osób, które prowadzą kilka długoterminowych projektów naraz (dom, sport, praca). Zamiast ręcznie układać dzień, aplikacja sama wylicza **listę zadań na dziś** na podstawie projektów, milestone'ów, terminów i zadań powtarzalnych.
 
-A modern, opinionated starter template for building fast, accessible web applications.
+**Działająca aplikacja:** https://sukcesplaner.sukcesplaner-kj.workers.dev
 
-## Tech Stack
+Projekt powstał w ramach certyfikacji 10xDevs 4.0 (blok 10xBuilder), według łańcucha: PRD → roadmapa → plan testów → zmiany (research → plan → implementacja → przegląd → archiwum).
 
-- [Astro](https://astro.build/) v7 - Modern web framework with server-first rendering
-- [React](https://react.dev/) v19 - UI library for interactive components
-- [TypeScript](https://www.typescriptlang.org/) v6 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4 - Utility-first CSS framework
-- [Supabase](https://supabase.com/) - Authentication and backend-as-a-service
-- [Cloudflare Workers](https://workers.cloudflare.com/) - Edge deployment runtime
+## Co potrafi
 
-## Prerequisites
+- **Logowanie i rejestracja** (e-mail + hasło, Supabase Auth). Każdy użytkownik widzi wyłącznie swoje dane (RLS w bazie).
+- **Projekty, milestone'y i zadania** z pełnym CRUD (dodaj, wylistuj, edytuj, usuń).
+- **Lista „Na dziś”** posortowana wg pilności: zadania z własnym terminem lub z terminem milestona, w tym zaległe i odroczone.
+- **Zadania powtarzalne** (co N dni lub w wybrane dni tygodnia) z akcjami na pojedynczym wystąpieniu: zrobione, przenieś na jutro.
+- **Reguły biznesowe** wymuszane w bazie (triggery i funkcje): zamykanie milestona, spójność terminów zadań i rytmów powtarzania.
+- **Diagnozowalne błędy**: logi w jednej linii JSON, bez danych osobowych, z `requestId`; awaria Supabase Auth zwraca 503 zamiast cichego wylogowania.
 
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
+## Stack
 
-## Getting Started
+Astro 7 (SSR) · React 19 · TypeScript · Tailwind 4 · shadcn/ui · Supabase (Postgres, Auth, RLS) · Cloudflare Workers · Vitest · Playwright · pgTAP.
 
-1. Clone the repository:
+## Uruchomienie lokalne
 
-```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
-```
-
-2. Install dependencies:
+Wymagania: Node.js 22.14.0 (`.nvmrc`), Docker (lokalny Supabase).
 
 ```bash
 npm install
+npx supabase start          # lokalny Supabase; wypisze API URL i klucz anon
+cp .env.example .env        # uzupełnij SUPABASE_URL i SUPABASE_KEY wartościami z powyższego
+cp .env .dev.vars           # sekrety dla lokalnego runtime Cloudflare
+npm run dev                 # http://localhost:4321
 ```
 
-3. Set up Supabase and configure environment variables — see [Supabase Configuration](#supabase-configuration) below.
+## Testy i jakość
 
-4. Create a `.dev.vars` file for local Cloudflare dev secrets:
+| Polecenie | Co sprawdza |
+| --- | --- |
+| `npm run lint` | ESLint (typowane reguły) |
+| `npx astro check` | Typy |
+| `npm run test:unit` | Testy skryptów (`scripts/`) |
+| `npm run test:app` | Vitest: usługi, logger, middleware |
+| `npm run test:db` | pgTAP: RLS, triggery, reguły danych (wymaga `supabase start`) |
+| `npm run test:e2e` | Playwright: krytyczny przepływ w przeglądarce |
+| `npm run smoke` | Test dymny przepływu auth i API na działającym serwerze (`BASE_URL`) |
+
+CI (GitHub Actions, `.github/workflows/ci.yml`) uruchamia całość na każdym pushu i PR do `master`. Testy są dobrane do ryzyk z planu testów, a nie do pokrycia kodu: [context/foundation/test-plan.md](context/foundation/test-plan.md).
+
+## Wdrożenie
+
+Cloudflare Workers + Supabase w chmurze.
 
 ```bash
-cp .env.example .dev.vars
+npx supabase link --project-ref <ref> && npx supabase db push    # migracje
+npx wrangler secret put SUPABASE_URL                              # sekrety workera
+npx wrangler secret put SUPABASE_KEY                              # klucz anon/publishable
+npm run build && npx wrangler deploy
 ```
 
-5. Run the development server:
+## Dokumentacja projektu
 
-```bash
-npm run dev
-```
+Cały proces jest zapisany w repozytorium, w `context/`:
 
-## Available Scripts
-
-- `npm run dev` - Start development server (Cloudflare workerd runtime)
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint with type-checked rules
-- `npm run lint:fix` - Auto-fix ESLint issues
-- `npm run format` - Run Prettier
-- `npm run smoke` - Smoke test the auth flow against a running server (`BASE_URL`, defaults to `http://localhost:4321`)
-
-## Project Structure
-
-```md
-.
-├── src/
-│ ├── layouts/ # Astro layouts
-│ ├── pages/ # Astro pages
-│ │ └── api/ # API endpoints
-│ ├── components/ # UI components (Astro & React)
-│ └── assets/ # Static assets
-├── public/ # Public assets
-├── wrangler.jsonc # Cloudflare Workers config
-```
-
-## Supabase Configuration
-
-This project uses [Supabase](https://supabase.com/) for authentication. Environment variables are declared via Astro's `astro:env` schema and are treated as **server-only secrets** — they are never exposed to the client.
-
-### First-time setup (local, no cloud project needed)
-
-Requires [Docker](https://www.docker.com/) and ~7 GB RAM.
-
-1. Create your `.env` file:
-
-```bash
-cp .env.example .env
-```
-
-2. Initialize the local Supabase project (creates a `supabase/` config folder):
-
-```bash
-npx supabase init
-```
-
-3. Start the local stack (downloads Docker images on first run):
-
-```bash
-npx supabase start
-```
-
-4. Copy the credentials printed by the CLI into your `.env` and `.dev.vars`:
-
-```
-SUPABASE_URL=http://127.0.0.1:54321
-SUPABASE_KEY=<anon key from CLI output>
-```
-
-5. To stop the stack when done:
-
-```bash
-npx supabase stop
-```
-
-The local Studio UI is available at `http://localhost:54323`.
-
-No database tables or migrations are required — this project uses Supabase Auth's built-in `auth.users` table only.
-
-### Using a cloud Supabase project instead
-
-If you prefer to use a hosted Supabase project, add these variables to your `.env` and `.dev.vars` files:
-
-| Variable       | Description                                                |
-| -------------- | ---------------------------------------------------------- |
-| `SUPABASE_URL` | Project URL from Supabase dashboard → Settings → API       |
-| `SUPABASE_KEY` | `anon` public key from Supabase dashboard → Settings → API |
-
-```
-SUPABASE_URL=https://<project-ref>.supabase.co
-SUPABASE_KEY=<anon-key>
-```
-
-### Email confirmation in local development
-
-By default Supabase requires email confirmation before a user can sign in. To skip this during local development:
-
-1. Open the Supabase dashboard for your project
-2. Go to **Authentication → Email → Confirm email**
-3. Toggle it **off**
-
-Users can then sign in immediately after sign-up without clicking a confirmation link.
-
-### Auth routes
-
-| Route                 | Description                                                            |
-| --------------------- | ---------------------------------------------------------------------- |
-| `/auth/signin`        | Email/password sign-in form                                            |
-| `/auth/signup`        | Email/password sign-up form                                            |
-| `/auth/confirm-email` | Post-signup "check your inbox" page                                    |
-| `/`                   | Redirects signed-in users to `/today`, everyone else to `/auth/signin` |
-
-Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication.
-
-## Deployment
-
-This project deploys to [Cloudflare Workers](https://workers.cloudflare.com/).
-
-1. Build the project:
-
-```bash
-npm run build
-```
-
-2. Deploy with Wrangler:
-
-```bash
-npx wrangler deploy
-```
-
-Set `SUPABASE_URL` and `SUPABASE_KEY` as secrets in your Cloudflare dashboard or via `npx wrangler secret put`.
-
-## Smoke test
-
-`scripts/smoke.mjs` is a dependency-free Node script that walks the whole auth flow (sign-up, sign-in, protected page, sign-out) over HTTP. Run it against the dev server or the production preview after dependency upgrades:
-
-```bash
-npm run dev            # or: npm run build && npm run preview
-BASE_URL=http://localhost:4321 npm run smoke
-```
-
-It needs a reachable Supabase instance (local or cloud) with email confirmation disabled.
-
-> **Note:** this script exists primarily to guard the development of the starter itself — it is a fast sanity check that dependency upgrades did not break the build, the Cloudflare adapter or the Supabase auth flow. It is **not** a substitute for a real test suite. Once you build your own product on top of this starter, add proper tests (unit, integration, end-to-end) suited to your application.
-
-## CI
-
-GitHub Actions runs two jobs on every push and PR to `master`:
-
-- **ci** — lint, `astro check` and build. Configure `SUPABASE_URL` and `SUPABASE_KEY` as repository secrets for the build step.
-- **smoke** — starts a local Supabase via the Supabase CLI, builds, serves the production preview on the Cloudflare runtime and runs `npm run smoke` against it. No secrets required.
-
-## License
-
-MIT
+- [PRD](context/foundation/prd.md) i [notatki z kształtowania](context/foundation/shape-notes.md): problem, persona, wymagania.
+- [Roadmapa](context/foundation/roadmap.md): milestone'y i slice'y pracy.
+- [Stack](context/foundation/tech-stack.md) i [infrastruktura](context/foundation/infrastructure.md): wybór technologii i platformy.
+- [Plan testów](context/foundation/test-plan.md): ryzyka, etapy wdrożenia testów, cookbook.
+- [System projektowy](context/foundation/design-system/design-system.md) i [lekcje](context/foundation/lessons.md).
+- `context/archive/`: zamknięte zmiany z planami, badaniami i przeglądami; `context/audits/`: audyty obserwowalności.
+- [CLAUDE.md](CLAUDE.md): zasady pracy agenta w tym repozytorium.
