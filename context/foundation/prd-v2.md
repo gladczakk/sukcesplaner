@@ -1,7 +1,7 @@
 ---
 project: SukcesPlaner
 version: 2
-status: draft
+status: locked
 created: 2026-10-16
 context_type: brownfield
 product_type: web-app
