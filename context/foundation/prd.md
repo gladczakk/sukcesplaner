@@ -1,7 +1,7 @@
 ---
 project: SukcesPlaner
 version: 1
-status: draft
+status: locked
 created: 2026-09-19
 context_type: greenfield
 product_type: web-app
